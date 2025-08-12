@@ -9,8 +9,9 @@ export default function Home() {
     <>
       <Hero
         imageUrl="https://placehold.co/1920x1080.png"
-        imageHint="sports club action"
+        imageHint="resort pool"
         title="Welcome to Vindhya Club"
+        subtitle="Join our sports club today - where passion, skill, and community thrive!"
         height="h-[calc(100vh-5rem)]"
       />
       <EventsSection />
