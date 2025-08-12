@@ -12,6 +12,14 @@ export const navLinks = [
 
 export const events: Event[] = [
   {
+    title: 'New Year Celebration',
+    date: '2024-12-31',
+    description:
+      'Dance 8:30 pm onwards No Entry after 10:30pm',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'new year party',
+  },
+  {
     title: 'Annual Tennis Tournament',
     date: '2024-08-15',
     description:
