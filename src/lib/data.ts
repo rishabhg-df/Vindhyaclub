@@ -1,4 +1,3 @@
-import { Dumbbell, Swords, Trophy, Users } from 'lucide-react';
 import type { Event, Service, Facility, TeamMember } from './types';
 
 export const navLinks = [
@@ -55,28 +54,29 @@ export const events: Event[] = [
 
 export const services: Service[] = [
   {
-    title: 'Personal Training',
-    description:
-      'Get one-on-one guidance from our certified personal trainers to achieve your fitness goals.',
-    icon: Dumbbell,
+    title: 'Sports',
+    description: 'We provides all the sports and activities in our club.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'sports equipment',
   },
   {
-    title: 'Group Classes',
+    title: 'Kids Zone',
     description:
-      'Join our dynamic group classes, from yoga to HIIT, suitable for all fitness levels.',
-    icon: Users,
+      'We have largest garden in the locality with kids play area.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'kids playing',
   },
   {
-    title: 'Sports Coaching',
-    description:
-      'Improve your skills in tennis, swimming, and more with our expert coaches.',
-    icon: Trophy,
+    title: 'Restaurant',
+    description: 'The best and choicest cuisine in our Restaurant.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'gourmet food',
   },
   {
-    title: 'Fencing Lessons',
-    description:
-      'Learn the art of fencing with our experienced instructors. Equipment provided.',
-    icon: Swords,
+    title: 'Bar',
+    description: 'We serve best beverages in our bar for our',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'cocktail bar',
   },
 ];
 

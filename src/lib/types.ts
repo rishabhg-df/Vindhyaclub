@@ -16,7 +16,8 @@ export type Event = {
 export type Service = {
   title: string;
   description: string;
-  icon: LucideIcon;
+  image: string;
+  imageHint: string;
 };
 
 export type Facility = {

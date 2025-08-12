@@ -1,4 +1,5 @@
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import Image from 'next/image';
+import { Card, CardContent } from '@/components/ui/card';
 import type { Service } from '@/lib/types';
 
 type ServiceCardProps = {
@@ -6,18 +7,25 @@ type ServiceCardProps = {
 };
 
 export function ServiceCard({ service }: ServiceCardProps) {
-  const Icon = service.icon;
   return (
-    <Card className="h-full text-center transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/20">
-      <CardHeader>
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Icon className="h-8 w-8" />
+    <Card className="overflow-hidden bg-card text-card-foreground shadow-lg">
+      <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="relative h-48 md:h-full">
+          <Image
+            src={service.image}
+            alt={service.title}
+            data-ai-hint={service.imageHint}
+            fill
+            className="object-cover"
+          />
         </div>
-      </CardHeader>
-      <CardContent>
-        <CardTitle className="mb-2 font-headline text-xl">{service.title}</CardTitle>
-        <CardDescription>{service.description}</CardDescription>
-      </CardContent>
+        <div className="flex flex-col justify-center p-6">
+          <h3 className="mb-2 font-headline text-2xl font-bold">
+            {service.title}
+          </h3>
+          <p className="text-muted-foreground">{service.description}</p>
+        </div>
+      </div>
     </Card>
   );
 }

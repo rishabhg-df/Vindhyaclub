@@ -4,8 +4,8 @@ import { services } from '@/lib/data';
 
 export function ServicesSection() {
   return (
-    <Section title="Our Services" id="services" className="bg-card">
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+    <Section title="Our Services" id="services">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {services.map((service, index) => (
           <ServiceCard key={index} service={service} />
         ))}
