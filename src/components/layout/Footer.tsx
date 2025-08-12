@@ -1,42 +1,38 @@
 import Link from 'next/link';
-import { Club } from 'lucide-react';
+import { Mail, MapPin, Phone, ChevronRight } from 'lucide-react';
 
 export function Footer() {
-  const footerLinks = [
+  const links = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
     { href: '/events', label: 'Events' },
     { href: '/services', label: 'Services' },
     { href: '/facilities', label: 'Facilities' },
-    { href: '/contact', label: 'Contact' },
-    { href: '/signin', label: 'Sign In' },
   ];
 
   const otherLinks = [
+    { href: '#', label: 'Terms & Condition' },
     { href: '#', label: 'Privacy Policy' },
-    { href: '#', label: 'Terms of Service' },
-    { href: '#', label: 'Club Rules' },
+    { href: '/contact', label: 'Contact' },
+  ];
+
+  const contactDetails = [
+    { icon: Phone, content: '+91 1234567890', href: 'tel:+911234567890' },
+    { icon: Mail, content: 'vindhyaclub@example.com', href: 'mailto:vindhyaclub@example.com' },
+    { icon: MapPin, content: 'Vindhya Club, Satna.', href: '#' },
   ];
 
   return (
     <footer className="bg-black text-white">
       <div className="container mx-auto grid grid-cols-1 gap-8 px-4 py-12 md:grid-cols-4 md:px-6">
-        <div className="col-span-1 flex flex-col items-start gap-4 md:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-                <Club className="h-8 w-8 text-primary" />
-                <span className="font-headline text-2xl font-bold text-white">
-                Vindhya <span className="text-primary">Club</span>
-                </span>
-            </Link>
-            <p className="max-w-md text-muted-foreground">The premier destination for sports enthusiasts. Join our community and elevate your game.</p>
-        </div>
         
-        <div className="col-span-1">
-          <h3 className="mb-4 font-headline text-lg font-semibold">Quick Links</h3>
+        <div>
+          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">Links</h3>
           <ul className="space-y-2">
-            {footerLinks.map((link) => (
+            {links.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="transition-colors hover:text-primary">
+                <Link href={link.href} className="flex items-center gap-2 transition-colors hover:text-primary">
+                  <ChevronRight className="h-4 w-4 text-primary" />
                   {link.label}
                 </Link>
               </li>
@@ -44,18 +40,53 @@ export function Footer() {
           </ul>
         </div>
         
-        <div className="col-span-1">
-          <h3 className="mb-4 font-headline text-lg font-semibold">Contact</h3>
-          <address className="not-italic">
-            <p>123 Sports Lane, Fitness City</p>
-            <p>Phone: (123) 456-7890</p>
-            <p>Email: info@vindhyaclub.com</p>
-          </address>
+        <div>
+          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">Other Links</h3>
+          <ul className="space-y-2">
+            {otherLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="flex items-center gap-2 transition-colors hover:text-primary">
+                  <ChevronRight className="h-4 w-4 text-primary" />
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">Contact</h3>
+          <ul className="space-y-3">
+            {contactDetails.map((detail, index) => {
+              const Icon = detail.icon;
+              return (
+                <li key={index} className="flex items-center gap-3">
+                  <Icon className="h-5 w-5 text-primary" />
+                  <a href={detail.href} className="transition-colors hover:text-primary">
+                    {detail.content}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        
+        <div>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d80.8351536759954!3d24.57947797811091!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1721290823995!5m2!1sen!2sin"
+            width="100%"
+            height="200"
+            style={{ border: 0 }}
+            allowFullScreen={false}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="rounded-lg"
+          ></iframe>
         </div>
       </div>
       <div className="border-t border-gray-800 py-4">
-        <p className="text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Vindhya Club. All rights reserved.
+        <p className="text-center text-sm text-gray-400">
+          Copyright © {new Date().getFullYear()} Vindhya Club. All Rights Reserved
         </p>
       </div>
     </footer>
