@@ -1,45 +1,39 @@
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import type { Facility } from '@/lib/types';
 
 type FacilityCardProps = {
   facility: Facility;
-  isEven: boolean;
 };
 
-export function FacilityCard({ facility, isEven }: FacilityCardProps) {
-  const imageContainerClass = isEven
-    ? 'clip-triangle-bottom'
-    : 'clip-triangle-top';
-  const textOrderClass = isEven ? 'order-2' : 'order-1';
-  const imageOrderClass = isEven ? 'order-1' : 'order-2';
-
+export function FacilityCard({ facility }: FacilityCardProps) {
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className={cn('flex flex-col', textOrderClass)}>
-        <h3 className="font-headline text-2xl font-bold text-primary">
+    <Card className="h-full overflow-hidden text-center transition-transform duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20">
+      <CardHeader className="p-0">
+        <div className="relative h-56 w-full">
+          <Image
+            src={facility.image}
+            alt={facility.name}
+            data-ai-hint={facility.imageHint}
+            fill
+            className="object-cover"
+          />
+        </div>
+      </CardHeader>
+      <CardContent className="p-6">
+        <CardTitle className="font-headline text-2xl font-bold text-primary">
           {facility.name}
-        </h3>
-        <p className="mt-2 max-w-xs text-muted-foreground">
+        </CardTitle>
+        <CardDescription className="mt-2 text-muted-foreground">
           {facility.description}
-        </p>
-      </div>
-
-      <div
-        className={cn(
-          'relative mt-4 h-64 w-full max-w-sm',
-          imageContainerClass,
-          imageOrderClass
-        )}
-      >
-        <Image
-          src={facility.image}
-          alt={facility.name}
-          data-ai-hint={facility.imageHint}
-          fill
-          className="object-cover"
-        />
-      </div>
-    </div>
+        </CardDescription>
+      </CardContent>
+    </Card>
   );
 }
