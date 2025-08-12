@@ -44,7 +44,7 @@ export function Footer() {
           <h3 className="mb-4 font-headline text-lg font-semibold text-primary">Other Links</h3>
           <ul className="space-y-2">
             {otherLinks.map((link) => (
-              <li key={link.href}>
+              <li key={link.label}>
                 <Link href={link.href} className="flex items-center gap-2 transition-colors hover:text-primary">
                   <ChevronRight className="h-4 w-4 text-primary" />
                   {link.label}
