@@ -27,8 +27,8 @@ export default function ContactPage() {
       <Hero
         imageUrl="https://placehold.co/1920x1080.png"
         imageHint="customer service"
-        title="Contact Us"
-        subtitle="We're here to help. Reach out to us with any questions."
+        title=""
+        subtitle=""
         height="h-[70vh]"
       />
       <Section title="Get In Touch">

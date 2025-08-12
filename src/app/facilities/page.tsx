@@ -7,8 +7,8 @@ export default function FacilitiesPage() {
       <Hero
         imageUrl="https://placehold.co/1920x1080.png"
         imageHint="sports complex aerial"
-        title="Our Facilities"
-        subtitle="State-of-the-art facilities to support your athletic journey."
+        title=""
+        subtitle=""
         height="h-[70vh]"
       />
       <FacilitiesSection />

@@ -7,8 +7,8 @@ export default function EventsPage() {
       <Hero
         imageUrl="https://placehold.co/1920x1080.png"
         imageHint="cheering crowd"
-        title="Club Events"
-        subtitle="Experience the thrill of the game – unforgettable events, lasting memories!"
+        title=""
+        subtitle=""
         height="h-[70vh]"
       />
       <EventsSection />

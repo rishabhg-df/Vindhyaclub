@@ -7,8 +7,8 @@ export default function ServicesPage() {
       <Hero
         imageUrl="https://placehold.co/1920x1080.png"
         imageHint="personal trainer"
-        title="Our Services"
-        subtitle="Professional services to help you reach your peak performance."
+        title=""
+        subtitle=""
         height="h-[70vh]"
       />
       <ServicesSection />
