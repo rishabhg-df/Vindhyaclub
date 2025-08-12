@@ -1,4 +1,4 @@
-import type { Event, Service, Facility, TeamMember } from './types';
+import type { Event, Service, Facility, TeamMember, HistoryItem } from './types';
 
 export const navLinks = [
   { href: '/', label: 'Home' },
@@ -147,5 +147,32 @@ export const team: TeamMember[] = [
     bio: 'The friendly face of Vindhya Club, always here to help our members.',
     image: 'https://placehold.co/400x400.png',
     imageHint: 'friendly woman',
+  },
+];
+
+export const history: HistoryItem[] = [
+  {
+    year: '1904-1905',
+    description: 'The year the club was founded, laying the groundwork for a century of sport.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'historic building black and white',
+  },
+  {
+    year: '1906',
+    description: 'Construction of our first clubhouse, a landmark for the community.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'vintage architecture',
+  },
+  {
+    year: '1960',
+    description: 'Hosted the first national-level tennis tournament, putting us on the map.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'old stadium',
+  },
+   {
+    year: 'Present',
+    description: 'Continuing our legacy with state-of-the-art facilities and a thriving community.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'modern sports complex',
   },
 ];

@@ -34,3 +34,10 @@ export type TeamMember = {
   image: string;
   imageHint: string;
 };
+
+export type HistoryItem = {
+  year: string;
+  description: string;
+  image: string;
+  imageHint: string;
+};
