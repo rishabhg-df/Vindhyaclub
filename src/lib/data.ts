@@ -82,24 +82,40 @@ export const services: Service[] = [
 
 export const facilities: Facility[] = [
   {
-    name: 'Olympic Size Pool',
+    name: 'Snooker',
+    description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
     image: 'https://placehold.co/600x400.png',
-    imageHint: 'olympic pool',
+    imageHint: 'snooker table',
   },
   {
-    name: 'Tennis Courts',
+    name: 'Lawn Tennis',
+    description: 'Club provides two types of Tennis Court to the members according to their interest.',
     image: 'https://placehold.co/600x400.png',
     imageHint: 'tennis court',
   },
   {
-    name: 'Fully-Equipped Gym',
+    name: 'Card Room',
+    description: 'This section is also functioning well and a large number of members and their wives take part.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'playing cards',
+  },
+  {
+    name: 'Badminton',
+    description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
+    image: 'https://placehold.co/600x400.png',
+    imageHint: 'badminton court',
+  },
+   {
+    name: 'Health Club',
+    description: 'This section is also functioning well and a large number of members and their wives take part.',
     image: 'https://placehold.co/600x400.png',
     imageHint: 'modern gym',
   },
   {
-    name: 'Indoor Soccer Field',
+    name: 'Bar',
+    description: 'A well-stacked bar serving a large number of brands as per the requirements of the Members.',
     image: 'https://placehold.co/600x400.png',
-    imageHint: 'indoor soccer',
+    imageHint: 'cocktail bar',
   },
 ];
 

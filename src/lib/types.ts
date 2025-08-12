@@ -22,6 +22,7 @@ export type Service = {
 
 export type Facility = {
   name: string;
+  description: string;
   image: string;
   imageHint: string;
 };
