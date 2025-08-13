@@ -25,8 +25,8 @@ export default function ContactPage() {
   return (
     <>
       <Hero
-        imageUrl="https://images.unsplash.com/photo-1586769852836-bc069f19e1b6?q=80&w=1920&auto=format=fit=crop"
-        imageHint="contact icons"
+        imageUrl="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?q=80&w=1920&auto=format=fit=crop"
+        imageHint="contact us"
         title=""
         subtitle=""
         height="h-[70vh]"
