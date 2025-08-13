@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://images.unsplash.com/photo-1589138760975-28a1c909e37a?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1608283981229-9e8d7c4cb294?q=80&w=600&auto=format=fit=crop',
     imageHint: 'snooker table',
   },
   {
@@ -103,7 +103,7 @@ export const facilities: Facility[] = [
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1552163624-7cd3b5b597cd?q=80&w=600&auto=format=fit=crop',
     imageHint: 'badminton action',
   },
    {
