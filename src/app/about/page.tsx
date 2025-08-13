@@ -10,7 +10,7 @@ export default function AboutPage() {
         imageUrl="https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1920&auto=format&fit=crop"
         imageHint="team huddle"
         title=""
-        subtitle=""
+        subtitle="Discover the heart of our club — where every story begins with teamwork, grows with dedication, and lives on in community spirit."
         height="h-[70vh]"
       />
       <Section title="About US" id="about-us">
