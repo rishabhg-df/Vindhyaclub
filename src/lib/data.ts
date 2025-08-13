@@ -125,7 +125,7 @@ export const team: TeamMember[] = [
     name: 'John Doe',
     role: 'Club President',
     bio: 'Leading the club with passion and vision for over a decade.',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format=fit=crop',
     imageHint: 'male portrait',
   },
   {
@@ -139,14 +139,14 @@ export const team: TeamMember[] = [
     name: 'Mike Johnson',
     role: 'Facilities Manager',
     bio: 'Ensuring our facilities are state-of-the-art and always ready for our members.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format=fit=crop',
     imageHint: 'professional man',
   },
   {
     name: 'Emily Davis',
     role: 'Member Relations',
     bio: 'The friendly face of Vindhya Club, always here to help our members.',
-    image: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=400&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=400&auto=format=fit=crop',
     imageHint: 'friendly woman',
   },
 ];
@@ -155,25 +155,25 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://images.unsplash.com/photo-1564972502849-41e46927954a?q=80&w=600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1564972502849-41e46927954a?q=80&w=600&auto=format=fit=crop',
     imageHint: 'historic building',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://images.unsplash.com/photo-1618337812502-24368d1d1469?q=80&w=600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1618337812502-24368d1d1469?q=80&w=600&auto=format=fit=crop',
     imageHint: 'vintage architecture',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://images.unsplash.com/photo-1549925243-75a745749340?q=80&w=600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1549925243-75a745749340?q=80&w=600&auto=format=fit=crop',
     imageHint: 'vintage tennis',
   },
    {
     year: 'Present',
     description: 'Continuing our legacy with state-of-the-art facilities and a thriving community.',
-    image: 'https://images.unsplash.com/photo-1579952516518-6c8d92f19dbe?q=80&w=600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1579952516518-6c8d92f19dbe?q=80&w=600&auto=format=fit=crop',
     imageHint: 'modern sports complex',
   },
 ];

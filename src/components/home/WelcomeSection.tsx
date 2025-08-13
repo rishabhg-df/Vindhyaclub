@@ -7,7 +7,7 @@ export function WelcomeSection() {
       <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
         <div className="order-1">
           <Image
-            src="https://images.unsplash.com/photo-1616488711413-a4e61691a071?q=80&w=800&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1616488711413-a4e61691a071?q=80&w=800&auto=format=fit=crop"
             alt="Vindhya Club Trophy"
             data-ai-hint="trophy in case"
             width={800}
