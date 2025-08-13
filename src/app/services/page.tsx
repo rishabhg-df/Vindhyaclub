@@ -5,7 +5,7 @@ export default function ServicesPage() {
   return (
     <>
       <Hero
-        imageUrl="https://placehold.co/1920x1080.png"
+        imageUrl="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1920&auto=format&fit=crop"
         imageHint="personal trainer"
         title=""
         subtitle=""

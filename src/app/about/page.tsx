@@ -7,7 +7,7 @@ export default function AboutPage() {
   return (
     <>
       <Hero
-        imageUrl="https://placehold.co/1920x1080.png"
+        imageUrl="https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1920&auto=format&fit=crop"
         imageHint="team huddle"
         title=""
         subtitle=""

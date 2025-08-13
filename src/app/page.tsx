@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <Hero
-        imageUrl="https://placehold.co/1920x1080.png"
+        imageUrl="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1920&auto=format&fit=crop"
         imageHint="resort pool"
         title=""
         subtitle=""

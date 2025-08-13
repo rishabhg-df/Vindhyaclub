@@ -5,7 +5,7 @@ export default function EventsPage() {
   return (
     <>
       <Hero
-        imageUrl="https://placehold.co/1920x1080.png"
+        imageUrl="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1920&auto=format&fit=crop"
         imageHint="cheering crowd"
         title=""
         subtitle=""

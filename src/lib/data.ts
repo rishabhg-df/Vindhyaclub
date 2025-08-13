@@ -15,7 +15,7 @@ export const events: Event[] = [
     date: '2024-12-31',
     description:
       'Dance 8:30 pm onwards No Entry after 10:30pm',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1515942219481-804d04643a6a?q=80&w=600&auto=format&fit=crop',
     imageHint: 'new year party',
   },
   {
@@ -23,7 +23,7 @@ export const events: Event[] = [
     date: '2024-08-15',
     description:
       'Join our most anticipated tennis event of the year. All skill levels welcome.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1543310728-76cf54c45ac1?q=80&w=600&auto=format&fit=crop',
     imageHint: 'tennis match',
   },
   {
@@ -31,15 +31,15 @@ export const events: Event[] = [
     date: '2024-09-05',
     description:
       'A fun-filled day of swimming competitions for all age groups. Prizes to be won!',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'swimming pool',
+    image: 'https://images.unsplash.com/photo-1559437655-274a0c57504f?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'swimming competition',
   },
   {
     title: 'Club Marathon',
     date: '2024-10-20',
     description:
       'Challenge yourself in our annual 10k club marathon. A test of endurance and spirit.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1512428208326-813539b5a755?q=80&w=600&auto=format&fit=crop',
     imageHint: 'running marathon',
   },
    {
@@ -47,7 +47,7 @@ export const events: Event[] = [
     date: '2024-07-22',
     description:
       'A week-long soccer camp for kids aged 8-14. Coached by certified professionals.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1551957442-f53835a4b9e2?q=80&w=600&auto=format&fit=crop',
     imageHint: 'soccer kids',
   },
 ];
@@ -56,27 +56,27 @@ export const services: Service[] = [
   {
     title: 'Sports',
     description: 'We provides all the sports and activities in our club.',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'sports equipment',
+    image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'multiple sports',
   },
   {
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'kids playing',
+    image: 'https://images.unsplash.com/photo-1565223199859-714241162442?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'kids playground',
   },
   {
     title: 'Restaurant',
     description: 'The best and choicest cuisine in our Restaurant.',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'gourmet food',
+    image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'elegant restaurant',
   },
   {
     title: 'Bar',
     description: 'We serve best beverages in our bar for our',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'cocktail bar',
+    image: 'https://images.unsplash.com/photo-1514362545857-3bc7d93a1365?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'classy bar',
   },
 ];
 
@@ -84,37 +84,37 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1582289297388-30501a14db24?q=80&w=600&auto=format&fit=crop',
     imageHint: 'snooker table',
   },
   {
     name: 'Lawn Tennis',
     description: 'Club provides two types of Tennis Court to the members according to their interest.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1559526324-c1f275fbfa32?q=80&w=600&auto=format&fit=crop',
     imageHint: 'tennis court',
   },
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1588629739522-8d267c793f6c?q=80&w=600&auto=format&fit=crop',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'badminton court',
+    image: 'https://images.unsplash.com/photo-1521587522486-0811a28f8045?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'badminton shuttlecock',
   },
    {
     name: 'Health Club',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
     imageHint: 'modern gym',
   },
   {
     name: 'Bar',
     description: 'A well-stacked bar serving a large number of brands as per the requirements of the Members.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=600&auto=format&fit=crop',
     imageHint: 'cocktail bar',
   },
 ];
@@ -124,28 +124,28 @@ export const team: TeamMember[] = [
     name: 'John Doe',
     role: 'Club President',
     bio: 'Leading the club with passion and vision for over a decade.',
-    image: 'https://placehold.co/400x400.png',
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop',
     imageHint: 'male portrait',
   },
   {
     name: 'Jane Smith',
     role: 'Head of Sports',
     bio: 'A former professional athlete dedicated to nurturing talent at all levels.',
-    image: 'https://placehold.co/400x400.png',
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop',
     imageHint: 'female portrait',
   },
   {
     name: 'Mike Johnson',
     role: 'Facilities Manager',
     bio: 'Ensuring our facilities are state-of-the-art and always ready for our members.',
-    image: 'https://placehold.co/400x400.png',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop',
     imageHint: 'professional man',
   },
   {
     name: 'Emily Davis',
     role: 'Member Relations',
     bio: 'The friendly face of Vindhya Club, always here to help our members.',
-    image: 'https://placehold.co/400x400.png',
+    image: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=400&auto=format&fit=crop',
     imageHint: 'friendly woman',
   },
 ];
@@ -154,25 +154,25 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'historic building black and white',
+    image: 'https://images.unsplash.com/photo-1564972502849-41e46927954a?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'historic building',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1618337812502-24368d1d1469?q=80&w=600&auto=format&fit=crop',
     imageHint: 'vintage architecture',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://placehold.co/600x400.png',
-    imageHint: 'old stadium',
+    image: 'https://images.unsplash.com/photo-1549925243-75a745749340?q=80&w=600&auto=format&fit=crop',
+    imageHint: 'vintage tennis',
   },
    {
     year: 'Present',
     description: 'Continuing our legacy with state-of-the-art facilities and a thriving community.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1579952516518-6c8d92f19dbe?q=80&w=600&auto=format&fit=crop',
     imageHint: 'modern sports complex',
   },
 ];

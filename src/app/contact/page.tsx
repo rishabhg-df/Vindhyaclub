@@ -25,7 +25,7 @@ export default function ContactPage() {
   return (
     <>
       <Hero
-        imageUrl="https://placehold.co/1920x1080.png"
+        imageUrl="https://images.unsplash.com/photo-1557838923-2985c3188748?q=80&w=1920&auto=format&fit=crop"
         imageHint="customer service"
         title=""
         subtitle=""
