@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, Club } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -14,18 +14,32 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  const allLinks = [...navLinks, { href: '/signin', label: 'Sign In' }];
+
   const NavLinks = ({ className }: { className?: string }) => (
-    <nav className={cn('flex items-center gap-6 text-lg font-medium', className)}>
-      {navLinks.map((link) => (
+    <nav
+      className={cn(
+        'flex items-center gap-2 text-sm font-medium uppercase tracking-wider lg:gap-4',
+        className
+      )}
+    >
+      {allLinks.map((link) => (
         <Link
           key={link.href}
           href={link.href}
           onClick={() => setIsOpen(false)}
           className={cn(
-            'transition-colors hover:text-primary',
-            pathname === link.href ? 'text-primary' : 'text-white'
+            'relative px-3 py-2 transition-colors hover:text-primary',
+            pathname === link.href
+              ? 'text-primary'
+              : 'text-white'
           )}
         >
+          {pathname === link.href && (
+            <div
+              className="absolute inset-0 z-[-1] -skew-x-[20deg] bg-white"
+            />
+          )}
           {link.label}
         </Link>
       ))}
@@ -33,19 +47,15 @@ export function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 flex h-20 items-center justify-between bg-black/80 px-4 py-2 text-white shadow-md backdrop-blur-sm md:px-6">
+    <header className="sticky top-0 z-50 flex h-20 items-center justify-between bg-black px-4 py-2 text-white shadow-md md:px-6">
       <Link href="/" className="flex items-center gap-2">
-        <Club className="h-8 w-8 text-primary" />
-        <span className="font-headline text-2xl font-bold text-white">
-          Vindhya <span className="text-primary">Club</span>
+        <span className="font-headline text-3xl font-bold text-primary">
+          Vindhya Club
         </span>
       </Link>
 
       <div className="hidden items-center gap-4 md:flex">
-        <NavLinks className="text-base" />
-        <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-          <Link href="/signin">Sign In</Link>
-        </Button>
+        <NavLinks />
       </div>
 
       <div className="md:hidden">
@@ -58,10 +68,21 @@ export function Header() {
           </SheetTrigger>
           <SheetContent side="right" className="bg-black text-white">
             <div className="flex flex-col items-center gap-8 pt-12">
-              <NavLinks className="flex-col gap-6" />
-              <Button asChild variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => setIsOpen(false)}>
-                <Link href="/signin">Sign In</Link>
-              </Button>
+            <nav className="flex flex-col items-center gap-6 text-lg font-medium">
+              {allLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    'transition-colors hover:text-primary',
+                    pathname === link.href ? 'text-primary' : 'text-white'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
             </div>
           </SheetContent>
         </Sheet>
