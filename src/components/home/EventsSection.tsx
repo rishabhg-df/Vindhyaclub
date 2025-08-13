@@ -10,13 +10,13 @@ export function EventsSection({ className }: { className?: string }) {
 
   return (
     <Section title="Our Event" id="events" className={className}>
-      <div className="overflow-hidden rounded-lg bg-card text-card-foreground shadow-lg">
+      <div className="overflow-hidden rounded-lg bg-white text-black shadow-lg">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="flex flex-col justify-center p-8">
             <h3 className="mb-2 font-headline text-2xl font-bold text-primary">
-              {latestEvent.title}
+              {latestEvent.title} {new Date(latestEvent.date).getFullYear()}-{new Date(latestEvent.date).getMonth() + 1}-{new Date(latestEvent.date).getDate()}
             </h3>
-            <p className="mb-4 text-muted-foreground">
+            <p className="mb-4">
               {new Date(latestEvent.date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -24,7 +24,7 @@ export function EventsSection({ className }: { className?: string }) {
               })}{' '}
               (No Entry After 00:00)
             </p>
-            <p className="mb-6 text-muted-foreground">
+            <p className="mb-6 ">
               {latestEvent.description}
             </p>
             <div className="flex flex-wrap items-center gap-4">
@@ -36,7 +36,7 @@ export function EventsSection({ className }: { className?: string }) {
               </Button>
             </div>
           </div>
-          <div className="relative h-64 md:h-full">
+          <div className="relative h-80 md:h-full">
             <Image
               src={latestEvent.image}
               alt={latestEvent.title}
