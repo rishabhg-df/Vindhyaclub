@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1589138760975-28a1c909e37a?q=80&w=600&auto=format=fit=crop',
     imageHint: 'snooker table',
   },
   {
