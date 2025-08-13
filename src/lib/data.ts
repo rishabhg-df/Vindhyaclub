@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1612232233096-17b0f69e47ac?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1550355191-aa758343c08a?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
@@ -103,8 +103,8 @@ export const facilities: Facility[] = [
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1626224432091-8B6de82104a6?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'badminton shuttlecock',
+    image: 'https://images.unsplash.com/photo-1554068884-6c39e3f87352?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'badminton racket shuttlecock',
   },
    {
     name: 'Health Club',
