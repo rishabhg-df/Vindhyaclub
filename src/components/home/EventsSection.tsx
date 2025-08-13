@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -39,7 +40,7 @@ export function EventsSection() {
             <Image
               src={latestEvent.image}
               alt={latestEvent.title}
-              data-ai-hint="new year party"
+              data-ai-hint={latestEvent.imageHint}
               fill
               className="object-cover"
             />

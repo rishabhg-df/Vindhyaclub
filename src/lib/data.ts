@@ -1,3 +1,4 @@
+
 import type { Event, Service, Facility, TeamMember, HistoryItem } from './types';
 
 export const navLinks = [
