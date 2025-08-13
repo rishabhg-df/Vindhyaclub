@@ -7,7 +7,7 @@ export function WelcomeSection() {
       <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
         <div className="order-1">
           <Image
-            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format=fit=crop"
             alt="Vindhya Club Entrance"
             data-ai-hint="resort entrance"
             width={800}

@@ -16,7 +16,7 @@ export const events: Event[] = [
     date: '2024-12-31',
     description:
       'Dance 8:30 pm onwards No Entry after 10:30pm',
-    image: 'https://images.unsplash.com/photo-1483668101418-e14b354e460e?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1920&auto=format=fit=crop',
     imageHint: 'new year fireworks',
   },
   {
