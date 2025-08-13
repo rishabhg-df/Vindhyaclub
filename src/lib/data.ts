@@ -177,4 +177,3 @@ export const history: HistoryItem[] = [
     imageHint: 'modern resort',
   },
 ];
-
