@@ -1,6 +1,5 @@
 import { Hero } from '@/components/shared/Hero';
 import { Section } from '@/components/shared/Section';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, MapPin, Phone } from 'lucide-react';
 
 export default function ContactPage() {
@@ -8,17 +7,17 @@ export default function ContactPage() {
     {
       icon: MapPin,
       title: 'Address',
-      content: '123 Sports Lane, Fitness City, 12345',
+      content: ['Vindhya Club, Station Road, Satna, MP'],
     },
     {
       icon: Phone,
       title: 'Phone',
-      content: '(123) 456-7890',
+      content: ['(O) 0761-2621326', '(R) 0761-2692637'],
     },
     {
       icon: Mail,
       title: 'Email',
-      content: 'info@vindhyaclub.com',
+      content: ['admin@vindhyaclub.in'],
     },
   ];
 
@@ -31,24 +30,22 @@ export default function ContactPage() {
         subtitle=""
         height="h-[calc(100vh-5rem)]"
       />
-      <Section title="Get In Touch">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <Section title="Contact">
+        <div className="grid grid-cols-1 gap-12 text-center md:grid-cols-3">
           {contactDetails.map((detail, index) => {
             const Icon = detail.icon;
             return (
-              <Card key={index} className="text-center">
-                <CardHeader>
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Icon className="h-8 w-8" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardTitle className="font-headline text-xl">
-                    {detail.title}
-                  </CardTitle>
-                  <p className="text-muted-foreground">{detail.content}</p>
-                </CardContent>
-              </Card>
+              <div key={index}>
+                <Icon className="mx-auto mb-4 h-12 w-12 text-primary" />
+                <h3 className="mb-2 font-headline text-2xl font-bold text-primary">
+                  {detail.title}
+                </h3>
+                <div className="text-muted-foreground">
+                  {detail.content.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+              </div>
             );
           })}
         </div>
