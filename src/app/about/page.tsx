@@ -13,7 +13,7 @@ export default function AboutPage() {
         subtitle="Discover the heart of our club — where every story begins with teamwork, grows with dedication, and lives on in community spirit."
         height="h-[70vh]"
       />
-      <Section title="About US" id="about-us" className="bg-card">
+      <Section title="About US" id="about-us">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {history.map((item, index) => (
             <HistoryCard key={index} item={item} />

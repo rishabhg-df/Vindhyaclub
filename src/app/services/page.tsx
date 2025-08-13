@@ -11,7 +11,7 @@ export default function ServicesPage() {
         subtitle="From training to teamwork — our services are here to help every member thrive."
         height="h-[70vh]"
       />
-      <ServicesSection className="bg-card" />
+      <ServicesSection />
     </>
   );
 }

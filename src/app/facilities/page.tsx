@@ -11,7 +11,7 @@ export default function FacilitiesPage() {
         subtitle="Discover top-notch facilities designed to elevate your game and inspire greatness!"
         height="h-[70vh]"
       />
-      <FacilitiesSection className="bg-card" />
+      <FacilitiesSection />
     </>
   );
 }

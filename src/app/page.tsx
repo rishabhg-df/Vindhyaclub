@@ -16,9 +16,9 @@ export default function Home() {
         height="h-[calc(100vh-5rem)]"
       />
       <WelcomeSection />
-      <EventsSection className="bg-card" />
+      <EventsSection />
       <ServicesSection />
-      <FacilitiesSection className="bg-card" />
+      <FacilitiesSection />
       <TeamSection />
     </>
   );

@@ -28,10 +28,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body bg-background text-foreground antialiased">
+      <body className="font-body bg-black text-foreground antialiased">
         <div className="flex min-h-screen flex-col">
           <Header />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow bg-background">{children}</main>
           <Footer />
         </div>
         <Toaster />

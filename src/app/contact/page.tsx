@@ -31,7 +31,7 @@ export default function ContactPage() {
         subtitle=""
         height="h-[70vh]"
       />
-      <Section title="Get In Touch" className="bg-card">
+      <Section title="Get In Touch">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {contactDetails.map((detail, index) => {
             const Icon = detail.icon;
@@ -43,7 +43,7 @@ export default function ContactPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <CardTitle className="mb-2 font-headline text-xl">
+                  <CardTitle className="font-headline text-xl">
                     {detail.title}
                   </CardTitle>
                   <p className="text-muted-foreground">{detail.content}</p>
