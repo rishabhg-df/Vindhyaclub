@@ -16,8 +16,8 @@ export const events: Event[] = [
     date: '2024-12-31',
     description:
       'Dance 8:30 pm onwards No Entry after 10:30pm',
-    image: 'https://images.unsplash.com/photo-1515942219481-804d04643a6a?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'new year party',
+    image: 'https://images.unsplash.com/photo-1483668101418-e14b354e460e?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'new year fireworks',
   },
   {
     title: 'Annual Tennis Tournament',
@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1565223199859-714241162442?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1550355191-aa7583f09f1a?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
