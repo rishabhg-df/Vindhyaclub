@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1594347738263-88607144933a?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1550355191-aa758343c0b1?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://images.unsplash.com/photo-1608283981229-9e8d7c4cb294?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1589138762923-8ec34442142d?q=80&w=600&auto=format=fit=crop',
     imageHint: 'snooker table',
   },
   {
@@ -97,13 +97,13 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1610499449669-9c5e388147d3?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1520207353365-5c34114d6424?q=80&w=600&auto=format=fit=crop',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1552163624-7cd3b5b597cd?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1626252346518-4e184715403e?q=80&w=600&auto=format=fit=crop',
     imageHint: 'badminton action',
   },
    {
