@@ -64,20 +64,20 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1550355191-aa758343c08a?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1610255148151-a871576403ee?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
     title: 'Restaurant',
     description: 'The best and choicest cuisine in our Restaurant.',
-    image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=600&auto=format=fit=crop',
     imageHint: 'elegant restaurant',
   },
   {
     title: 'Bar',
     description: 'We serve best beverages in our bar for our',
-    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'classy bar',
+    image: 'https://images.unsplash.com/photo-1551024709-8f237c20454d?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'modern bar',
   },
 ];
 
@@ -103,8 +103,8 @@ export const facilities: Facility[] = [
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1554068884-6c39e3f87352?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'badminton racket shuttlecock',
+    image: 'https://images.unsplash.com/photo-1620757361842-364282352b2b?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'badminton action',
   },
    {
     name: 'Health Club',
