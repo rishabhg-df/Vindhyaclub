@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1610212570222-d37b12299219?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1565225338276-8f3159b242d6?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
@@ -76,7 +76,7 @@ export const services: Service[] = [
   {
     title: 'Bar',
     description: 'We serve best beverages in our bar for our',
-    image: 'https://images.unsplash.com/photo-1551024709-8f2331b879e2?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=600&auto=format=fit=crop',
     imageHint: 'classy bar',
   },
 ];
@@ -115,7 +115,7 @@ export const facilities: Facility[] = [
   {
     name: 'Bar',
     description: 'A well-stacked bar serving a large number of brands as per the requirements of the Members.',
-    image: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=600&auto=format=fit=crop',
     imageHint: 'cocktail bar',
   },
 ];
