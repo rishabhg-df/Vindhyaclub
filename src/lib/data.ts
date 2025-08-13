@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1565225338276-8f3159b242d6?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1612232233096-17b0f69e47ac?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
