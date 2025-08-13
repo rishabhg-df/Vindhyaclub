@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://images.unsplash.com/photo-1603294342269-b363a8d11b43?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1589138762923-8ec937d58385?q=80&w=600&auto=format=fit=crop',
     imageHint: 'snooker table',
   },
   {
@@ -97,13 +97,13 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1521994138031-63b0d2703f31?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1620338714231-b7579181180b?q=80&w=600&auto=format=fit=crop',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1521587585382-7142b9319989?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1626301649615-a655e2f38699?q=80&w=600&auto=format=fit=crop',
     imageHint: 'badminton action',
   },
    {
