@@ -16,7 +16,7 @@ export const events: Event[] = [
     date: '2024-12-31',
     description:
       'Dance 8:30 pm onwards No Entry after 10:30pm',
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1920&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=1920&auto=format=fit=crop',
     imageHint: 'new year party',
   },
   {
@@ -64,19 +64,19 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1610255148151-a871576403ee?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1550355203-93f87373f82b?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
     title: 'Restaurant',
     description: 'The best and choicest cuisine in our Restaurant.',
-    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format=fit=crop',
     imageHint: 'elegant restaurant',
   },
   {
     title: 'Bar',
     description: 'We serve best beverages in our bar for our',
-    image: 'https://images.unsplash.com/photo-1551024709-8f237c20454d?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1543007630-9710e4a00a20?q=80&w=600&auto=format=fit=crop',
     imageHint: 'modern bar',
   },
 ];
@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://images.unsplash.com/photo-1582152202613-281b6a783313?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1603294342269-b363a8d11b43?q=80&w=600&auto=format=fit=crop',
     imageHint: 'snooker table',
   },
   {
@@ -97,13 +97,13 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1599636430386-1a555f269415?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1521994138031-63b0d2703f31?q=80&w=600&auto=format=fit=crop',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1620757361842-364282352b2b?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1521587585382-7142b9319989?q=80&w=600&auto=format=fit=crop',
     imageHint: 'badminton action',
   },
    {
@@ -155,25 +155,25 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://images.unsplash.com/photo-1564972502849-41e46927954a?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'historic building',
+    image: 'https://images.unsplash.com/photo-1563815984365-b1082d234d6a?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'vintage clubhouse',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://images.unsplash.com/photo-1618337812502-24368d1d1469?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'vintage architecture',
+    image: 'https://images.unsplash.com/photo-1615873966953-8355c3a62883?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'old building construction',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://images.unsplash.com/photo-1549925243-75a745749340?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'vintage tennis',
+    image: 'https://images.unsplash.com/photo-1562446739-683424168254?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'grand hotel',
   },
    {
     year: 'Present',
     description: 'Continuing our legacy with state-of-the-art facilities and a thriving community.',
-    image: 'https://images.unsplash.com/photo-1579952516518-6c8d92f19dbe?q=80&w=600&auto=format=fit=crop',
-    imageHint: 'modern sports complex',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=600&auto=format=fit=crop',
+    imageHint: 'modern resort',
   },
 ];
