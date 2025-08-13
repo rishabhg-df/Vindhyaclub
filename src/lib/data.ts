@@ -16,8 +16,8 @@ export const events: Event[] = [
     date: '2024-12-31',
     description:
       'Dance 8:30 pm onwards No Entry after 10:30pm',
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1920&auto=format=fit=crop',
-    imageHint: 'new year fireworks',
+    image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=1920&auto=format=fit=crop',
+    imageHint: 'new year party',
   },
   {
     title: 'Annual Tennis Tournament',
@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1550355191-aa7583f09f1a?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1610212570222-d37b12299219?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
@@ -76,7 +76,7 @@ export const services: Service[] = [
   {
     title: 'Bar',
     description: 'We serve best beverages in our bar for our',
-    image: 'https://images.unsplash.com/photo-1514362545857-3bc7d93a1365?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1551024709-8f2331b879e2?q=80&w=600&auto=format=fit=crop',
     imageHint: 'classy bar',
   },
 ];
@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://images.unsplash.com/photo-1582289297388-30501a14db24?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1635036160394-e349a4f61234?q=80&w=600&auto=format=fit=crop',
     imageHint: 'snooker table',
   },
   {
@@ -97,13 +97,13 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1588629739522-8d267c793f6c?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1520600335541-368c5b4b3c1d?q=80&w=600&auto=format=fit=crop',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1521587522486-0811a28f8045?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1574534726388-a72720910b8a?q=80&w=600&auto=format=fit=crop',
     imageHint: 'badminton shuttlecock',
   },
    {
