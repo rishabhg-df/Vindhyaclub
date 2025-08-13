@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Section } from '@/components/shared/Section';
 import { events } from '@/lib/data';
 
-export function EventsSection() {
+export function EventsSection({ className }: { className?: string }) {
   const latestEvent = events[0];
 
   return (
-    <Section title="Our Event" id="events">
+    <Section title="Our Event" id="events" className={className}>
       <div className="overflow-hidden rounded-lg bg-card text-card-foreground shadow-lg">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="flex flex-col justify-center p-8">

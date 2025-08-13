@@ -11,7 +11,7 @@ export default function EventsPage() {
         subtitle=""
         height="h-[70vh]"
       />
-      <EventsSection />
+      <EventsSection className="bg-card" />
     </>
   );
 }

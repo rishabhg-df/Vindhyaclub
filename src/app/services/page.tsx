@@ -11,7 +11,7 @@ export default function ServicesPage() {
         subtitle=""
         height="h-[70vh]"
       />
-      <ServicesSection />
+      <ServicesSection className="bg-card" />
     </>
   );
 }

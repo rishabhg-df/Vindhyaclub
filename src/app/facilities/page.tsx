@@ -11,7 +11,7 @@ export default function FacilitiesPage() {
         subtitle=""
         height="h-[70vh]"
       />
-      <FacilitiesSection />
+      <FacilitiesSection className="bg-card" />
     </>
   );
 }

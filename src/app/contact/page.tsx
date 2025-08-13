@@ -31,7 +31,7 @@ export default function ContactPage() {
         subtitle=""
         height="h-[70vh]"
       />
-      <Section title="Get In Touch">
+      <Section title="Get In Touch" className="bg-card">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {contactDetails.map((detail, index) => {
             const Icon = detail.icon;
