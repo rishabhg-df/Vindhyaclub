@@ -9,7 +9,7 @@ export default function EventsPage() {
         imageHint="cheering crowd"
         title=""
         subtitle="Experience the thrill of the game – unforgettable events, lasting memories!"
-        height="h-[70vh]"
+        height="h-[calc(100vh-5rem)]"
       />
       <EventsSection />
     </>

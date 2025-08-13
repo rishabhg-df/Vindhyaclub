@@ -9,7 +9,7 @@ export default function ServicesPage() {
         imageHint="personal trainer"
         title=""
         subtitle="From training to teamwork — our services are here to help every member thrive."
-        height="h-[70vh]"
+        height="h-[calc(100vh-5rem)]"
       />
       <ServicesSection />
     </>

@@ -9,7 +9,7 @@ export default function FacilitiesPage() {
         imageHint="sports complex"
         title=""
         subtitle="Discover top-notch facilities designed to elevate your game and inspire greatness!"
-        height="h-[70vh]"
+        height="h-[calc(100vh-5rem)]"
       />
       <FacilitiesSection />
     </>

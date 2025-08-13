@@ -11,7 +11,7 @@ export default function AboutPage() {
         imageHint="team huddle"
         title=""
         subtitle="Discover the heart of our club — where every story begins with teamwork, grows with dedication, and lives on in community spirit."
-        height="h-[70vh]"
+        height="h-[calc(100vh-5rem)]"
       />
       <Section title="About US" id="about-us">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">

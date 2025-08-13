@@ -29,7 +29,7 @@ export default function ContactPage() {
         imageHint="contact us"
         title=""
         subtitle=""
-        height="h-[70vh]"
+        height="h-[calc(100vh-5rem)]"
       />
       <Section title="Get In Touch">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
