@@ -5,10 +5,10 @@ export default function FacilitiesPage() {
   return (
     <>
       <Hero
-        imageUrl="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format=fit=crop"
-        imageHint="sports facilities"
+        imageUrl="https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=1920&auto=format=fit=crop"
+        imageHint="sports complex"
         title=""
-        subtitle=""
+        subtitle="Discover top-notch facilities designed to elevate your game and inspire greatness!"
         height="h-[70vh]"
       />
       <FacilitiesSection className="bg-card" />
