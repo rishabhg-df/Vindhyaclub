@@ -29,7 +29,7 @@ export function EventsSection({ className }: { className?: string }) {
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Link href="#">Circular &raquo;</Link>
+                <Link href="/events">Circular &raquo;</Link>
               </Button>
               <Button asChild variant="destructive">
                 <Link href="/signin">Please Login To Book Your Event Tickets</Link>
