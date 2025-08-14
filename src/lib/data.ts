@@ -97,14 +97,14 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1521994138136-d8f993a83a7a?w=600',
+    image: 'https://images.unsplash.com/photo-1615142682233-aab130c259a4?w=600',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1574269909996-3fb83844a44f?w=600',
-    imageHint: 'badminton action',
+    image: 'https://images.unsplash.com/photo-1628589973213-653825547638?w=600',
+    imageHint: 'badminton shuttlecock',
   },
    {
     name: 'Health Club',
@@ -155,20 +155,20 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://images.unsplash.com/photo-1565516335388-79a4dfac3a2e?w=600',
-    imageHint: 'vintage newspaper',
+    image: 'https://images.unsplash.com/photo-1554107516-a3372a420b12?w=600',
+    imageHint: 'vintage document',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://images.unsplash.com/photo-1504245979340-d7a224a046a6?w=600',
-    imageHint: 'historic building sketch',
+    image: 'https://images.unsplash.com/photo-1600585152220-406b9b212a0d?w=600',
+    imageHint: 'vintage building',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://images.unsplash.com/photo-1629272183319-a1b92c43144a?w=600',
-    imageHint: 'vintage tennis',
+    image: 'https://images.unsplash.com/photo-1558244434-719317b3d368?w=600',
+    imageHint: 'vintage tennis trophy',
   },
    {
     year: 'Present',

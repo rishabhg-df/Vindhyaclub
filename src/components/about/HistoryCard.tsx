@@ -19,7 +19,7 @@ export function HistoryCard({ item }: HistoryCardProps) {
             alt={item.year}
             data-ai-hint={item.imageHint}
             width={400}
-            height={400}
+            height={200}
             className="h-40 w-full rounded-md object-cover"
           />
         </div>
