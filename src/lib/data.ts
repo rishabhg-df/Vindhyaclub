@@ -143,11 +143,11 @@ export const team: TeamMember[] = [
     imageHint: 'professional man',
   },
   {
-    name: 'Emily Davis',
-    role: 'Member Relations',
-    bio: 'The friendly face of Vindhya Club, always here to help our members.',
-    image: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=400',
-    imageHint: 'friendly woman',
+    name: 'Dr Praveen Shrivastava',
+    role: 'Secretary',
+    bio: 'Ensuring the smooth operation of the club and its activities.',
+    image: 'https://placehold.co/400x400.png',
+    imageHint: 'professional portrait',
   },
 ];
 
