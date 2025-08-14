@@ -19,11 +19,11 @@ export function ServiceCard({ service }: ServiceCardProps) {
             className="object-cover"
           />
         </div>
-        <div className="flex flex-col justify-center p-6 transition-colors duration-300 group-hover:bg-primary/10">
-          <h3 className="mb-2 font-headline text-2xl font-bold">
+        <div className="flex flex-col justify-center p-6 transition-colors duration-300 group-hover:bg-destructive">
+          <h3 className="mb-2 font-headline text-2xl font-bold group-hover:text-destructive-foreground">
             {service.title}
           </h3>
-          <p className="text-muted-foreground">{service.description}</p>
+          <p className="text-muted-foreground group-hover:text-destructive-foreground/80">{service.description}</p>
         </div>
       </div>
     </Card>

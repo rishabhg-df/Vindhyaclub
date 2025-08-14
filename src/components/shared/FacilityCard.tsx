@@ -25,11 +25,11 @@ export function FacilityCard({ facility }: FacilityCardProps) {
           className="object-cover"
         />
       </CardHeader>
-      <CardContent className="p-6 transition-colors duration-300 group-hover:bg-primary/10">
-        <CardTitle className="font-headline text-2xl font-bold text-primary">
+      <CardContent className="p-6 transition-colors duration-300 group-hover:bg-destructive">
+        <CardTitle className="font-headline text-2xl font-bold text-primary group-hover:text-destructive-foreground">
           {facility.name}
         </CardTitle>
-        <CardDescription className="mt-2 text-muted-foreground">
+        <CardDescription className="mt-2 text-muted-foreground group-hover:text-destructive-foreground/80">
           {facility.description}
         </CardDescription>
       </CardContent>
