@@ -155,19 +155,19 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://images.unsplash.com/photo-1568618036244-933aa5a18b6f?w=600&auto=format=fit=crop',
+    image: 'https://placehold.co/600x400.png',
     imageHint: 'vintage newspaper',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://images.unsplash.com/photo-1621352458972-1793744955b2?w=600&auto=format=fit=crop',
+    image: 'https://placehold.co/600x400.png',
     imageHint: 'historic building sketch',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://images.unsplash.com/photo-1612514211432-aa4d86a24344?w=600&auto=format=fit=crop',
+    image: 'https://placehold.co/600x400.png',
     imageHint: 'vintage tennis',
   },
    {
