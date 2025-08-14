@@ -8,19 +8,18 @@ type ServiceCardProps = {
 
 export function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <Card className="flex h-full flex-col overflow-hidden bg-card text-card-foreground shadow-lg">
-      <div className="grid flex-grow grid-cols-1 md:grid-cols-2">
-        <div className="min-h-[200px]">
+    <Card className="flex flex-col overflow-hidden bg-card text-card-foreground shadow-lg">
+      <div className="grid flex-1 grid-cols-1 md:grid-cols-2">
+        <div className="relative h-[250px] md:h-full">
           <Image
             src={service.image}
             alt={service.title}
             data-ai-hint={service.imageHint}
-            width={600}
-            height={400}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
           />
         </div>
-        <div className="flex flex-1 flex-col justify-center p-6">
+        <div className="flex flex-col justify-center p-6">
           <h3 className="mb-2 font-headline text-2xl font-bold">
             {service.title}
           </h3>
