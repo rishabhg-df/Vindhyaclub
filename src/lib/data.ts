@@ -161,7 +161,7 @@ export const history: HistoryItem[] = [
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://images.unsplash.com/photo-1613925761379-373f13350482?w=600',
+    image: 'https://media.istockphoto.com/id/1300668435/photo/humayuns-tomb-in-india-a-famous-unesco-object-in-new-delhi.jpg?s=612x612&w=0&k=20&c=zacDjdo068SUsJXrDAOsHk5TxwzUS-SxQLIKuBDpPdI=',
     imageHint: 'historic building',
   },
   {
