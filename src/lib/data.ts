@@ -103,7 +103,7 @@ export const facilities: Facility[] = [
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1596740890373-75b62d0515ae?w=600&auto=format',
+    image: 'https://media.istockphoto.com/id/2039428008/photo/badminton-sport.jpg?s=612x612&w=0&k=20&c=QaJkgwpndo8hVfSIPOg1hTAxd7Ngp8XpFCb0jssE8Zs=',
     imageHint: 'badminton sport',
   },
    {
