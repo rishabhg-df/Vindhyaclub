@@ -155,7 +155,7 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://images.unsplash.com/photo-1563815984218-1a4b86a8a25c?w=600',
+    image: 'https://images.unsplash.com/photo-1563815984218-1a4b86a8a25c?auto=format&fit=crop&w=600&q=80',
     imageHint: 'vintage photograph',
   },
   {
