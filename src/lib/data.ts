@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1551009175-8a68da93d5f9?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1518778642993-52875b1191a3?q=80&w=600&auto=format=fit=crop',
     imageHint: 'snooker table',
   },
   {
@@ -97,13 +97,13 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1543356985-30b4d4a86f90?q=80&w=600&auto=format=fit=crop',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1521587585386-3a860648c668?q=80&w=600&auto=format=fit=crop',
     imageHint: 'badminton action',
   },
    {
@@ -155,19 +155,19 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1562796242-7041935543b5?q=80&w=600&auto=format=fit=crop',
     imageHint: 'vintage clubhouse',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1574366660429-150a7c4e2439?q=80&w=600&auto=format=fit=crop',
     imageHint: 'old building construction',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1495433324223-1a239b970634?q=80&w=600&auto=format=fit=crop',
     imageHint: 'grand hotel',
   },
    {
