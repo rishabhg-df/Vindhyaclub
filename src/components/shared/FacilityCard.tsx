@@ -22,7 +22,7 @@ export function FacilityCard({ facility }: FacilityCardProps) {
           data-ai-hint={facility.imageHint}
           width={600}
           height={400}
-          className="h-56 w-full object-cover"
+          className="object-cover"
         />
       </CardHeader>
       <CardContent className="p-6">
