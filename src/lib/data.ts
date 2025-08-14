@@ -129,7 +129,7 @@ export const team: TeamMember[] = [
     imageHint: 'male portrait',
   },
   {
-    name: 'Jane Smith',
+    name: 'Sanjay Shrivastav',
     role: 'Joint Secretary',
     bio: 'A former professional athlete dedicated to nurturing talent at all levels.',
     image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
