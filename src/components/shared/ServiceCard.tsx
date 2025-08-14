@@ -8,8 +8,8 @@ type ServiceCardProps = {
 
 export function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <Card className="overflow-hidden bg-card text-card-foreground shadow-lg">
-      <div className="grid grid-cols-1 md:grid-cols-2">
+    <Card className="h-full overflow-hidden bg-card text-card-foreground shadow-lg">
+      <div className="grid h-full grid-cols-1 md:grid-cols-2">
         <div className="min-h-[200px]">
           <Image
             src={service.image}
