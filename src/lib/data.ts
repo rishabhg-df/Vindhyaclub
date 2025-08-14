@@ -97,7 +97,7 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1603190287605-e6ade32fa852?w=600&auto=format',
+    image: 'https://cdn.pixabay.com/photo/2022/05/21/14/26/man-7211606_640.jpg',
     imageHint: 'playing cards',
   },
   {
