@@ -97,7 +97,7 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1552549293-a5895e865427',
+    image: 'https://images.unsplash.com/photo-1552549293-a5895e865427?w=600&auto=format',
     imageHint: 'playing cards',
   },
   {
@@ -155,19 +155,19 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://images.unsplash.com/photo-1563815984218-1a4b86a8a25c',
+    image: 'https://images.unsplash.com/photo-1563815984218-1a4b86a8a25c?w=600',
     imageHint: 'vintage photograph',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://images.unsplash.com/photo-1613925761379-373f13350482',
+    image: 'https://images.unsplash.com/photo-1613925761379-373f13350482?w=600',
     imageHint: 'historic building',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://images.unsplash.com/photo-1622053933734-a8c435500c92',
+    image: 'https://images.unsplash.com/photo-1622053933734-a8c435500c92?w=600',
     imageHint: 'vintage sports event',
   },
    {
