@@ -64,7 +64,7 @@ export const services: Service[] = [
     title: 'Kids Zone',
     description:
       'We have largest garden in the locality with kids play area.',
-    image: 'https://images.unsplash.com/photo-1565220462495-ddd344896434?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1550355191-aa7583f09f2d?q=80&w=600&auto=format=fit=crop',
     imageHint: 'kids playground',
   },
   {
@@ -97,7 +97,7 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1521626226979-d5999c1a55f9?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1541692333420-d3455135700d?q=80&w=600&auto=format=fit=crop',
     imageHint: 'playing cards',
   },
   {
