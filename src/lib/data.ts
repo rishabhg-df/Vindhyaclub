@@ -85,7 +85,7 @@ export const facilities: Facility[] = [
   {
     name: 'Snooker',
     description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://images.unsplash.com/photo-1582289627689-c488344155ee?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1582289627689-c488344155ee',
     imageHint: 'snooker table',
   },
   {
@@ -97,13 +97,13 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1521483756737-356b35359c89?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1521483756737-356b35359c89',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1594434259207-a63445c57502?q=80&w=600&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1594434259207-a63445c57502',
     imageHint: 'badminton action',
   },
    {
@@ -155,19 +155,19 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1541133367503-3475f4648596',
     imageHint: 'vintage newspaper',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1568625973634-a65191342f02',
     imageHint: 'historic building sketch',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://images.unsplash.com/photo-1621253459114-4a44138a0816',
     imageHint: 'vintage tennis',
   },
    {
