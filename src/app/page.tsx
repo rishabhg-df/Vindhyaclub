@@ -9,8 +9,8 @@ export default function Home() {
   return (
     <>
       <Hero
-        imageUrl="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1920&auto=format=fit=crop"
-        imageHint="resort pool"
+        imageUrl="https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?q=80&w=1920&auto=format=fit=crop"
+        imageHint="tennis court sunset"
         title=""
         subtitle="Join our sports club today - where passion, skill, and community thrive!"
         height="h-[calc(100vh-5rem)]"
