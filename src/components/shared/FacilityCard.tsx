@@ -16,15 +16,14 @@ export function FacilityCard({ facility }: FacilityCardProps) {
   return (
     <Card className="h-full overflow-hidden text-center transition-transform duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20">
       <CardHeader className="p-0">
-        <div className="relative h-56 w-full">
-          <Image
-            src={facility.image}
-            alt={facility.name}
-            data-ai-hint={facility.imageHint}
-            fill
-            className="object-cover"
-          />
-        </div>
+        <Image
+          src={facility.image}
+          alt={facility.name}
+          data-ai-hint={facility.imageHint}
+          width={600}
+          height={400}
+          className="h-56 w-full object-cover"
+        />
       </CardHeader>
       <CardContent className="p-6">
         <CardTitle className="font-headline text-2xl font-bold text-primary">

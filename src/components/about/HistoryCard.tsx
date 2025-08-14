@@ -13,13 +13,14 @@ export function HistoryCard({ item }: HistoryCardProps) {
         <CardTitle className="font-headline text-xl">{item.year}</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="relative mb-4 h-40 w-full">
+        <div className="mb-4">
           <Image
             src={item.image}
             alt={item.year}
             data-ai-hint={item.imageHint}
-            fill
-            className="rounded-md object-cover"
+            width={400}
+            height={400}
+            className="h-40 w-full rounded-md object-cover"
           />
         </div>
         <p className="text-center text-muted-foreground">{item.description}</p>
