@@ -10,13 +10,14 @@ export function ServiceCard({ service }: ServiceCardProps) {
   return (
     <Card className="overflow-hidden bg-card text-card-foreground shadow-lg">
       <div className="grid grid-cols-1 md:grid-cols-2">
-        <div className="relative h-48 md:h-full">
+        <div className="min-h-[200px]">
           <Image
             src={service.image}
             alt={service.title}
             data-ai-hint={service.imageHint}
-            fill
-            className="object-cover"
+            width={600}
+            height={400}
+            className="h-full w-full object-cover"
           />
         </div>
         <div className="flex flex-col justify-center p-6">

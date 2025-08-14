@@ -9,7 +9,7 @@ export function EventsSection({ className }: { className?: string }) {
   const latestEvent = events[0];
 
   return (
-    <Section title="OUT EVENT" id="events" className={className}>
+    <Section title="OUR EVENT" id="events" className={className}>
       <div className="overflow-hidden rounded-lg bg-white text-black shadow-lg">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="flex flex-col justify-center p-8">
@@ -36,13 +36,14 @@ export function EventsSection({ className }: { className?: string }) {
               </Button>
             </div>
           </div>
-          <div className="relative h-80 md:h-full">
+          <div className="min-h-[300px]">
             <Image
               src={latestEvent.image}
               alt={latestEvent.title}
               data-ai-hint={latestEvent.imageHint}
-              fill
-              className="object-cover"
+              width={800}
+              height={600}
+              className="h-full w-full object-cover"
             />
           </div>
         </div>
