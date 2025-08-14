@@ -14,7 +14,7 @@ type FacilityCardProps = {
 
 export function FacilityCard({ facility }: FacilityCardProps) {
   return (
-    <Card className="h-full overflow-hidden text-center transition-transform duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20">
+    <Card className="group h-full overflow-hidden text-center transition-transform duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20">
       <CardHeader className="p-0">
         <Image
           src={facility.image}
@@ -25,7 +25,7 @@ export function FacilityCard({ facility }: FacilityCardProps) {
           className="object-cover"
         />
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-6 transition-colors duration-300 group-hover:bg-primary/10">
         <CardTitle className="font-headline text-2xl font-bold text-primary">
           {facility.name}
         </CardTitle>

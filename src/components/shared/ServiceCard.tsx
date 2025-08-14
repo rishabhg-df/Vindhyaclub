@@ -8,7 +8,7 @@ type ServiceCardProps = {
 
 export function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <Card className="flex flex-col overflow-hidden bg-card text-card-foreground shadow-lg">
+    <Card className="group flex h-full flex-col overflow-hidden bg-card text-card-foreground shadow-lg">
       <div className="grid flex-1 grid-cols-1 md:grid-cols-2">
         <div className="relative h-[250px] md:h-full">
           <Image
@@ -19,7 +19,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
             className="object-cover"
           />
         </div>
-        <div className="flex flex-col justify-center p-6">
+        <div className="flex flex-col justify-center p-6 transition-colors duration-300 group-hover:bg-primary/10">
           <h3 className="mb-2 font-headline text-2xl font-bold">
             {service.title}
           </h3>
