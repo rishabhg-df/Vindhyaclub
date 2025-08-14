@@ -146,7 +146,7 @@ export const team: TeamMember[] = [
     name: 'Dr Praveen Shrivastava',
     role: 'Secretary',
     bio: 'Ensuring the smooth operation of the club and its activities.',
-    image: 'https://placehold.co/400x400.png',
+    image: 'https://i.postimg.cc/yYxJ3MgQ/4.png',
     imageHint: 'professional portrait',
   },
   {
