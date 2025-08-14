@@ -9,7 +9,7 @@ export function EventsSection({ className }: { className?: string }) {
   const latestEvent = events[0];
 
   return (
-    <Section title="OUR EVENT" id="events" className={className}>
+    <Section title="OUT EVENT" id="events" className={className}>
       <div className="overflow-hidden rounded-lg bg-white text-black shadow-lg">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="flex flex-col justify-center p-8">
