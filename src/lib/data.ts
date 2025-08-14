@@ -97,13 +97,13 @@ export const facilities: Facility[] = [
   {
     name: 'Card Room',
     description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1542037104-9283d09139ee?w=600',
+    image: 'https://placehold.co/600x400.png',
     imageHint: 'playing cards',
   },
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://images.unsplash.com/photo-1521535682925-69239031b268?w=600',
+    image: 'https://placehold.co/600x400.png',
     imageHint: 'badminton racket',
   },
    {
