@@ -167,7 +167,7 @@ export const history: HistoryItem[] = [
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://images.unsplash.com/photo-1622053933734-a8c435500c92?w=600',
+    image: 'https://cdn.pixabay.com/photo/2020/05/12/18/29/city-5164368_1280.jpg',
     imageHint: 'vintage sports event',
   },
    {
