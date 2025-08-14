@@ -149,6 +149,13 @@ export const team: TeamMember[] = [
     image: 'https://placehold.co/400x400.png',
     imageHint: 'professional portrait',
   },
+  {
+    name: 'Ashish Dwivedi',
+    role: 'Manager',
+    bio: 'Overseeing daily operations and ensuring a great member experience.',
+    image: 'https://placehold.co/400x400.png',
+    imageHint: 'professional manager',
+  },
 ];
 
 export const history: HistoryItem[] = [
