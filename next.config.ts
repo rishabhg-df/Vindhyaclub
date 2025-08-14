@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.s3waas.gov.in',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.postimg.cc',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
