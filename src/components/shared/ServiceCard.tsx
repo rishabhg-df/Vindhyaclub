@@ -20,7 +20,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
             className="h-full w-full object-cover"
           />
         </div>
-        <div className="flex flex-col justify-center p-6">
+        <div className="flex flex-1 flex-col justify-center p-6">
           <h3 className="mb-2 font-headline text-2xl font-bold">
             {service.title}
           </h3>
