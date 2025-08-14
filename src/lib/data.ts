@@ -139,7 +139,7 @@ export const team: TeamMember[] = [
     name: 'Sp Ashutosh gupta',
     role: 'Vice President',
     bio: 'Dedicated to enhancing the club experience for all our members.',
-    image: 'https://i.postimg.cc/t4x94sBv/sp-ashutosh-gupta.jpg',
+    image: 'https://i.postimg.cc/nzhStVrY/1.png',
     imageHint: 'professional man',
   },
   {
