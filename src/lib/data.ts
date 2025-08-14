@@ -153,7 +153,7 @@ export const team: TeamMember[] = [
     name: 'Ashish Dwivedi',
     role: 'Manager',
     bio: 'Overseeing daily operations and ensuring a great member experience.',
-    image: 'https://placehold.co/400x400.png',
+    image: 'https://i.postimg.cc/V6XqT3BB/3.png',
     imageHint: 'professional manager',
   },
 ];
