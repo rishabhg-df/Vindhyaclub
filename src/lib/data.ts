@@ -136,10 +136,10 @@ export const team: TeamMember[] = [
     imageHint: 'female portrait',
   },
   {
-    name: 'Mike Johnson',
-    role: 'Facilities Manager',
-    bio: 'Ensuring our facilities are state-of-the-art and always ready for our members.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+    name: 'Sp Ashutosh gupta',
+    role: 'Vice President',
+    bio: 'Dedicated to enhancing the club experience for all our members.',
+    image: 'https://placehold.co/400x400.png',
     imageHint: 'professional man',
   },
   {
