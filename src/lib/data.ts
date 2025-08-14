@@ -103,7 +103,7 @@ export const facilities: Facility[] = [
   {
     name: 'Badminton',
     description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://media.istockphoto.com/id/2039428008/photo/badminton-sport.jpg?s=612x612&w=0&k=20&c=QaJkgwpndo8hVfSIPOg1hTAxd7Ngp8XpFCb0jssE8Zs=',
+    image: 'https://images.unsplash.com/photo-1596740890373-75b62d0515ae?w=600&auto=format',
     imageHint: 'badminton sport',
   },
    {
@@ -122,10 +122,10 @@ export const facilities: Facility[] = [
 
 export const team: TeamMember[] = [
   {
-    name: 'John Doe',
+    name: 'Dr. Satish Kumar S',
     role: 'Club President',
     bio: 'Leading the club with passion and vision for over a decade.',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400',
+    image: 'https://cdn.s3waas.gov.in/s38e6b42f1644ecb1327dc03ab345e618b/uploads/bfi_thumb/2025020454-r0zxhxfa9ej3kpxiw6s4sngj7oqwo1aum8vlxcfux4.jpg',
     imageHint: 'male portrait',
   },
   {
