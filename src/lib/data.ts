@@ -155,20 +155,20 @@ export const history: HistoryItem[] = [
   {
     year: '1904-1905',
     description: 'The year the club was founded, laying the groundwork for a century of sport.',
-    image: 'https://images.unsplash.com/photo-1554107516-a3372a420b12?w=600',
-    imageHint: 'vintage document',
+    image: 'https://images.unsplash.com/photo-1615865228836-50a19f3f9e42?w=600',
+    imageHint: 'vintage photograph',
   },
   {
     year: '1906',
     description: 'Construction of our first clubhouse, a landmark for the community.',
-    image: 'https://images.unsplash.com/photo-1600585152220-406b9b212a0d?w=600',
-    imageHint: 'vintage building',
+    image: 'https://images.unsplash.com/photo-1568625591379-3b9423d6479f?w=600',
+    imageHint: 'historic building',
   },
   {
     year: '1960',
     description: 'Hosted the first national-level tennis tournament, putting us on the map.',
-    image: 'https://images.unsplash.com/photo-1558244434-719317b3d368?w=600',
-    imageHint: 'vintage tennis trophy',
+    image: 'https://images.unsplash.com/photo-1551811199-a89467645b46?w=600',
+    imageHint: 'vintage sports event',
   },
    {
     year: 'Present',

@@ -20,7 +20,7 @@ export function HistoryCard({ item }: HistoryCardProps) {
             data-ai-hint={item.imageHint}
             width={400}
             height={200}
-            className="h-40 w-full rounded-md object-cover"
+            className="rounded-md object-cover"
           />
         </div>
         <p className="text-center text-muted-foreground">{item.description}</p>
