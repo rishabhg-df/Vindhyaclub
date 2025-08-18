@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
 
 type AdminContextType = {
   isLoggedIn: boolean;
@@ -12,12 +18,42 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const login = () => setIsLoggedIn(true);
-  const logout = () => {
-    setIsLoggedIn(false);
+  useEffect(() => {
+    try {
+      const storedLoginStatus = localStorage.getItem('isAdminLoggedIn');
+      if (storedLoginStatus === 'true') {
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Failed to read admin login status from localStorage', error);
+    }
+    setIsInitialized(true);
+  }, []);
+
+  const login = () => {
+    try {
+      localStorage.setItem('isAdminLoggedIn', 'true');
+    } catch (error) {
+       console.error('Failed to save admin login status to localStorage', error);
+    }
+    setIsLoggedIn(true);
   };
   
+  const logout = () => {
+    try {
+      localStorage.removeItem('isAdminLoggedIn');
+    } catch (error) {
+       console.error('Failed to remove admin login status from localStorage', error);
+    }
+    setIsLoggedIn(false);
+  };
+
+  if (!isInitialized) {
+    return null;
+  }
+
   return (
     <AdminContext.Provider value={{ isLoggedIn, login, logout }}>
       {children}
