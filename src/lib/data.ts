@@ -1,11 +1,10 @@
 
-import type { Event, Service, Facility, TeamMember, HistoryItem } from './types';
+import type { Event, Facility, TeamMember, HistoryItem } from './types';
 
 export const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/events', label: 'Events' },
-  { href: '/services', label: 'Services' },
   { href: '/facilities', label: 'Facilities' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -51,34 +50,6 @@ export const events: Omit<Event, 'id'>[] = [
       'A week-long soccer camp for kids aged 8-14. Coached by certified professionals.',
     image: 'https://images.unsplash.com/photo-1551957442-f53835a4b9e2?w=600',
     imageHint: 'soccer kids',
-  },
-];
-
-export const services: Service[] = [
-  {
-    title: 'Sports',
-    description: 'We provides all the sports and activities in our club.',
-    image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600',
-    imageHint: 'multiple sports',
-  },
-  {
-    title: 'Kids Zone',
-    description:
-      'We have largest garden in the locality with kids play area.',
-    image: 'https://cdn.pixabay.com/photo/2016/11/28/10/48/christmas-background-1864718_640.jpg',
-    imageHint: 'christmas background',
-  },
-  {
-    title: 'Restaurant',
-    description: 'The best and choicest cuisine in our Restaurant.',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600',
-    imageHint: 'elegant restaurant',
-  },
-  {
-    title: 'Bar',
-    description: 'We serve best beverages in our bar for our',
-    image: 'https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=600',
-    imageHint: 'modern bar',
   },
 ];
 

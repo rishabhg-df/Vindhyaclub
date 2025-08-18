@@ -1,6 +1,5 @@
 import { Hero } from '@/components/shared/Hero';
 import { EventsSection } from '@/components/home/EventsSection';
-import { ServicesSection } from '@/components/home/ServicesSection';
 import { FacilitiesSection } from '@/components/home/FacilitiesSection';
 import { TeamSection } from '@/components/home/TeamSection';
 import { WelcomeSection } from '@/components/home/WelcomeSection';
@@ -17,7 +16,6 @@ export default function Home() {
       />
       <WelcomeSection />
       <EventsSection />
-      <ServicesSection />
       <FacilitiesSection />
       <TeamSection />
     </>

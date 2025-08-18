@@ -15,13 +15,6 @@ export type Event = {
   imageHint: string;
 };
 
-export type Service = {
-  title: string;
-  description: string;
-  image: string;
-  imageHint: string;
-};
-
 export type Facility = {
   name: string;
   description: string;
