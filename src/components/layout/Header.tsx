@@ -9,16 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { navLinks } from '@/lib/data';
-import { useAdmin } from '@/context/AdminContext';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { isAdmin } = useAdmin();
 
-  const authLink = isAdmin
-    ? { href: '/admin', label: 'Admin' }
-    : { href: '/signin', label: 'Sign In' };
+  const authLink = { href: '/signin', label: 'Sign In' };
 
   const allLinks = [...navLinks, authLink];
 
