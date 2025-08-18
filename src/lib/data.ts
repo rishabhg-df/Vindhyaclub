@@ -91,7 +91,7 @@ export const facilities: Facility[] = [
   {
     name: 'Swimming Pool',
     description: 'Relax and rejuvenate in our crystal-clear swimming pool, perfect for all ages.',
-    image: 'https://images.unsplash.com/photo-1579882392282-3c52431d109b?q=80&w=1920&auto=format&fit=crop',
+    image: 'https://cdn.pixabay.com/photo/2016/03/27/21/55/girls-1284419_640.jpg',
     imageHint: 'swimming pool',
   },
   {
