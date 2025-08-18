@@ -15,15 +15,7 @@ import { Card } from '@/components/ui/card';
 export function EventsSection({ className }: { className?: string }) {
   const { events } = useEvents();
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const upcomingEvents = events.filter((event) => {
-    const eventDate = new Date(event.date);
-    return eventDate >= today;
-  });
-
-  if (upcomingEvents.length === 0) {
+  if (events.length === 0) {
     return null;
   }
 
@@ -37,7 +29,7 @@ export function EventsSection({ className }: { className?: string }) {
         className="mx-auto w-full max-w-4xl"
       >
         <CarouselContent>
-          {upcomingEvents.map((event, index) => (
+          {events.map((event, index) => (
             <CarouselItem key={index}>
               <div className="p-1">
                 <Card className="overflow-hidden bg-card text-card-foreground shadow-lg">
