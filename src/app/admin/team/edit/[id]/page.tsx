@@ -156,31 +156,37 @@ export default function EditTeamMemberPage() {
                   </FormItem>
                 )}
               />
-              <FormItem>
-                <FormLabel>Photo</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                </FormControl>
-                <FormDescription>
-                  For best results, upload a square image of 128x128 pixels.
-                </FormDescription>
-                {imagePreview && (
-                  <div className="mt-4">
-                    <Image
-                      src={imagePreview}
-                      alt="Profile preview"
-                      width={128}
-                      height={128}
-                      className="h-32 w-32 rounded-full object-cover"
-                    />
-                  </div>
+              <FormField
+                control={form.control}
+                name="image"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Photo</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      For best results, upload a square image of 128x128 pixels.
+                    </FormDescription>
+                    {imagePreview && (
+                      <div className="mt-4">
+                        <Image
+                          src={imagePreview}
+                          alt="Profile preview"
+                          width={128}
+                          height={128}
+                          className="h-32 w-32 rounded-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <FormMessage />
-              </FormItem>
+              />
 
               <div className="flex justify-end gap-4">
                 <Button
