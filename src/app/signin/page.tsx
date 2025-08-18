@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/form';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { useAdmin } from '@/context/AdminContext';
 
 const signInSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -39,6 +40,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 export default function SignInPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useAdmin();
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -52,6 +54,7 @@ export default function SignInPage() {
   const onSubmit = (data: SignInFormValues) => {
     if (data.email === 'admin@example.com') {
       if (data.password === 'admin') {
+        login();
         toast({
           title: 'Admin Login Successful',
           description: 'Welcome back, Admin!',

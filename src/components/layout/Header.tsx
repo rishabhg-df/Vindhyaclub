@@ -3,20 +3,36 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu } from 'lucide-react';
+import { Menu, UserCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { navLinks } from '@/lib/data';
+import { useAdmin } from '@/context/AdminContext';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { isLoggedIn, logout } = useAdmin();
 
-  const authLink = { href: '/signin', label: 'Sign In' };
+  const authLink = isLoggedIn
+    ? { href: '/admin', label: 'Admin' }
+    : { href: '/signin', label: 'Sign In' };
 
   const allLinks = [...navLinks, authLink];
+
+  const handleLogout = () => {
+    logout();
+  };
 
   const NavLinks = ({ className }: { className?: string }) => (
     <nav
@@ -25,7 +41,7 @@ export function Header() {
         className
       )}
     >
-      {allLinks.map((link) => (
+      {navLinks.map((link) => (
         <Link
           key={link.href}
           href={link.href}
@@ -54,6 +70,27 @@ export function Header() {
 
       <div className="hidden items-center gap-4 md:flex">
         <NavLinks />
+        {isLoggedIn ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <UserCircle className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/admin">Dashboard</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button asChild>
+            <Link href="/signin">Sign In</Link>
+          </Button>
+        )}
       </div>
 
       <div className="md:hidden">
@@ -80,6 +117,17 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
+                {isLoggedIn && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                  >
+                    Logout
+                  </Button>
+                )}
               </nav>
             </div>
           </SheetContent>
