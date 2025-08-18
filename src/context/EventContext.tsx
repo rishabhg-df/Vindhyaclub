@@ -26,6 +26,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       if (storedEvents) {
         setEvents(JSON.parse(storedEvents));
       } else {
+        // if no data in localstorage, use initial data
         setEvents(staticEvents);
       }
     } catch (error) {

@@ -23,11 +23,10 @@ export function TeamProvider({ children }: { children: ReactNode }) {
       const storedTeam = localStorage.getItem('teamData');
       if (storedTeam) {
         setTeam(JSON.parse(storedTeam));
-      } else {
-         setTeam(initialTeam);
       }
     } catch (error) {
       console.error('Failed to parse team data from localStorage', error);
+      // Initialize with default if localStorage is corrupt
       setTeam(initialTeam);
     }
     setIsInitialized(true);
@@ -61,7 +60,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   };
 
   if (!isInitialized) {
-    return null;
+    return null; // Or a loading spinner
   }
 
   return (
