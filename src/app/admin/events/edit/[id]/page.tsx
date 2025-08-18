@@ -38,7 +38,7 @@ import { format } from 'date-fns';
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   date: z.date({ required_error: 'Date is required.' }),
-  entryTime: z.string().optional(),
+  entryTime: z.string().min(1, 'Entry time is required.'),
   description: z.string().min(1, 'Description is required.'),
   image: z.string().min(1, 'Image is required.'),
   imageHint: z.string().optional(),
@@ -191,7 +191,7 @@ export default function EditEventPage() {
                       <Input placeholder="e.g., 10:30pm" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Optional. The last time for entry.
+                      The last time for entry.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
