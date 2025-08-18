@@ -14,7 +14,7 @@ type EventContextType = {
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
-const staticEvents = initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString()}));
+const staticEvents = initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString() + Math.random()}));
 
 export function EventProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>(staticEvents);
