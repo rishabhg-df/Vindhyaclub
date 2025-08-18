@@ -15,32 +15,42 @@ type EventContextType = {
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
 const getInitialEvents = (): Event[] => {
-  if (typeof window !== 'undefined') {
-    try {
-      const storedEvents = localStorage.getItem('eventData');
-      if (storedEvents) {
-        return JSON.parse(storedEvents);
-      }
-    } catch (error) {
-      console.error('Failed to parse event data from localStorage', error);
-      // Fallback to initialEvents if localStorage is corrupt
-      return initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString()}));
-    }
+  const staticEvents = initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString()}));
+  if (typeof window === 'undefined') {
+    return staticEvents;
   }
-  return initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString()}));
+  
+  try {
+    const storedEvents = localStorage.getItem('eventData');
+    if (storedEvents) {
+      return JSON.parse(storedEvents);
+    }
+  } catch (error) {
+    console.error('Failed to parse event data from localStorage', error);
+  }
+
+  return staticEvents;
 };
 
 
 export function EventProvider({ children }: { children: ReactNode }) {
-  const [events, setEvents] = useState<Event[]>(getInitialEvents);
+  const [events, setEvents] = useState<Event[]>(initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString()})));
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('eventData', JSON.stringify(events));
-    } catch (error) {
-      console.error('Failed to save event data to localStorage', error);
+    setEvents(getInitialEvents());
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialized) {
+      try {
+        localStorage.setItem('eventData', JSON.stringify(events));
+      } catch (error) {
+        console.error('Failed to save event data to localStorage', error);
+      }
     }
-  }, [events]);
+  }, [events, isInitialized]);
   
 
   const addEvent = (event: Event) => {
@@ -58,6 +68,10 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const deleteEvent = (id: string) => {
     setEvents((prevEvents) => prevEvents.filter((event) => event.id !== id));
   };
+
+  if (!isInitialized) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <EventContext.Provider value={{ events, addEvent, updateEvent, deleteEvent }}>
