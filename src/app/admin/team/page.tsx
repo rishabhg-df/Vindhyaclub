@@ -42,7 +42,7 @@ export default function ManageTeamPage() {
 
     // This is a mock deletion. In a real app, you would make an API call.
     setTeam((prevTeam) =>
-      prevTeam.filter((member) => member.name !== memberToDelete.name)
+      prevTeam.filter((member) => member.id !== memberToDelete.id)
     );
     toast({
       title: 'Member Deleted',
@@ -73,7 +73,7 @@ export default function ManageTeamPage() {
           </TableHeader>
           <TableBody>
             {team.map((member) => (
-              <TableRow key={member.name}>
+              <TableRow key={member.id}>
                 <TableCell>
                   <Image
                     src={member.image}
@@ -92,7 +92,7 @@ export default function ManageTeamPage() {
                       size="icon"
                       onClick={() =>
                         router.push(
-                          `/admin/team/edit/${encodeURIComponent(member.name)}`
+                          `/admin/team/edit/${member.id}`
                         )
                       }
                     >

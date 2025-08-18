@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,16 +34,20 @@ const memberSchema = z.object({
 
 type MemberFormValues = z.infer<typeof memberSchema>;
 
+// A simple in-memory store. In a real app, you'd use a proper state management solution.
+let teamStore = [...initialTeam];
+
 export default function EditTeamMemberPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-  const memberId = params.id;
+  const memberId = params.id as string;
   const isNew = memberId === 'new';
+  const [team, setTeam] = useState(teamStore);
 
   const member = isNew
     ? null
-    : initialTeam.find((m) => m.name === decodeURIComponent(memberId as string));
+    : team.find((m) => m.id === memberId);
 
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
@@ -55,7 +59,7 @@ export default function EditTeamMemberPage() {
       imageHint: 'professional portrait',
     },
   });
-
+  
   useEffect(() => {
     if (!isNew && !member) {
       toast({
@@ -65,17 +69,31 @@ export default function EditTeamMemberPage() {
       });
       router.push('/admin/team');
     }
-  }, [isNew, member, router, toast]);
+     // Sync form with member details when member is found
+    if (member) {
+      form.reset(member);
+    }
+  }, [isNew, member, router, toast, form]);
+
 
   const onSubmit = (data: MemberFormValues) => {
-    // In a real app, you would make an API call to save the data.
-    console.log('Form submitted', data);
+    if (isNew) {
+      const newMember: TeamMember = {
+        id: new Date().getTime().toString(), // simple unique id
+        ...data,
+      };
+      teamStore = [...teamStore, newMember];
+    } else {
+      teamStore = teamStore.map((m) =>
+        m.id === memberId ? { ...m, ...data } : m
+      );
+    }
+
     toast({
       title: `Member ${isNew ? 'Added' : 'Updated'}`,
       description: `${data.name} has been successfully saved.`,
     });
     router.push('/admin/team');
-    // Note: The UI won't actually update because we are not persisting the changes.
   };
 
   return (
