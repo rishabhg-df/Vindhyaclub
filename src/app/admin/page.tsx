@@ -1,0 +1,43 @@
+
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Section } from '@/components/shared/Section';
+import { Users, Calendar } from 'lucide-react';
+
+export default function AdminDashboardPage() {
+  return (
+    <Section title="Admin Dashboard">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <Card className="text-center transition-transform hover:scale-105">
+          <CardHeader>
+            <Users className="mx-auto mb-4 h-12 w-12 text-primary" />
+            <CardTitle>Manage Management Team</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-muted-foreground">
+              Add, edit, or remove members from the management team.
+            </p>
+            <Button asChild>
+              <Link href="/admin/team">Go to Team Management</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="text-center transition-transform hover:scale-105">
+          <CardHeader>
+            <Calendar className="mx-auto mb-4 h-12 w-12 text-primary" />
+            <CardTitle>Manage Events</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-muted-foreground">
+              Create, update, or delete club events.
+            </p>
+            <Button asChild variant="secondary" disabled>
+              <Link href="#">Go to Event Management</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </Section>
+  );
+}

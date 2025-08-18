@@ -51,12 +51,20 @@ export default function SignInPage() {
 
   const onSubmit = (data: SignInFormValues) => {
     // In a real app, you'd handle authentication here.
-    console.log(data);
-    toast({
-      title: 'Login Successful',
-      description: 'Welcome back!',
-    });
-    router.push('/');
+    // For demo purposes, we'll check for a specific admin user.
+    if (data.email === 'admin@example.com' && data.password === 'admin') {
+      toast({
+        title: 'Admin Login Successful',
+        description: 'Welcome back, Admin!',
+      });
+      router.push('/admin');
+    } else {
+      toast({
+        title: 'Login Successful',
+        description: 'Welcome back!',
+      });
+      router.push('/');
+    }
   };
 
   return (
