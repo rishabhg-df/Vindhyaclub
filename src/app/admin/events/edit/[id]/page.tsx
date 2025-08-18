@@ -90,18 +90,37 @@ export default function EditEventPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUrl = reader.result as string;
-        setImagePreview(dataUrl);
-        form.setValue('image', dataUrl);
-      };
-      reader.readAsDataURL(file);
+      const tempUrl = URL.createObjectURL(file);
+      setImagePreview(tempUrl);
+      // We set a placeholder here because storing the full Data URL in state
+      // and thus localstorage can exceed the quota. The actual image
+      // isn't saved anywhere in this demo app, so we'll just use a placeholder
+      // for the form data to avoid breaking the UI. In a real app,
+      // you would upload the file to a server and get back a URL.
+      form.setValue('image', 'https://placehold.co/800x600.png');
+      toast({
+        title: 'Image is for preview only',
+        description:
+          'In this demo, uploaded images are not saved. A placeholder will be used.',
+      });
     }
   };
 
   const onSubmit = (data: EventFormValues) => {
     const eventData = { ...data, date: data.date.toISOString() };
+    
+    // If an image preview from a file upload exists, but the user didn't change it,
+    // the image field might be a placeholder. We should use the original image if it exists.
+    if (!isNew && event && imagePreview && !imagePreview.startsWith('blob:')) {
+      eventData.image = event.image;
+    }
+
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+       // If a new image was uploaded, use a placeholder
+       eventData.image = 'https://placehold.co/800x600.png';
+    }
+
+
     if (isNew) {
       addEvent({
         id: new Date().getTime().toString(),
