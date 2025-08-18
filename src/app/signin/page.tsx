@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/form';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { useAdmin } from '@/context/AdminContext';
 
 const signInSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -39,6 +40,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 export default function SignInPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useAdmin();
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -50,14 +52,21 @@ export default function SignInPage() {
   });
 
   const onSubmit = (data: SignInFormValues) => {
-    // In a real app, you'd handle authentication here.
-    // For demo purposes, we'll check for a specific admin user.
-    if (data.email === 'admin@example.com' && data.password === 'admin') {
-      toast({
-        title: 'Admin Login Successful',
-        description: 'Welcome back, Admin!',
-      });
-      router.push('/admin');
+    if (data.email === 'admin@example.com') {
+      if (data.password === 'admin') {
+        login();
+        toast({
+          title: 'Admin Login Successful',
+          description: 'Welcome back, Admin!',
+        });
+        router.push('/admin');
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid Credentials',
+          description: 'The password you entered is incorrect. Please try again.',
+        });
+      }
     } else {
       toast({
         title: 'Login Successful',

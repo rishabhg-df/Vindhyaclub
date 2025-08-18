@@ -9,12 +9,18 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { navLinks } from '@/lib/data';
+import { useAdmin } from '@/context/AdminContext';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { isAdmin } = useAdmin();
 
-  const allLinks = [...navLinks, { href: '/signin', label: 'Sign In' }];
+  const authLink = isAdmin
+    ? { href: '/admin', label: 'Admin' }
+    : { href: '/signin', label: 'Sign In' };
+
+  const allLinks = [...navLinks, authLink];
 
   const NavLinks = ({ className }: { className?: string }) => (
     <nav
@@ -30,15 +36,11 @@ export function Header() {
           onClick={() => setIsOpen(false)}
           className={cn(
             'relative px-3 py-2 transition-colors hover:text-primary',
-            pathname === link.href
-              ? 'text-primary'
-              : 'text-white'
+            pathname === link.href ? 'text-primary' : 'text-white'
           )}
         >
           {pathname === link.href && (
-            <div
-              className="absolute inset-0 z-[-1] -skew-x-[20deg] bg-white"
-            />
+            <div className="absolute inset-0 z-[-1] -skew-x-[20deg] bg-white" />
           )}
           {link.label}
         </Link>
@@ -68,21 +70,21 @@ export function Header() {
           </SheetTrigger>
           <SheetContent side="right" className="bg-black text-white">
             <div className="flex flex-col items-center gap-8 pt-12">
-            <nav className="flex flex-col items-center gap-6 text-lg font-medium">
-              {allLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    'transition-colors hover:text-primary',
-                    pathname === link.href ? 'text-primary' : 'text-white'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
+              <nav className="flex flex-col items-center gap-6 text-lg font-medium">
+                {allLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      'transition-colors hover:text-primary',
+                      pathname === link.href ? 'text-primary' : 'text-white'
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
           </SheetContent>
         </Sheet>
