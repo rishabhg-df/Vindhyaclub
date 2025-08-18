@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   Carousel,
   CarouselContent,
@@ -9,15 +8,22 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { Button } from '@/components/ui/button';
 import { Section } from '@/components/shared/Section';
 import { useEvents } from '@/context/EventContext';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
 export function EventsSection({ className }: { className?: string }) {
   const { events } = useEvents();
 
-  if (events.length === 0) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingEvents = events.filter((event) => {
+    const eventDate = new Date(event.date);
+    return eventDate >= today;
+  });
+
+  if (upcomingEvents.length === 0) {
     return null;
   }
 
@@ -31,7 +37,7 @@ export function EventsSection({ className }: { className?: string }) {
         className="mx-auto w-full max-w-4xl"
       >
         <CarouselContent>
-          {events.map((event, index) => (
+          {upcomingEvents.map((event, index) => (
             <CarouselItem key={index}>
               <div className="p-1">
                 <Card className="overflow-hidden bg-card text-card-foreground shadow-lg">
@@ -46,7 +52,8 @@ export function EventsSection({ className }: { className?: string }) {
                           month: 'long',
                           day: 'numeric',
                         })}
-                        {event.entryTime && ` (No Entry After ${event.entryTime})`}
+                        {event.entryTime &&
+                          ` (No Entry After ${event.entryTime})`}
                       </p>
                       <p className="mb-6">{event.description}</p>
                     </div>
