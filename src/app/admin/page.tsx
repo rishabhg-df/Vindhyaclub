@@ -30,9 +30,9 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="mb-4 text-muted-foreground">
-              Create, update, or delete club events.
+              Create, update, or delete club events and announcements.
             </p>
-            <Button asChild variant="secondary">
+            <Button asChild>
               <Link href="/admin/events">Go to Event Management</Link>
             </Button>
           </CardContent>
