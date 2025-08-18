@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, ChangeEvent } from 'react';
@@ -165,8 +166,7 @@ export default function EditTeamMemberPage() {
                   />
                 </FormControl>
                 <FormDescription>
-                  For best results, upload a square image (e.g., 400x400
-                  pixels).
+                  For best results, upload a square image of 128x128 pixels.
                 </FormDescription>
                 {imagePreview && (
                   <div className="mt-4">
