@@ -10,10 +10,11 @@ export const navLinks = [
   { href: '/contact', label: 'Contact' },
 ];
 
-export const events: Event[] = [
+export const events: Omit<Event, 'id'>[] = [
   {
     title: 'New Year Celebration',
     date: '2024-12-31',
+    entryTime: '10:30pm',
     description:
       'Dance 8:30 pm onwards No Entry after 10:30pm',
     image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=1920',
@@ -103,7 +104,7 @@ export const facilities: Facility[] = [
   {
     name: 'Half Basketball Court',
     description: 'Practice your shots and enjoy a casual game on our outdoor half basketball court.',
-    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&auto=format=fit=crop',
     imageHint: 'basketball court',
   },
    {
@@ -121,7 +122,7 @@ export const facilities: Facility[] = [
   {
     name: 'Gym',
     description: 'Achieve your fitness goals with our state-of-the-art gym, equipped with the latest machines.',
-    image: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?q=80&w=1920&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?q=80&w=1920&auto=format=fit=crop',
     imageHint: 'modern gym',
   },
 ];

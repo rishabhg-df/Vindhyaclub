@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { AdminProvider } from '@/context/AdminContext';
 import { TeamProvider } from '@/context/TeamContext';
+import { EventProvider } from '@/context/EventContext';
 
 export const metadata: Metadata = {
   title: 'Vindhya Club Central',
@@ -30,15 +31,17 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body bg-black text-foreground antialiased">
+      <body className="font-body bg-background text-foreground antialiased">
         <AdminProvider>
           <TeamProvider>
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-grow bg-black">{children}</main>
-              <Footer />
-            </div>
-            <Toaster />
+            <EventProvider>
+              <div className="flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+              </div>
+              <Toaster />
+            </EventProvider>
           </TeamProvider>
         </AdminProvider>
       </body>

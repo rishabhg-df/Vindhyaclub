@@ -6,8 +6,10 @@ export type NavLink = {
 };
 
 export type Event = {
+  id: string;
   title: string;
   date: string;
+  entryTime?: string;
   description: string;
   image: string;
   imageHint: string;
