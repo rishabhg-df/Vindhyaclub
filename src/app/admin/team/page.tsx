@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -26,13 +25,13 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Section } from '@/components/shared/Section';
-import { team as initialTeam } from '@/lib/data';
 import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { useTeam } from '@/context/TeamContext';
 
 export default function ManageTeamPage() {
-  const [team, setTeam] = useState<TeamMember[]>(initialTeam);
+  const { team, deleteMember } = useTeam();
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -40,10 +39,7 @@ export default function ManageTeamPage() {
   const handleDelete = () => {
     if (!memberToDelete) return;
 
-    // This is a mock deletion. In a real app, you would make an API call.
-    setTeam((prevTeam) =>
-      prevTeam.filter((member) => member.id !== memberToDelete.id)
-    );
+    deleteMember(memberToDelete.id);
     toast({
       title: 'Member Deleted',
       description: `${memberToDelete.name} has been removed from the team.`,
@@ -98,9 +94,9 @@ export default function ManageTeamPage() {
                     >
                       <Edit />
                     </Button>
-                    <AlertDialog>
+                    <AlertDialog open={!!memberToDelete && memberToDelete.id === member.id} onOpenChange={(isOpen) => !isOpen && setMemberToDelete(null)}>
                       <AlertDialogTrigger asChild>
-                        <Button
+                         <Button
                           variant="destructive"
                           size="icon"
                           onClick={() => setMemberToDelete(member)}

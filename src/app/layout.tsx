@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { AdminProvider } from '@/context/AdminContext';
+import { TeamProvider } from '@/context/TeamContext';
 
 export const metadata: Metadata = {
   title: 'Vindhya Club Central',
@@ -31,12 +32,14 @@ export default function RootLayout({
       </head>
       <body className="font-body bg-black text-foreground antialiased">
         <AdminProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-grow bg-black">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
+          <TeamProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-grow bg-black">{children}</main>
+              <Footer />
+            </div>
+            <Toaster />
+          </TeamProvider>
         </AdminProvider>
       </body>
     </html>
