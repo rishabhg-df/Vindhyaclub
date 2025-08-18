@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -13,27 +14,22 @@ type TeamContextType = {
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
 
-const getInitialTeam = (): TeamMember[] => {
-  if (typeof window !== 'undefined') {
-    try {
-      const storedTeam = localStorage.getItem('teamData');
-      if (storedTeam) {
-        return JSON.parse(storedTeam);
-      }
-    } catch (error) {
-      console.error('Failed to parse team data from localStorage', error);
-    }
-  }
-  return initialTeam;
-};
-
-
 export function TeamProvider({ children }: { children: ReactNode }) {
-  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>(initialTeam);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    setTeam(getInitialTeam());
+    try {
+      const storedTeam = localStorage.getItem('teamData');
+      if (storedTeam) {
+        setTeam(JSON.parse(storedTeam));
+      } else {
+         setTeam(initialTeam);
+      }
+    } catch (error) {
+      console.error('Failed to parse team data from localStorage', error);
+      setTeam(initialTeam);
+    }
     setIsInitialized(true);
   }, []);
 
