@@ -97,7 +97,7 @@ export const facilities: Facility[] = [
   {
     name: 'Squash Court',
     description: 'Challenge your agility and speed in our professional-grade, air-conditioned squash courts.',
-    image: 'https://images.unsplash.com/photo-1594420760435-43b17c844622?q=80&w=1920&auto=format&fit=crop',
+    image: 'https://media.istockphoto.com/id/1232520348/photo/its-all-in-how-you-serve.jpg?s=1024x1024&w=is&k=20&c=NyCn7dU6K3JEw5zl5mniogBoBxcWbpNbkeDrHF2WCwQ=',
     imageHint: 'squash court',
   },
   {
