@@ -103,7 +103,7 @@ export const facilities: Facility[] = [
   {
     name: 'Half Basketball Court',
     description: 'Practice your shots and enjoy a casual game on our outdoor half basketball court.',
-    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&auto=format=fit=crop',
+    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&auto=format&fit=crop',
     imageHint: 'basketball court',
   },
    {
@@ -115,7 +115,7 @@ export const facilities: Facility[] = [
   {
     name: 'Pool & Snooker',
     description: 'Unwind and test your skills on our classic pool and snooker tables in a relaxed setting.',
-    image: 'https://images.unsplash.com/photo-1608283929910-29a2e424a4b5?q=80&w=1920&auto=format=fit=crop',
+    image: 'https://cdn.pixabay.com/photo/2019/09/30/19/28/snooker-4516624_640.jpg',
     imageHint: 'pool table',
   },
   {
