@@ -69,10 +69,10 @@ export default function SignInPage() {
       }
     } else {
       toast({
-        title: 'Login Successful',
-        description: 'Welcome back!',
+        variant: 'destructive',
+        title: 'Invalid User',
+        description: 'This email is not authorized for admin access.',
       });
-      router.push('/');
     }
   };
 
