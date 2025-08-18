@@ -16,17 +16,15 @@ const EventContext = createContext<EventContextType | undefined>(undefined);
 
 const getInitialEvents = (): Event[] => {
   const staticEvents = initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString()}));
-  if (typeof window === 'undefined') {
-    return staticEvents;
-  }
-  
-  try {
-    const storedEvents = localStorage.getItem('eventData');
-    if (storedEvents) {
-      return JSON.parse(storedEvents);
+  if (typeof window !== 'undefined') {
+    try {
+      const storedEvents = localStorage.getItem('eventData');
+      if (storedEvents) {
+        return JSON.parse(storedEvents);
+      }
+    } catch (error) {
+      console.error('Failed to parse event data from localStorage', error);
     }
-  } catch (error) {
-    console.error('Failed to parse event data from localStorage', error);
   }
 
   return staticEvents;
@@ -34,7 +32,7 @@ const getInitialEvents = (): Event[] => {
 
 
 export function EventProvider({ children }: { children: ReactNode }) {
-  const [events, setEvents] = useState<Event[]>(initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString()})));
+  const [events, setEvents] = useState<Event[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {

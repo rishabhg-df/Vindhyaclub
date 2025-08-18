@@ -22,8 +22,6 @@ const getInitialTeam = (): TeamMember[] => {
       }
     } catch (error) {
       console.error('Failed to parse team data from localStorage', error);
-      // Fallback to initialTeam if localStorage is corrupt
-      return initialTeam;
     }
   }
   return initialTeam;
@@ -31,15 +29,23 @@ const getInitialTeam = (): TeamMember[] => {
 
 
 export function TeamProvider({ children }: { children: ReactNode }) {
-  const [team, setTeam] = useState<TeamMember[]>(getInitialTeam);
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('teamData', JSON.stringify(team));
-    } catch (error) {
-      console.error('Failed to save team data to localStorage', error);
+    setTeam(getInitialTeam());
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialized) {
+      try {
+        localStorage.setItem('teamData', JSON.stringify(team));
+      } catch (error) {
+        console.error('Failed to save team data to localStorage', error);
+      }
     }
-  }, [team]);
+  }, [team, isInitialized]);
   
 
   const addMember = (member: TeamMember) => {
@@ -57,6 +63,10 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   const deleteMember = (id: string) => {
     setTeam((prevTeam) => prevTeam.filter((member) => member.id !== id));
   };
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <TeamContext.Provider value={{ team, addMember, updateMember, deleteMember }}>
