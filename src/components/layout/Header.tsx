@@ -74,7 +74,7 @@ export function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
-                <UserCircle className="h-6 w-6" />
+                <UserCircle className="h-7 w-7" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
