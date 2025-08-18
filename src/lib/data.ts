@@ -83,40 +83,46 @@ export const services: Service[] = [
 
 export const facilities: Facility[] = [
   {
-    name: 'Snooker',
-    description: 'We feel proud that the game SNOOKER, founded by British General About 320 years...',
-    image: 'https://media.istockphoto.com/id/509846578/photo/billiard-balls-in-a-green-pool-table.jpg?s=612x612&w=0&k=20&c=J3qhr-1PR0mthQ8oYTE8o5nsvqCRX_e2197DIrU-wXY=',
-    imageHint: 'snooker table',
+    name: 'Badminton',
+    description: 'Enjoy a friendly match or competitive game in our modern, well-lit badminton court.',
+    image: 'https://images.unsplash.com/photo-1521587528496-419a419c2560?q=80&w=1920&auto=format&fit=crop',
+    imageHint: 'badminton sport',
   },
   {
+    name: 'Swimming Pool',
+    description: 'Relax and rejuvenate in our crystal-clear swimming pool, perfect for all ages.',
+    image: 'https://images.unsplash.com/photo-1579882392282-3c52431d109b?q=80&w=1920&auto=format&fit=crop',
+    imageHint: 'swimming pool',
+  },
+  {
+    name: 'Squash Court',
+    description: 'Challenge your agility and speed in our professional-grade, air-conditioned squash courts.',
+    image: 'https://images.unsplash.com/photo-1594420760435-43b17c844622?q=80&w=1920&auto=format&fit=crop',
+    imageHint: 'squash court',
+  },
+  {
+    name: 'Half Basketball Court',
+    description: 'Practice your shots and enjoy a casual game on our outdoor half basketball court.',
+    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&auto=format&fit=crop',
+    imageHint: 'basketball court',
+  },
+   {
     name: 'Lawn Tennis',
-    description: 'Club provides two types of Tennis Court to the members according to their interest.',
-    image: 'https://cdn.pixabay.com/photo/2017/04/25/11/06/wilson-2259352_640.jpg',
+    description: 'Serve an ace on our beautifully maintained lawn tennis courts, available day and night.',
+    image: 'https://images.unsplash.com/photo-1559523182-a284c3fb7cff?q=80&w=1920&auto=format&fit=crop',
     imageHint: 'tennis court',
   },
   {
-    name: 'Card Room',
-    description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://cdn.pixabay.com/photo/2022/05/21/14/26/man-7211606_640.jpg',
-    imageHint: 'playing cards',
+    name: 'Pool & Snooker',
+    description: 'Unwind and test your skills on our classic pool and snooker tables in a relaxed setting.',
+    image: 'https://images.unsplash.com/photo-1608283929910-29a2e424a4b5?q=80&w=1920&auto=format&fit=crop',
+    imageHint: 'pool table',
   },
   {
-    name: 'Badminton',
-    description: 'Club has recently renewed Badminton Court where Members and their dependents can enjoy.',
-    image: 'https://cdn.pixabay.com/photo/2021/02/19/16/36/badminton-6030862_640.jpg',
-    imageHint: 'badminton sport',
-  },
-   {
-    name: 'Health Club',
-    description: 'This section is also functioning well and a large number of members and their wives take part.',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600',
+    name: 'Gym',
+    description: 'Achieve your fitness goals with our state-of-the-art gym, equipped with the latest machines.',
+    image: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?q=80&w=1920&auto=format&fit=crop',
     imageHint: 'modern gym',
-  },
-  {
-    name: 'Bar',
-    description: 'A well-stacked bar serving a large number of brands as per the requirements of the Members.',
-    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600',
-    imageHint: 'cocktail bar',
   },
 ];
 
