@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -163,6 +164,10 @@ export default function EditTeamMemberPage() {
                     onChange={handleImageChange}
                   />
                 </FormControl>
+                <FormDescription>
+                  For best results, upload a square image (e.g., 400x400
+                  pixels).
+                </FormDescription>
                 {imagePreview && (
                   <div className="mt-4">
                     <Image

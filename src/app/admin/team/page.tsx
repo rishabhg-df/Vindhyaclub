@@ -48,7 +48,7 @@ export default function ManageTeamPage() {
   };
 
   return (
-    <Section title="Manage Team">
+    <Section title="List of Members">
       <div className="mb-6 flex justify-end">
         <Button asChild>
           <Link href="/admin/team/edit/new">
