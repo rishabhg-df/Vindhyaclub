@@ -4,12 +4,12 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
+  projectId: "vindhya-club-central",
+  appId: "1:1039393391799:web:2db88bb005443309acb932",
+  storageBucket: "vindhya-club-central.appspot.com",
   apiKey: "AIzaSyA8vtsAEq4610rfgl-3ruh4qAuPW8jt-is",
   authDomain: "vindhya-club-central.firebaseapp.com",
-  projectId: "vindhya-club-central",
-  storageBucket: "vindhya-club-central.appspot.com",
   messagingSenderId: "1039393391799",
-  appId: "1:1039393391799:web:2db88bb005443309acb932",
 };
 
 // Initialize Firebase
