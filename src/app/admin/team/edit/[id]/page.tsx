@@ -90,10 +90,12 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+      let imageUrl = member?.image;
 
-      if (data.image) {
+      if (data.image instanceof File) {
         imageUrl = await uploadImage(data.image, 'team');
+      } else if (isNew) {
+        imageUrl = 'https://placehold.co/128x128.png';
       }
 
       const memberData: TeamMember = {
@@ -101,7 +103,7 @@ export default function EditTeamMemberPage() {
         name: data.name,
         role: data.role,
         bio: data.bio,
-        image: imageUrl,
+        image: imageUrl || 'https://placehold.co/128x128.png',
         imageHint: data.imageHint || 'professional portrait',
       };
 

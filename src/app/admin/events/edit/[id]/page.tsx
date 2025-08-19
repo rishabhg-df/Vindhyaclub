@@ -101,10 +101,12 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = event?.image || 'https://placehold.co/800x600.png';
+      let imageUrl = event?.image;
 
-      if (data.image) {
+      if (data.image instanceof File) {
         imageUrl = await uploadImage(data.image, 'events');
+      } else if (isNew) {
+        imageUrl = 'https://placehold.co/800x600.png';
       }
 
       const eventData: Event = {
@@ -113,7 +115,7 @@ export default function EditEventPage() {
         date: data.date.toISOString(),
         entryTime: data.entryTime,
         description: data.description,
-        image: imageUrl,
+        image: imageUrl || 'https://placehold.co/800x600.png',
         imageHint: data.imageHint || 'club event',
       };
 
