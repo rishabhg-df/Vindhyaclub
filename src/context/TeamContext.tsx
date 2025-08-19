@@ -3,13 +3,14 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query } from 'firebase/firestore';
 import type { TeamMember } from '@/lib/types';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAdmin } from './AdminContext';
 
 type TeamContextType = {
   team: TeamMember[];
-  addMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
-  updateMember: (updatedMember: TeamMember) => Promise<void>;
+  addMember: (member: Omit<TeamMember, 'id' | 'image'>, imageFile?: File) => Promise<void>;
+  updateMember: (updatedMember: TeamMember, imageFile?: File) => Promise<void>;
   deleteMember: (id: string) => Promise<void>;
   loading: boolean;
 };
@@ -43,10 +44,25 @@ export function TeamProvider({ children }: { children: ReactNode }) {
     }
   }, [isInitialized, fetchTeam]);
 
-  const addMember = async (member: Omit<TeamMember, 'id'>) => {
+  const uploadImage = async (file: File): Promise<string> => {
+    const storageRef = ref(storage, `team/${Date.now()}-${file.name}`);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  };
+
+  const addMember = async (member: Omit<TeamMember, 'id' | 'image'>, imageFile?: File) => {
     try {
-      await addDoc(collection(db, 'team'), member);
-      // Refetch all members to ensure data consistency
+      let imageUrl = 'https://placehold.co/128x128.png';
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+      
+      const memberData = {
+        ...member,
+        image: imageUrl,
+      };
+
+      await addDoc(collection(db, 'team'), memberData);
       await fetchTeam();
     } catch (error) {
       console.error('Error adding member to Firestore:', error);
@@ -54,11 +70,17 @@ export function TeamProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateMember = async (updatedMember: TeamMember) => {
+  const updateMember = async (updatedMember: TeamMember, imageFile?: File) => {
     try {
       const { id, ...memberData } = updatedMember;
+      
+      let imageUrl = memberData.image;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
       const memberDoc = doc(db, 'team', id);
-      await updateDoc(memberDoc, memberData);
+      await updateDoc(memberDoc, { ...memberData, image: imageUrl });
       await fetchTeam();
     } catch (error) {
       console.error('Error updating member in Firestore:', error);
