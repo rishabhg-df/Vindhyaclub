@@ -100,7 +100,11 @@ export default function EditEventPage() {
     setIsSubmitting(true);
     
     let imageUrl = event?.image;
-    if (isNew || !imageUrl) {
+    if (data.image instanceof File && data.image.size > 0) {
+      // Image upload logic was here, but is now removed.
+      // For now, we'll use a placeholder for any new image upload attempt.
+      imageUrl = 'https://placehold.co/800x600.png';
+    } else if (isNew || !imageUrl) {
       imageUrl = 'https://placehold.co/800x600.png';
     }
 
@@ -229,14 +233,17 @@ export default function EditEventPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={(e) => {
+                           handleImageChange(e);
+                           field.onChange(e.target.files?.[0] ?? undefined);
+                        }}
                         disabled={isSubmitting}
                       />
                     </FormControl>
