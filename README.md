@@ -1,3 +1,4 @@
+
 # Vindhya Club Central
 
 This is a Next.js project for Vindhya Club, a modern sports club website.

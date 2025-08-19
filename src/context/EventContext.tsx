@@ -1,8 +1,16 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+} from 'firebase/firestore';
 import type { Event } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { events as initialEvents } from '@/lib/data';
@@ -28,32 +36,35 @@ export function EventProvider({ children }: { children: ReactNode }) {
       const eventsCollection = collection(db, 'events');
       const q = query(eventsCollection, orderBy('date', 'desc'));
       const querySnapshot = await getDocs(q);
-      
+
       let fetchedEvents: Event[] = [];
-      querySnapshot.forEach((doc) => {
-        fetchedEvents.push({ id: doc.id, ...doc.data() } as Event);
+      querySnapshot.forEach((docSnap) => {
+        fetchedEvents.push({ id: docSnap.id, ...docSnap.data() } as Event);
       });
 
+      // Populate Firestore with seed data if empty
       if (fetchedEvents.length === 0 && initialEvents.length > 0) {
-        // If no events in Firestore, populate with initial data
-        const initialDataPromises = initialEvents.map(event => addDoc(collection(db, 'events'), event));
+        const initialDataPromises = initialEvents.map((event) =>
+          addDoc(collection(db, 'events'), event)
+        );
         await Promise.all(initialDataPromises);
-        // Re-fetch after populating
+
         const newSnapshot = await getDocs(q);
-        newSnapshot.forEach((doc) => {
-          fetchedEvents.push({ id: doc.id, ...doc.data() } as Event);
-        });
+        fetchedEvents = newSnapshot.docs.map(
+          (d) => ({ id: d.id, ...d.data() } as Event)
+        );
       }
+
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
-      // Fallback to initial data if firestore fails
-      setEvents(initialEvents.map((e, i) => ({...e, id: `local-${i}`})));
+      // fallback to local seed data
+      setEvents(initialEvents.map((e, i) => ({ ...e, id: `local-${i}` })));
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (!isInitialized) {
       fetchEvents();
@@ -64,9 +75,9 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const addEvent = async (event: Omit<Event, 'id'>) => {
     try {
       const docRef = await addDoc(collection(db, 'events'), event);
-      const newEvent = { id: docRef.id, ...event } as Event;
-      setEvents((prevEvents) =>
-        [...prevEvents, newEvent].sort(
+      const newEvent: Event = { id: docRef.id, ...event };
+      setEvents((prev) =>
+        [...prev, newEvent].sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         )
       );
@@ -78,12 +89,16 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
   const updateEvent = async (updatedEvent: Event) => {
     try {
-      const eventDoc = doc(db, 'events', updatedEvent.id);
-      await updateDoc(eventDoc, updatedEvent);
-      setEvents((prevEvents) =>
-        prevEvents.map((event) =>
-          event.id === updatedEvent.id ? updatedEvent : event
-        ).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      const { id, ...eventData } = updatedEvent; // strip out id
+      const eventDoc = doc(db, 'events', id);
+      await updateDoc(eventDoc, eventData);
+
+      setEvents((prev) =>
+        prev
+          .map((ev) => (ev.id === id ? updatedEvent : ev))
+          .sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
       );
     } catch (error) {
       console.error('Error updating event in Firestore:', error);
@@ -94,15 +109,17 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const deleteEvent = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'events', id));
-      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== id));
+      setEvents((prev) => prev.filter((ev) => ev.id !== id));
     } catch (error) {
       console.error('Error deleting event from Firestore:', error);
       throw error;
     }
   };
-  
+
   return (
-    <EventContext.Provider value={{ events, addEvent, updateEvent, deleteEvent, loading }}>
+    <EventContext.Provider
+      value={{ events, addEvent, updateEvent, deleteEvent, loading }}
+    >
       {children}
     </EventContext.Provider>
   );
@@ -110,7 +127,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
 export function useEvents() {
   const context = useContext(EventContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useEvents must be used within an EventProvider');
   }
   return context;

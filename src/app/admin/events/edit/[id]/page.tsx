@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, ChangeEvent } from 'react';
@@ -57,7 +56,7 @@ export default function EditEventPage() {
   const eventId = params.id as string;
   const isNew = eventId === 'new';
   const event = isNew ? null : events.find((e) => e.id === eventId);
-  
+
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: event
@@ -108,33 +107,26 @@ export default function EditEventPage() {
         imageUrl = event?.image || 'https://placehold.co/800x600.png';
       }
 
+      const eventData = {
+        title: data.title,
+        date: data.date.toISOString(),
+        entryTime: data.entryTime || '',
+        description: data.description,
+        image: imageUrl,
+        imageHint: data.imageHint || 'club event',
+      };
+
       if (isNew) {
-        const eventData: Omit<Event, 'id'> = {
-          title: data.title,
-          date: data.date.toISOString(),
-          entryTime: data.entryTime,
-          description: data.description,
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event',
-        };
         await addEvent(eventData);
       } else {
-        const eventData: Event = {
-          id: eventId,
-          title: data.title,
-          date: data.date.toISOString(),
-          entryTime: data.entryTime,
-          description: data.description,
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event',
-        };
-        await updateEvent(eventData);
+        await updateEvent({ id: eventId, ...eventData });
       }
 
       toast({
         title: `Event ${isNew ? 'Added' : 'Updated'}`,
         description: `${data.title} has been successfully saved.`,
       });
+
       router.push('/admin/events');
     } catch (error) {
       console.error('Submission error:', error);
@@ -221,7 +213,11 @@ export default function EditEventPage() {
                   <FormItem>
                     <FormLabel>Entry Time</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 10:30pm" {...field} value={field.value ?? ''}/>
+                      <Input
+                        placeholder="e.g., 10:30pm"
+                        {...field}
+                        value={field.value ?? ''}
+                      />
                     </FormControl>
                     <FormDescription>
                       The last time for entry.
@@ -274,7 +270,6 @@ export default function EditEventPage() {
                 <FormMessage />
               </FormItem>
 
-
               <div className="flex justify-end gap-4">
                 <Button
                   type="button"
@@ -285,7 +280,7 @@ export default function EditEventPage() {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                   {isSubmitting ? (
+                  {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving...
