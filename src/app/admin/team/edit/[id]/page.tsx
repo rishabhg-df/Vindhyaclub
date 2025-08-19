@@ -98,35 +98,23 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    
     try {
-      let imageUrl = member?.image;
+      let imageUrl: string | undefined = member?.image;
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'team');
-      } else if (isNew) {
-        imageUrl = 'https://placehold.co/128x128.png';
       }
 
-      if (!imageUrl) {
-        throw new Error("Image URL is missing.");
-      }
-
+      const memberData = {
+        ...data,
+        image: imageUrl || 'https://placehold.co/128x128.png',
+        imageHint: data.imageHint || 'professional portrait',
+      };
+      
       if (isNew) {
-        const memberData = {
-          ...data,
-          image: imageUrl,
-          imageHint: data.imageHint || 'professional portrait',
-        };
         await addMember(memberData);
       } else {
-        const memberData = {
-          ...data,
-          id: memberId,
-          image: imageUrl,
-          imageHint: data.imageHint || 'professional portrait',
-        };
-        await updateMember(memberData);
+        await updateMember({ ...memberData, id: memberId });
       }
 
       toast({

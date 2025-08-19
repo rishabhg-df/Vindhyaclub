@@ -70,7 +70,7 @@ export default function EditEventPage() {
           imageHint: 'club event',
         },
   });
-
+  
   useEffect(() => {
     if (event?.image) {
       setImagePreview(event.image);
@@ -110,37 +110,24 @@ export default function EditEventPage() {
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    
     try {
-      let imageUrl = event?.image; // Default to existing image for updates
+      let imageUrl: string | undefined = event?.image;
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'events');
-      } else if (isNew) {
-        imageUrl = 'https://placehold.co/800x600.png'; // Placeholder only for new events without an image
       }
 
-      if (!imageUrl) {
-        throw new Error("Image URL is missing.");
-      }
-      
+      const eventData = {
+        ...data,
+        date: format(data.date, 'yyyy-MM-dd'),
+        image: imageUrl || 'https://placehold.co/800x600.png',
+        imageHint: data.imageHint || 'club event'
+      };
+
       if (isNew) {
-        const eventData = {
-          ...data,
-          date: format(data.date, 'yyyy-MM-dd'),
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event'
-        };
         await addEvent(eventData);
       } else {
-        const eventData = {
-          ...data,
-          id: eventId,
-          date: format(data.date, 'yyyy-MM-dd'),
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event'
-        };
-        await updateEvent(eventData);
+        await updateEvent({ ...eventData, id: eventId });
       }
 
       toast({
@@ -163,7 +150,7 @@ export default function EditEventPage() {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <Section title={isNew ? 'Add New Event' : 'Edit Event'}>
       <Card className="mx-auto max-w-2xl">
