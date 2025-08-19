@@ -52,6 +52,7 @@ export default function EditEventPage() {
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
@@ -71,6 +72,12 @@ export default function EditEventPage() {
   });
 
   useEffect(() => {
+    if (event?.image) {
+      setImagePreview(event.image);
+    }
+  }, [event]);
+
+  useEffect(() => {
     if (!isNew && !event) {
       toast({
         variant: 'destructive',
@@ -87,13 +94,16 @@ export default function EditEventPage() {
       try {
         const compressedFile = await compressImage(file);
         setImageFile(compressedFile);
+        setImagePreview(URL.createObjectURL(compressedFile));
       } catch (error) {
-        console.error('Image compression error:', error);
+        console.error('Image processing error:', error);
         toast({
           variant: 'destructive',
           title: 'Image Error',
           description: 'There was a problem processing your image. Please try another one.',
         });
+        setImageFile(null);
+        setImagePreview(event?.image ?? null);
       }
     }
   };
@@ -149,8 +159,6 @@ export default function EditEventPage() {
       setIsSubmitting(false);
     }
   };
-
-  const imagePreview = imageFile ? URL.createObjectURL(imageFile) : event?.image;
 
   return (
     <Section title={isNew ? 'Add New Event' : 'Edit Event'}>

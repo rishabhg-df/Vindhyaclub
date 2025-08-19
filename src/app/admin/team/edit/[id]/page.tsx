@@ -43,6 +43,7 @@ export default function EditTeamMemberPage() {
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -57,6 +58,12 @@ export default function EditTeamMemberPage() {
       imageHint: 'professional portrait',
     },
   });
+
+  useEffect(() => {
+    if (member?.image) {
+      setImagePreview(member.image);
+    }
+  }, [member]);
 
   useEffect(() => {
     if (!isNew && !member) {
@@ -75,13 +82,16 @@ export default function EditTeamMemberPage() {
       try {
         const compressedFile = await compressImage(file);
         setImageFile(compressedFile);
+        setImagePreview(URL.createObjectURL(compressedFile));
       } catch (error) {
-        console.error('Image compression error:', error);
+        console.error('Image processing error:', error);
         toast({
           variant: 'destructive',
           title: 'Image Error',
           description: 'There was a problem processing your image. Please try another one.',
         });
+        setImageFile(null);
+        setImagePreview(member?.image ?? null);
       }
     }
   };
@@ -134,8 +144,6 @@ export default function EditTeamMemberPage() {
       setIsSubmitting(false);
     }
   };
-
-  const imagePreview = imageFile ? URL.createObjectURL(imageFile) : member?.image;
 
   return (
     <Section title={isNew ? 'Add New Team Member' : 'Edit Team Member'}>
