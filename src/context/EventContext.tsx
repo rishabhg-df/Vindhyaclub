@@ -14,7 +14,6 @@ import {
 } from 'firebase/firestore';
 import type { Event } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { events as initialEvents } from '@/lib/data';
 import { format } from 'date-fns';
 import { useAdmin } from './AdminContext';
 
@@ -48,29 +47,15 @@ export function EventProvider({ children }: { children: ReactNode }) {
       const eventsCollection = collection(db, 'events');
       const q = query(eventsCollection, orderBy('date', 'desc'));
       const querySnapshot = await getDocs(q);
-      let fetchedEvents: Event[] = querySnapshot.docs.map(formatEventFromFirestore);
-      
-      if (querySnapshot.empty && initialEvents.length > 0 && user) {
-        console.log('No events found, populating with initial data...');
-        for (const event of initialEvents) {
-          const eventDataWithTimestamp = {
-            ...event,
-            date: Timestamp.fromDate(new Date(event.date)),
-          };
-          await addDoc(collection(db, 'events'), eventDataWithTimestamp);
-        }
-        const newSnapshot = await getDocs(q);
-        fetchedEvents = newSnapshot.docs.map(formatEventFromFirestore);
-      }
+      const fetchedEvents: Event[] = querySnapshot.docs.map(formatEventFromFirestore);
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
-      // Fallback to local data if firestore fails
-      setEvents(initialEvents.map((e, i) => ({ ...e, id: `local-${i}` })));
+      setEvents([]); // Fallback to empty array on error
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (isInitialized) {
@@ -85,7 +70,13 @@ export function EventProvider({ children }: { children: ReactNode }) {
         ...event,
         date: Timestamp.fromDate(new Date(event.date)),
       };
-      await addDoc(collection(db, 'events'), eventDataWithTimestamp);
+      const docRef = await addDoc(collection(db, 'events'), eventDataWithTimestamp);
+      // Optimistically update UI
+      setEvents(prevEvents => [
+        formatEventFromFirestore({ id: docRef.id, data: () => ({ ...event, date: eventDataWithTimestamp.date }) }),
+        ...prevEvents
+      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      // Re-fetch to ensure consistency
       await fetchEvents();
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
