@@ -23,8 +23,9 @@ const auth = getAuth(app);
  */
 export const uploadImage = async (file: File, path: string): Promise<string> => {
   const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
+  const uploadTask = await uploadBytes(storageRef, file);
+  const downloadUrl = await getDownloadURL(uploadTask.ref);
+  return downloadUrl;
 };
 
 export { db, storage, auth };
