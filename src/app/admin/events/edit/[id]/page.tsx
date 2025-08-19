@@ -113,11 +113,20 @@ export default function EditEventPage() {
     try {
       let finalImageUrl: string | undefined = event?.image;
 
-      if (imageFile) {
-        finalImageUrl = await uploadImage(imageFile, 'events');
-      } else if (isNew) {
-        finalImageUrl = 'https://placehold.co/800x600.png';
+      if (isNew) {
+        if (imageFile) {
+          finalImageUrl = await uploadImage(imageFile, 'events');
+        } else {
+          finalImageUrl = 'https://placehold.co/800x600.png';
+        }
+      } else {
+        // We are editing
+        if (imageFile) {
+          finalImageUrl = await uploadImage(imageFile, 'events');
+        }
+        // If no new image file, finalImageUrl remains event.image
       }
+
 
       const eventData = {
         ...data,

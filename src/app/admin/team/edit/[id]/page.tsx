@@ -101,12 +101,20 @@ export default function EditTeamMemberPage() {
     try {
       let finalImageUrl: string | undefined = member?.image;
 
-      if (imageFile) {
-        finalImageUrl = await uploadImage(imageFile, 'team');
-      } else if (isNew) {
-        finalImageUrl = 'https://placehold.co/128x128.png';
+      if (isNew) {
+        if (imageFile) {
+          finalImageUrl = await uploadImage(imageFile, 'team');
+        } else {
+          finalImageUrl = 'https://placehold.co/128x128.png';
+        }
+      } else {
+        // We are editing
+        if (imageFile) {
+          finalImageUrl = await uploadImage(imageFile, 'team');
+        }
+        // If no new image file, finalImageUrl remains member.image
       }
-
+      
       const memberData = {
         ...data,
         image: finalImageUrl || 'https://placehold.co/128x128.png',
