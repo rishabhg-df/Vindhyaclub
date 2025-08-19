@@ -25,6 +25,7 @@ import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
+import { uploadImage } from '@/lib/firebase';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -43,6 +44,7 @@ export default function EditTeamMemberPage() {
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -79,6 +81,7 @@ export default function EditTeamMemberPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -90,14 +93,22 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl: string;
+    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
 
-    if (isNew) {
-       // For new members, always use the placeholder.
+    if (imageFile) {
+      try {
+        imageUrl = await uploadImage(imageFile, 'team');
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Image Upload Failed',
+          description: 'There was an error uploading the image. Please try again.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    } else if (isNew) {
       imageUrl = 'https://placehold.co/128x128.png';
-    } else {
-      // For existing members, use their current image or a placeholder if none exists.
-      imageUrl = member?.image || 'https://placehold.co/128x128.png';
     }
 
 
@@ -179,19 +190,21 @@ export default function EditTeamMemberPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
-                        disabled={true}
+                        onChange={(e) => {
+                          handleImageChange(e);
+                          field.onChange(e.target.files?.[0] ?? undefined);
+                        }}
                       />
                     </FormControl>
                     <FormDescription>
-                     Image uploads are disabled. New members use a placeholder image.
+                     Upload a new photo. If no image is selected, a default placeholder will be used for new members.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">

@@ -33,6 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { uploadImage } from '@/lib/firebase';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -52,6 +53,7 @@ export default function EditEventPage() {
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
@@ -90,6 +92,7 @@ export default function EditEventPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -101,14 +104,22 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl: string;
+    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
 
-    if (isNew) {
-      // For new events, always use the placeholder. The file input is disabled anyway.
+    if (imageFile) {
+      try {
+        imageUrl = await uploadImage(imageFile, 'events');
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Image Upload Failed',
+          description: 'There was an error uploading the image. Please try again.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    } else if (isNew) {
       imageUrl = 'https://placehold.co/800x600.png';
-    } else {
-      // For existing events, use the current image.
-      imageUrl = event?.image || 'https://placehold.co/800x600.png';
     }
 
 
@@ -248,11 +259,10 @@ export default function EditEventPage() {
                            handleImageChange(e);
                            field.onChange(e.target.files?.[0] ?? undefined);
                         }}
-                        disabled={true}
                       />
                     </FormControl>
                     <FormDescription>
-                      Image uploads are disabled. New events use a placeholder image.
+                      Upload a new image for the event. If no image is selected, a default placeholder will be used for new events.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">
