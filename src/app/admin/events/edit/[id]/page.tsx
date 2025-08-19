@@ -99,8 +99,10 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    // For now, new images are not saved. Use placeholder for new events.
-    const imageUrl = event?.image || 'https://placehold.co/800x600.png';
+    let imageUrl = event?.image;
+    if (isNew || !imageUrl) {
+      imageUrl = 'https://placehold.co/800x600.png';
+    }
 
     const eventData: Event = {
       id: isNew ? Date.now().toString() : eventId,
