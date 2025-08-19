@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, ChangeEvent } from 'react';
@@ -32,7 +33,6 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { uploadImage } from '@/lib/firebase';
 import { compressImage } from '@/lib/imageCompressor';
 
 const eventSchema = z.object({
@@ -72,8 +72,8 @@ export default function EditEventPage() {
   });
 
   useEffect(() => {
-    if (event?.image) {
-      setImagePreview(event.image);
+    if (event?.imageUrl) {
+      setImagePreview(event.imageUrl);
     }
   }, [event]);
   
@@ -104,7 +104,7 @@ export default function EditEventPage() {
             'There was a problem processing your image. Please try another one.',
         });
         setImageFile(null);
-        setImagePreview(event?.image ?? null);
+        setImagePreview(event?.imageUrl ?? null);
       }
     }
   };
@@ -112,36 +112,19 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
-      let finalImageUrl = event?.image;
-  
-      if (imageFile) {
-        try {
-          finalImageUrl = await uploadImage(imageFile, 'events');
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError);
-          toast({
-            variant: 'destructive',
-            title: 'Image Upload Failed',
-            description: 'Could not upload the image. Please try again.',
-          });
-          setIsSubmitting(false);
-          return;
-        }
-      }
-      
       const eventData: Omit<Event, 'id'> = {
         title: data.title,
         description: data.description,
         date: format(data.date, 'yyyy-MM-dd'),
         entryTime: data.entryTime,
-        image: finalImageUrl || 'https://placehold.co/800x600.png',
+        imageUrl: event?.imageUrl, // Keep existing image URL by default
         imageHint: data.imageHint || 'club event',
       };
 
       if (isNew) {
-        await addEvent(eventData);
-      } else {
-        await updateEvent({ ...eventData, id: eventId });
+        await addEvent(eventData, imageFile ?? undefined);
+      } else if (event) {
+        await updateEvent({ ...event, ...eventData }, imageFile ?? undefined);
       }
 
       toast({

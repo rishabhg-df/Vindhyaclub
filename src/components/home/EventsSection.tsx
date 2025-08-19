@@ -60,7 +60,7 @@ export function EventsSection({ className }: { className?: string }) {
                     </div>
                     <div className="relative min-h-[300px]">
                       <Image
-                        src={event.image}
+                        src={event.imageUrl || 'https://placehold.co/800x600.png'}
                         alt={event.title}
                         data-ai-hint={event.imageHint}
                         fill

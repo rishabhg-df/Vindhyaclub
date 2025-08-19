@@ -1,5 +1,5 @@
 
-import type { Event, Facility, TeamMember, HistoryItem } from './types';
+import type { Facility, TeamMember, HistoryItem } from './types';
 
 export const navLinks = [
   { href: '/', label: 'Home' },
@@ -7,18 +7,6 @@ export const navLinks = [
   { href: '/events', label: 'Events' },
   { href: '/facilities', label: 'Facilities' },
   { href: '/contact', label: 'Contact' },
-];
-
-export const events: Omit<Event, 'id'>[] = [
-  {
-    title: 'New Year Celebration',
-    date: '2024-12-31',
-    entryTime: '10:30pm',
-    description:
-      'Dance 8:30 pm onwards No Entry after 10:30pm',
-    image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=1920',
-    imageHint: 'new year party',
-  },
 ];
 
 export const facilities: Facility[] = [

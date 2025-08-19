@@ -89,7 +89,7 @@ export default function ManageEventsPage() {
                 <TableRow key={event.id}>
                   <TableCell>
                     <Image
-                      src={event.image}
+                      src={event.imageUrl || 'https://placehold.co/80x45.png'}
                       alt={event.title}
                       width={80}
                       height={45}
