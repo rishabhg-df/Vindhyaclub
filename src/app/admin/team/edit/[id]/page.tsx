@@ -24,7 +24,6 @@ import { Section } from '@/components/shared/Section';
 import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
-import { uploadImage } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
 const memberSchema = z.object({
@@ -49,8 +48,6 @@ export default function EditTeamMemberPage() {
   const member = isNew ? null : team.find((m) => m.id === memberId);
   
   const [imagePreview, setImagePreview] = useState<string | null>(member?.image || null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-
 
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
@@ -81,7 +78,6 @@ export default function EditTeamMemberPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -92,44 +88,28 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
 
-    try {
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'team-images/');
-      }
+    const memberData: TeamMember = {
+      id: isNew ? new Date().getTime().toString() : memberId,
+      name: data.name,
+      role: data.role,
+      bio: data.bio,
+      image: imagePreview || member?.image || 'https://placehold.co/128x128.png',
+      imageHint: data.imageHint || 'professional portrait',
+    };
 
-      const memberData: TeamMember = {
-        id: isNew ? new Date().getTime().toString() : memberId,
-        name: data.name,
-        role: data.role,
-        bio: data.bio,
-        image: imageUrl,
-        imageHint: data.imageHint || 'professional portrait',
-      };
-
-      if (isNew) {
-        addMember(memberData);
-      } else {
-        updateMember(memberData);
-      }
-
-      toast({
-        title: `Member ${isNew ? 'Added' : 'Updated'}`,
-        description: `${data.name} has been successfully saved.`,
-      });
-      router.push('/admin/team');
-
-    } catch (error) {
-      console.error("Failed to upload image or save member", error);
-      toast({
-        variant: 'destructive',
-        title: 'Save failed',
-        description: 'There was an error saving the team member. Please try again.',
-      });
-    } finally {
-      setIsSubmitting(false);
+    if (isNew) {
+      addMember(memberData);
+    } else {
+      updateMember(memberData);
     }
+
+    toast({
+      title: `Member ${isNew ? 'Added' : 'Updated'}`,
+      description: `${data.name} has been successfully saved.`,
+    });
+    router.push('/admin/team');
+    setIsSubmitting(false);
   };
 
   return (
