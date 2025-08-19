@@ -27,4 +27,3 @@ export const uploadImage = async (file: File, path: string): Promise<string> => 
   const downloadURL = await getDownloadURL(storageRef);
   return downloadURL;
 };
-
