@@ -51,7 +51,7 @@ export default function EditTeamMemberPage() {
   
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
-    defaultValues: member || {
+    defaultValues: member ? { ...member, image: undefined } : {
       name: '',
       role: '',
       bio: '',
@@ -69,11 +69,8 @@ export default function EditTeamMemberPage() {
       });
       router.push('/admin/team');
     }
-    if (member) {
-      form.reset({ ...member, image: undefined });
-      if (member.image) {
-        setImagePreview(member.image);
-      }
+    if (member?.image) {
+      setImagePreview(member.image);
     } else {
       setImagePreview(null);
     }
@@ -92,13 +89,11 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    let imageUrl = member?.image;
-
     try {
+      let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+
       if (data.image) {
         imageUrl = await uploadImage(data.image, 'team');
-      } else if (isNew) {
-        imageUrl = 'https://placehold.co/128x128.png';
       }
 
       const memberData: TeamMember = {
@@ -106,7 +101,7 @@ export default function EditTeamMemberPage() {
         name: data.name,
         role: data.role,
         bio: data.bio,
-        image: imageUrl || 'https://placehold.co/128x128.png',
+        image: imageUrl,
         imageHint: data.imageHint || 'professional portrait',
       };
 

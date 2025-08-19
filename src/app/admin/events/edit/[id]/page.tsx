@@ -80,13 +80,9 @@ export default function EditEventPage() {
       });
       router.push('/admin/events');
     }
-    if (event) {
-      form.reset({ ...event, date: new Date(event.date), image: undefined });
-      if (event.image) {
-        setImagePreview(event.image);
-      }
+    if (event?.image) {
+      setImagePreview(event.image);
     } else {
-      // For new events, don't set a preview initially
       setImagePreview(null);
     }
   }, [isNew, event, router, toast, form]);
@@ -104,13 +100,11 @@ export default function EditEventPage() {
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    let imageUrl = event?.image;
-
     try {
+      let imageUrl = event?.image || 'https://placehold.co/800x600.png';
+
       if (data.image) {
         imageUrl = await uploadImage(data.image, 'events');
-      } else if (isNew) {
-        imageUrl = 'https://placehold.co/800x600.png';
       }
 
       const eventData: Event = {
@@ -119,7 +113,7 @@ export default function EditEventPage() {
         date: data.date.toISOString(),
         entryTime: data.entryTime,
         description: data.description,
-        image: imageUrl || 'https://placehold.co/800x600.png',
+        image: imageUrl,
         imageHint: data.imageHint || 'club event',
       };
 
