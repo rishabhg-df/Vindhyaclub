@@ -23,16 +23,18 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   const fetchEvents = async () => {
+    setLoading(true);
     try {
       const eventsCollection = collection(db, 'events');
       const q = query(eventsCollection, orderBy('date', 'desc'));
       const querySnapshot = await getDocs(q);
-      const fetchedEvents: Event[] = [];
+      
+      let fetchedEvents: Event[] = [];
       querySnapshot.forEach((doc) => {
         fetchedEvents.push({ id: doc.id, ...doc.data() } as Event);
       });
 
-      if (fetchedEvents.length === 0) {
+      if (fetchedEvents.length === 0 && initialEvents.length > 0) {
         // If no events in Firestore, populate with initial data
         const initialDataPromises = initialEvents.map(event => addDoc(collection(db, 'events'), event));
         await Promise.all(initialDataPromises);
@@ -45,6 +47,8 @@ export function EventProvider({ children }: { children: ReactNode }) {
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
+      // Fallback to initial data if firestore fails
+      setEvents(initialEvents.map((e, i) => ({...e, id: `local-${i}`})));
     } finally {
       setLoading(false);
     }
@@ -60,7 +64,12 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const addEvent = async (event: Omit<Event, 'id'>) => {
     try {
       const docRef = await addDoc(collection(db, 'events'), event);
-      setEvents((prevEvents) => [{ id: docRef.id, ...event } as Event, ...prevEvents].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      const newEvent = { id: docRef.id, ...event } as Event;
+      setEvents((prevEvents) =>
+        [...prevEvents, newEvent].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        )
+      );
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
       throw error;

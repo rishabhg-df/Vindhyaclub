@@ -88,12 +88,11 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = member?.image;
-
+      let imageUrl: string;
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'team');
-      } else if (!imageUrl) {
-        imageUrl = 'https://placehold.co/128x128.png';
+      } else {
+        imageUrl = member?.image || 'https://placehold.co/128x128.png';
       }
 
       const memberData: Omit<TeamMember, 'id'> = {

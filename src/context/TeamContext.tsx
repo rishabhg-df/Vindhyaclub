@@ -23,6 +23,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   
   const fetchTeam = async () => {
+    setLoading(true);
     try {
       const teamCollection = collection(db, 'team');
       const querySnapshot = await getDocs(teamCollection);
@@ -31,7 +32,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
         fetchedTeam.push({ id: doc.id, ...doc.data() } as TeamMember);
       });
 
-      if (fetchedTeam.length === 0) {
+      if (fetchedTeam.length === 0 && initialTeam.length > 0) {
         // If no team members in Firestore, populate with initial data
         const initialDataPromises = initialTeam.map(member => addDoc(collection(db, 'team'), member));
         await Promise.all(initialDataPromises);
@@ -44,6 +45,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
       setTeam(fetchedTeam);
     } catch (error) {
       console.error('Error fetching team from Firestore:', error);
+      setTeam(initialTeam.map((t, i) => ({...t, id: `local-${i}`})));
     } finally {
       setLoading(false);
     }

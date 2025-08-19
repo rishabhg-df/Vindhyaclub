@@ -100,12 +100,12 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = event?.image;
+      let imageUrl: string;
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'events');
-      } else if (!imageUrl) {
-        imageUrl = 'https://placehold.co/800x600.png';
+      } else {
+        imageUrl = event?.image || 'https://placehold.co/800x600.png';
       }
 
       const eventData: Omit<Event, 'id'> = {
