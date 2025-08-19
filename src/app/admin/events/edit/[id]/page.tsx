@@ -114,38 +114,23 @@ export default function EditEventPage() {
     let finalImageUrl = event?.image; // Default to existing image if editing
 
     try {
-      // Step 1: Handle image upload if a new image file is present
       if (imageFile) {
-        try {
-          finalImageUrl = await uploadImage(imageFile, 'events');
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError);
-          toast({
-            variant: 'destructive',
-            title: 'Image Upload Failed',
-            description: 'Could not upload the new image. Please try again.',
-          });
-          setIsSubmitting(false);
-          return; // Stop the submission process
-        }
+        finalImageUrl = await uploadImage(imageFile, 'events');
       }
 
-      // Step 2: Determine final image URL
-      // If it's a new item and no image was uploaded, use a placeholder.
-      // If editing, `finalImageUrl` is already either the old image or the newly uploaded one.
       if (isNew && !finalImageUrl) {
         finalImageUrl = 'https://placehold.co/800x600.png';
       }
 
-      // Step 3: Prepare the final data object
-      const eventData = {
-        ...data,
+      const eventData: Omit<Event, 'id'> = {
+        title: data.title,
+        description: data.description,
         date: format(data.date, 'yyyy-MM-dd'),
-        image: finalImageUrl || 'https://placehold.co/800x600.png', // Final fallback
+        entryTime: data.entryTime,
+        image: finalImageUrl || 'https://placehold.co/800x600.png',
         imageHint: data.imageHint || 'club event',
       };
-
-      // Step 4: Add or update the document in Firestore
+      
       if (isNew) {
         await addEvent(eventData);
       } else {

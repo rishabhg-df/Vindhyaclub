@@ -101,38 +101,25 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    let finalImageUrl = member?.image; // Default to existing image if editing
+    let finalImageUrl = member?.image;
 
     try {
-      // Step 1: Handle image upload if a new image file is present
       if (imageFile) {
-        try {
-          finalImageUrl = await uploadImage(imageFile, 'team');
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError);
-          toast({
-            variant: 'destructive',
-            title: 'Image Upload Failed',
-            description: 'Could not upload the new image. Please try again.',
-          });
-          setIsSubmitting(false);
-          return; // Stop the submission process
-        }
+        finalImageUrl = await uploadImage(imageFile, 'team');
       }
-
-      // Step 2: Determine final image URL
+      
       if (isNew && !finalImageUrl) {
         finalImageUrl = 'https://placehold.co/128x128.png';
       }
 
-      // Step 3: Prepare the final data object
-      const memberData = {
-        ...data,
-        image: finalImageUrl || 'https://placehold.co/128x128.png', // Final fallback
+      const memberData: Omit<TeamMember, 'id'> = {
+        name: data.name,
+        role: data.role,
+        bio: data.bio,
+        image: finalImageUrl || 'https://placehold.co/128x128.png',
         imageHint: data.imageHint || 'professional portrait',
       };
 
-      // Step 4: Add or update the document in Firestore
       if (isNew) {
         await addMember(memberData);
       } else {
