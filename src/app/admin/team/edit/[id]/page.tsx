@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, ChangeEvent } from 'react';
@@ -88,10 +87,16 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+      let imageUrl: string | undefined;
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'team');
+      } else {
+        imageUrl = isNew ? 'https://placehold.co/128x128.png' : member?.image;
+      }
+
+      if (!imageUrl) {
+        throw new Error('Image URL could not be determined.');
       }
 
       const memberData = {

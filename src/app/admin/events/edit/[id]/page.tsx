@@ -101,10 +101,16 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = event?.image || 'https://placehold.co/800x600.png';
+      let imageUrl: string | undefined;
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'events');
+      } else {
+        imageUrl = isNew ? 'https://placehold.co/800x600.png' : event?.image;
+      }
+      
+      if (!imageUrl) {
+        throw new Error('Image URL could not be determined.');
       }
 
       const eventData = {
