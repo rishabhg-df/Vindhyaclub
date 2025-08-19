@@ -66,9 +66,8 @@ export const facilities: Facility[] = [
   },
 ];
 
-export const team: TeamMember[] = [
+export const team: Omit<TeamMember, 'id'>[] = [
   {
-    id: '1',
     name: 'Dr. Satish Kumar S',
     role: 'Club President',
     bio: 'Leading the club with passion and vision for over a decade.',
@@ -76,7 +75,6 @@ export const team: TeamMember[] = [
     imageHint: 'male portrait',
   },
   {
-    id: '2',
     name: 'Sanjay Shrivastav',
     role: 'Joint Secretary',
     bio: 'A former professional athlete dedicated to nurturing talent at all levels.',
@@ -84,7 +82,6 @@ export const team: TeamMember[] = [
     imageHint: 'professional man',
   },
   {
-    id: '3',
     name: 'Sp Ashutosh gupta',
     role: 'Vice President',
     bio: 'Dedicated to enhancing the club experience for all our members.',
@@ -92,7 +89,6 @@ export const team: TeamMember[] = [
     imageHint: 'professional man',
   },
   {
-    id: '4',
     name: 'Dr Praveen Shrivastava',
     role: 'Secretary',
     bio: 'Ensuring the smooth operation of the club and its activities.',
@@ -100,7 +96,6 @@ export const team: TeamMember[] = [
     imageHint: 'professional portrait',
   },
   {
-    id: '5',
     name: 'Ashish Dwivedi',
     role: 'Manager',
     bio: 'Overseeing daily operations and ensuring a great member experience.',

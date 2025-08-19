@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -29,9 +30,10 @@ import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { useTeam } from '@/context/TeamContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ManageTeamPage() {
-  const { team, deleteMember } = useTeam();
+  const { team, deleteMember, loading } = useTeam();
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -68,67 +70,83 @@ export default function ManageTeamPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {team.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell>
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{member.name}</TableCell>
-                <TableCell>{member.role}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        router.push(
-                          `/admin/team/edit/${member.id}`
-                        )
-                      }
-                    >
-                      <Edit />
-                    </Button>
-                    <AlertDialog open={!!memberToDelete && memberToDelete.id === member.id} onOpenChange={(isOpen) => !isOpen && setMemberToDelete(null)}>
-                      <AlertDialogTrigger asChild>
-                         <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => setMemberToDelete(member)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete{' '}
-                            <span className="font-bold">{member.name}</span>{' '}
-                            from the team. This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel
-                            onClick={() => setMemberToDelete(null)}
+            {loading ? (
+               [...Array(4)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Skeleton className="h-10 w-10" />
+                      <Skeleton className="h-10 w-10" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              team.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{member.name}</TableCell>
+                  <TableCell>{member.role}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          router.push(
+                            `/admin/team/edit/${member.id}`
+                          )
+                        }
+                      >
+                        <Edit />
+                      </Button>
+                      <AlertDialog open={!!memberToDelete && memberToDelete.id === member.id} onOpenChange={(isOpen) => !isOpen && setMemberToDelete(null)}>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => setMemberToDelete(member)}
                           >
-                            Cancel
-                          </AlertDialogCancel>
-                          <AlertDialogAction onClick={handleDelete}>
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                            <Trash2 />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete{' '}
+                              <span className="font-bold">{member.name}</span>{' '}
+                              from the team. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel
+                              onClick={() => setMemberToDelete(null)}
+                            >
+                              Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

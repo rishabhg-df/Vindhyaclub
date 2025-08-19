@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -11,9 +12,20 @@ import {
 import { Section } from '@/components/shared/Section';
 import { useEvents } from '@/context/EventContext';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '../ui/skeleton';
 
 export function EventsSection({ className }: { className?: string }) {
-  const { events } = useEvents();
+  const { events, loading } = useEvents();
+
+  if (loading) {
+    return (
+      <Section title="Our Events" id="events" className={className}>
+        <div className="flex justify-center">
+          <Skeleton className="h-[400px] w-full max-w-4xl" />
+        </div>
+      </Section>
+    );
+  }
 
   if (events.length === 0) {
     return null;

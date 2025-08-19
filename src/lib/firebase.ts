@@ -1,6 +1,7 @@
 
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyA8vtsAEq4610rfgl-3ruh4qAuPW8jt-is",
@@ -14,6 +15,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const storage = getStorage(app);
+const db = getFirestore(app);
 
 /**
  * Uploads an image file to Firebase Storage.
@@ -28,3 +30,4 @@ export const uploadImage = async (file: File, path: string): Promise<string> => 
   return downloadURL;
 };
 
+export { db, storage };

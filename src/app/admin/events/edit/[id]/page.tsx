@@ -64,6 +64,7 @@ export default function EditEventPage() {
       ? { ...event, date: new Date(event.date), entryTime: event.entryTime ?? '' }
       : {
           title: '',
+          date: new Date(),
           description: '',
           entryTime: '',
           imageHint: 'club event',
@@ -107,8 +108,7 @@ export default function EditEventPage() {
         imageUrl = 'https://placehold.co/800x600.png';
       }
 
-      const eventData: Event = {
-        id: isNew ? Date.now().toString() : eventId,
+      const eventData: Omit<Event, 'id'> = {
         title: data.title,
         date: data.date.toISOString(),
         entryTime: data.entryTime,
@@ -118,9 +118,9 @@ export default function EditEventPage() {
       };
 
       if (isNew) {
-        addEvent(eventData);
+        await addEvent(eventData);
       } else {
-        updateEvent(eventData);
+        await updateEvent({ id: eventId, ...eventData });
       }
 
       toast({
@@ -213,7 +213,7 @@ export default function EditEventPage() {
                   <FormItem>
                     <FormLabel>Entry Time</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 10:30pm" {...field} />
+                      <Input placeholder="e.g., 10:30pm" {...field} value={field.value ?? ''}/>
                     </FormControl>
                     <FormDescription>
                       The last time for entry.
@@ -296,4 +296,3 @@ export default function EditEventPage() {
     </Section>
   );
 }
-

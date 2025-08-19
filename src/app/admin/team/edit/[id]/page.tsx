@@ -96,8 +96,7 @@ export default function EditTeamMemberPage() {
         imageUrl = 'https://placehold.co/128x128.png';
       }
 
-      const memberData: TeamMember = {
-        id: isNew ? Date.now().toString() : memberId,
+      const memberData: Omit<TeamMember, 'id'> = {
         name: data.name,
         role: data.role,
         bio: data.bio,
@@ -106,9 +105,9 @@ export default function EditTeamMemberPage() {
       };
 
       if (isNew) {
-        addMember(memberData);
+        await addMember(memberData);
       } else {
-        updateMember(memberData);
+        await updateMember({ id: memberId, ...memberData });
       }
 
       toast({
