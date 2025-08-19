@@ -33,7 +33,6 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { uploadImage } from '@/lib/firebase';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -52,14 +51,12 @@ export default function EditEventPage() {
   const { toast } = useToast();
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
   const event = isNew ? null : events.find((e) => e.id === eventId);
   
-  const [imagePreview, setImagePreview] = useState<string | null>(event?.image || null);
-
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: event
@@ -91,7 +88,6 @@ export default function EditEventPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -103,45 +99,33 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
+    // For localStorage, we use the preview URL if available, or the existing URL.
+    // New images won't persist on full reload, but work for the session.
+    let imageUrl = imagePreview || event?.image || 'https://placehold.co/800x600.png';
 
-    try {
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'event-images');
-      }
+    const eventData: Event = {
+      id: isNew ? `new-${Date.now().toString()}` : eventId,
+      title: data.title,
+      date: data.date.toISOString(),
+      entryTime: data.entryTime,
+      description: data.description,
+      image: imageUrl,
+      imageHint: data.imageHint || 'club event',
+    };
 
-      const eventData: Event = {
-        id: isNew ? `new-${Date.now().toString()}` : eventId,
-        title: data.title,
-        date: data.date.toISOString(),
-        entryTime: data.entryTime,
-        description: data.description,
-        image: imageUrl,
-        imageHint: data.imageHint || 'club event',
-      };
-
-      if (isNew) {
-        addEvent(eventData);
-      } else {
-        updateEvent(eventData);
-      }
-
-      toast({
-        title: `Event ${isNew ? 'Added' : 'Updated'}`,
-        description: `${data.title} has been successfully saved.`,
-      });
-      router.push('/admin/events');
-
-    } catch (error) {
-       console.error('Failed to save event:', error);
-       toast({
-        variant: 'destructive',
-        title: 'Save Failed',
-        description: 'An error occurred while saving the event. It could be a network issue or a problem with the storage service.',
-      });
-    } finally {
-      setIsSubmitting(false);
+    if (isNew) {
+      addEvent(eventData);
+    } else {
+      updateEvent(eventData);
     }
+
+    toast({
+      title: `Event ${isNew ? 'Added' : 'Updated'}`,
+      description: `${data.title} has been successfully saved.`,
+    });
+    router.push('/admin/events');
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -256,7 +240,7 @@ export default function EditEventPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Upload a landscape image (e.g., 800x600 pixels).
+                      Upload a landscape image (e.g., 800x600 pixels). New images will not persist after a page refresh.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">

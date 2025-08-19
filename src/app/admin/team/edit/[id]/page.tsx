@@ -25,7 +25,6 @@ import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
-import { uploadImage } from '@/lib/firebase';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -43,14 +42,12 @@ export default function EditTeamMemberPage() {
   const { toast } = useToast();
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
   const member = isNew ? null : team.find((m) => m.id === memberId);
   
-  const [imagePreview, setImagePreview] = useState<string | null>(member?.image || null);
-
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
     defaultValues: member || {
@@ -80,7 +77,6 @@ export default function EditTeamMemberPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -92,44 +88,32 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+    // For localStorage, we use the preview URL if available, or the existing URL.
+    // New images won't persist on full reload, but work for the session.
+    let imageUrl = imagePreview || member?.image || 'https://placehold.co/128x128.png';
 
-    try {
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'team-members');
-      }
+    const memberData: TeamMember = {
+      id: isNew ? `new-${Date.now().toString()}` : memberId,
+      name: data.name,
+      role: data.role,
+      bio: data.bio,
+      image: imageUrl,
+      imageHint: data.imageHint || 'professional portrait',
+    };
 
-      const memberData: TeamMember = {
-        id: isNew ? `new-${Date.now().toString()}` : memberId,
-        name: data.name,
-        role: data.role,
-        bio: data.bio,
-        image: imageUrl,
-        imageHint: data.imageHint || 'professional portrait',
-      };
-
-      if (isNew) {
-        addMember(memberData);
-      } else {
-        updateMember(memberData);
-      }
-
-      toast({
-        title: `Member ${isNew ? 'Added' : 'Updated'}`,
-        description: `${data.name} has been successfully saved.`,
-      });
-      router.push('/admin/team');
-
-    } catch (error) {
-      console.error('Failed to save member:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Save Failed',
-        description: 'An error occurred while saving the team member. It could be a network issue or a problem with the storage service.',
-      });
-    } finally {
-      setIsSubmitting(false);
+    if (isNew) {
+      addMember(memberData);
+    } else {
+      updateMember(memberData);
     }
+
+    toast({
+      title: `Member ${isNew ? 'Added' : 'Updated'}`,
+      description: `${data.name} has been successfully saved.`,
+    });
+    router.push('/admin/team');
+    
+    setIsSubmitting(false);
   };
 
   return (
@@ -198,7 +182,7 @@ export default function EditTeamMemberPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      For best results, upload a square image of 128x128 pixels.
+                      For best results, upload a square image. New images will not persist after a page refresh.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">
