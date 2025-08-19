@@ -14,22 +14,6 @@ type EventContextType = {
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
-// Helper to remove base64 image data before saving to localStorage
-const getEventsForStorage = (events: Event[]): Event[] => {
-  return events.map(event => {
-    // If the image is a data URL, replace it with a placeholder or the original URL if available.
-    // For this prototype, we'll just not save the new base64 data to avoid quota issues.
-    // A real app would upload to a server and get back a URL.
-    if (event.image.startsWith('data:image')) {
-      // Find the original event to see if we can revert to its image
-      const originalEvent = initialEvents.find(e => e.title === event.title); // This is a weak link
-      return { ...event, image: originalEvent ? originalEvent.image : 'https://placehold.co/800x600.png' };
-    }
-    return event;
-  });
-};
-
-
 export function EventProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -53,8 +37,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isInitialized) {
       try {
-        const storableEvents = getEventsForStorage(events);
-        localStorage.setItem('eventData', JSON.stringify(storableEvents));
+        localStorage.setItem('eventData', JSON.stringify(events));
       } catch (error) {
         console.error('Failed to save event data to localStorage', error);
       }

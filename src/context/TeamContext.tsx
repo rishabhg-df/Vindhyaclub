@@ -14,18 +14,6 @@ type TeamContextType = {
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
 
-// Helper to remove base64 image data before saving to localStorage
-const getTeamForStorage = (team: TeamMember[]): TeamMember[] => {
-    return team.map(member => {
-        if (member.image.startsWith('data:image')) {
-            const originalMember = initialTeam.find(m => m.id === member.id);
-            return { ...member, image: originalMember ? originalMember.image : 'https://placehold.co/128x128.png' };
-        }
-        return member;
-    });
-};
-
-
 export function TeamProvider({ children }: { children: ReactNode }) {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -48,8 +36,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isInitialized) {
       try {
-        const storableTeam = getTeamForStorage(team);
-        localStorage.setItem('teamData', JSON.stringify(storableTeam));
+        localStorage.setItem('teamData', JSON.stringify(team));
       } catch (error) {
         console.error('Failed to save team data to localStorage', error);
       }
