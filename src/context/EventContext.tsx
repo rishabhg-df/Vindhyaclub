@@ -14,15 +14,14 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import type { Event } from '@/lib/types';
-import { db, storage } from '@/lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
 import { format } from 'date-fns';
 
 type EventContextType = {
   events: Event[];
-  addEvent: (event: Omit<Event, 'id'>, imageFile?: File) => Promise<void>;
-  updateEvent: (updatedEvent: Event, imageFile?: File) => Promise<void>;
+  addEvent: (event: Omit<Event, 'id'>) => Promise<void>;
+  updateEvent: (updatedEvent: Event) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
   loading: boolean;
 };
@@ -66,25 +65,12 @@ export function EventProvider({ children }: { children: ReactNode }) {
     }
   }, [isInitialized, fetchEvents]);
 
-  const uploadImage = async (file: File): Promise<string> => {
-    const storageRef = ref(storage, `events/${Date.now()}-${file.name}`);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
-  };
-
-  const addEvent = async (event: Omit<Event, 'id'>, imageFile?: File) => {
+  const addEvent = async (event: Omit<Event, 'id'>) => {
     try {
-      let imageUrl = event.imageUrl;
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile);
-      }
-      
       const eventDataWithTimestamp = {
         ...event,
-        imageUrl: imageUrl || 'https://placehold.co/800x600.png',
         date: Timestamp.fromDate(new Date(event.date)),
       };
-
       await addDoc(collection(db, 'events'), eventDataWithTimestamp);
       await fetchEvents();
     } catch (error) {
@@ -93,19 +79,13 @@ export function EventProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateEvent = async (updatedEvent: Event, imageFile?: File) => {
+  const updateEvent = async (updatedEvent: Event) => {
     try {
       const { id, ...eventData } = updatedEvent;
       const eventRef = doc(db, 'events', id);
 
-      let imageUrl = eventData.imageUrl;
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile);
-      }
-
       const eventDataWithTimestamp = {
         ...eventData,
-        imageUrl: imageUrl || 'https://placehold.co/800x600.png',
         date: Timestamp.fromDate(new Date(eventData.date)),
       };
       

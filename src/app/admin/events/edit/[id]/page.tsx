@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { compressImage } from '@/lib/imageCompressor';
+import { uploadImage } from '@/lib/firebase';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -112,19 +113,25 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
+      let imageUrl = event?.imageUrl;
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'events');
+      }
+
       const eventData: Omit<Event, 'id'> = {
         title: data.title,
         description: data.description,
         date: format(data.date, 'yyyy-MM-dd'),
         entryTime: data.entryTime,
-        imageUrl: event?.imageUrl, // Keep existing image URL by default
+        imageUrl: imageUrl || 'https://placehold.co/800x600.png',
         imageHint: data.imageHint || 'club event',
       };
 
       if (isNew) {
-        await addEvent(eventData, imageFile ?? undefined);
+        await addEvent(eventData);
       } else if (event) {
-        await updateEvent({ ...event, ...eventData }, imageFile ?? undefined);
+        await updateEvent({ ...event, ...eventData });
       }
 
       toast({

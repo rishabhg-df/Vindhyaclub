@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompressor';
+import { uploadImage } from '@/lib/firebase';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -101,11 +102,21 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
+      let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'team');
+      }
+
+      const memberData: Omit<TeamMember, 'id'> = {
+        ...data,
+        image: imageUrl,
+      };
+
       if (isNew) {
-        await addMember(data, imageFile ?? undefined);
+        await addMember(memberData);
       } else if (member) {
-        const updatedMember: TeamMember = { ...member, ...data };
-        await updateMember(updatedMember, imageFile ?? undefined);
+        await updateMember({ ...member, ...memberData });
       }
 
       toast({
