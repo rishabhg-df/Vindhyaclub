@@ -101,7 +101,7 @@ export default function EditEventPage() {
     setIsSubmitting(true);
     
     const eventData: Event = {
-      id: isNew ? new Date().getTime().toString() : eventId,
+      id: isNew ? `new-${new Date().getTime().toString()}` : eventId,
       title: data.title,
       date: data.date.toISOString(),
       entryTime: data.entryTime,

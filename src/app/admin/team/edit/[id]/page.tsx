@@ -90,7 +90,7 @@ export default function EditTeamMemberPage() {
     setIsSubmitting(true);
 
     const memberData: TeamMember = {
-      id: isNew ? new Date().getTime().toString() : memberId,
+      id: isNew ? `new-${new Date().getTime().toString()}` : memberId,
       name: data.name,
       role: data.role,
       bio: data.bio,
