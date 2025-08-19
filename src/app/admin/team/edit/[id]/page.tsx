@@ -30,7 +30,18 @@ const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   role: z.string().min(1, 'Role is required.'),
   bio: z.string().min(1, 'Bio is required.'),
-  image: z.string().min(1, 'Image is required.'),
+  image: z.any().refine(
+    (value) => {
+      if (typeof value === 'string') return true;
+      if (typeof value === 'object' && value instanceof FileList) {
+        return value.length > 0;
+      }
+      return false;
+    },
+    {
+      message: 'Image is required.',
+    }
+  ),
   imageHint: z.string().optional(),
 });
 
@@ -55,7 +66,7 @@ export default function EditTeamMemberPage() {
       name: '',
       role: '',
       bio: '',
-      image: '',
+      image: undefined,
       imageHint: 'professional portrait',
     },
   });
@@ -75,44 +86,37 @@ export default function EditTeamMemberPage() {
     }
   }, [isNew, member, router, toast, form]);
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    fieldChange: (value: string) => void
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
-      const tempUrl = URL.createObjectURL(file);
-      setImagePreview(tempUrl);
-      // We set a placeholder here because storing the full Data URL in state
-      // and thus localstorage can exceed the quota. The actual image
-      // isn't saved anywhere in this demo app, so we'll just use a placeholder
-      // for the form data to avoid breaking the UI. In a real app,
-      // you would upload the file to a server and get back a URL.
-      form.setValue('image', 'https://placehold.co/128x128.png');
-      toast({
-        title: 'Image is for preview only',
-        description:
-          'In this demo, uploaded images are not saved. A placeholder will be used.',
-      });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        fieldChange(result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const onSubmit = (data: MemberFormValues) => {
-    // If an image preview from a file upload exists, but the user didn't change it,
-    // the image field might be a placeholder. We should use the original image if it exists.
-    if (!isNew && member && imagePreview && !imagePreview.startsWith('blob:')) {
-      data.image = member.image;
-    }
-
-    if (imagePreview && imagePreview.startsWith('blob:')) {
-       // If a new image was uploaded, use a placeholder
-       data.image = 'https://placehold.co/128x128.png';
-    }
-
+    const finalData = { ...data };
+    
     if (isNew) {
       addMember({
         id: new Date().getTime().toString(),
-        ...data,
+        ...finalData,
       });
     } else {
-      updateMember({ ...member!, ...data });
+       if (typeof finalData.image !== 'string') {
+         finalData.image = imagePreview!; // Use the new image from preview
+      } else if (member) {
+         finalData.image = member.image; // Keep original image
+      }
+      updateMember({ ...member!, ...finalData });
     }
 
     toast({
@@ -176,14 +180,14 @@ export default function EditTeamMemberPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={(e) => handleImageChange(e, field.onChange)}
                       />
                     </FormControl>
                     <FormDescription>

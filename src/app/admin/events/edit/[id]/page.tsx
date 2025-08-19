@@ -40,7 +40,20 @@ const eventSchema = z.object({
   date: z.date({ required_error: 'Date is required.' }),
   entryTime: z.string().min(1, 'Entry time is required.'),
   description: z.string().min(1, 'Description is required.'),
-  image: z.string().min(1, 'Image is required.'),
+  image: z.any().refine(
+    (value) => {
+      // If the value is a string, it's a URL and is valid.
+      if (typeof value === 'string') return true;
+      // If it's a FileList, it should have at least one file.
+      if (typeof value === 'object' && value instanceof FileList) {
+        return value.length > 0;
+      }
+      return false;
+    },
+    {
+      message: 'Image is required.',
+    }
+  ),
   imageHint: z.string().optional(),
 });
 
@@ -67,7 +80,7 @@ export default function EditEventPage() {
           title: '',
           entryTime: '',
           description: '',
-          image: '',
+          image: undefined,
           imageHint: 'club event',
         },
   });
@@ -87,39 +100,22 @@ export default function EditEventPage() {
     }
   }, [isNew, event, router, toast, form]);
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+ const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const tempUrl = URL.createObjectURL(file);
-      setImagePreview(tempUrl);
-      // We set a placeholder here because storing the full Data URL in state
-      // and thus localstorage can exceed the quota. The actual image
-      // isn't saved anywhere in this demo app, so we'll just use a placeholder
-      // for the form data to avoid breaking the UI. In a real app,
-      // you would upload the file to a server and get back a URL.
-      form.setValue('image', 'https://placehold.co/800x600.png');
-      toast({
-        title: 'Image is for preview only',
-        description:
-          'In this demo, uploaded images are not saved. A placeholder will be used.',
-      });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        form.setValue('image', result); 
+      };
+      reader.readAsDataURL(file);
     }
   };
 
+
   const onSubmit = (data: EventFormValues) => {
     const eventData = { ...data, date: data.date.toISOString() };
-    
-    // If an image preview from a file upload exists, but the user didn't change it,
-    // the image field might be a placeholder. We should use the original image if it exists.
-    if (!isNew && event && imagePreview && !imagePreview.startsWith('blob:')) {
-      eventData.image = event.image;
-    }
-
-    if (imagePreview && imagePreview.startsWith('blob:')) {
-       // If a new image was uploaded, use a placeholder
-       eventData.image = 'https://placehold.co/800x600.png';
-    }
-
 
     if (isNew) {
       addEvent({
@@ -127,6 +123,14 @@ export default function EditEventPage() {
         ...eventData,
       });
     } else {
+      // If the image field is a string, it means it hasn't been changed.
+      // Use the original image from the event object.
+      // Otherwise, the new Data URL from the preview is already in eventData.
+      if (typeof eventData.image !== 'string') {
+         eventData.image = imagePreview!; // Use the new image from preview
+      } else if (event) {
+         eventData.image = event.image; // Keep original image
+      }
       updateEvent({ ...event!, ...eventData });
     }
 
@@ -136,6 +140,25 @@ export default function EditEventPage() {
     });
     router.push('/admin/events');
   };
+  
+    // Watch for changes in the image field of the form
+  const watchedImage = form.watch('image');
+  useEffect(() => {
+    if (typeof watchedImage === 'string') {
+      setImagePreview(watchedImage);
+    } else if (watchedImage instanceof FileList && watchedImage.length > 0) {
+      const file = watchedImage[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else if (event?.image) {
+       setImagePreview(event.image);
+    }
+
+  }, [watchedImage, event]);
+
 
   return (
     <Section title={isNew ? 'Add New Event' : 'Edit Event'}>
@@ -237,14 +260,27 @@ export default function EditEventPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={() => (
+                render={({ field: { onChange, value, ...rest } }) => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                           if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const result = reader.result as string;
+                                setImagePreview(result);
+                                // The form's value is now the base64 string
+                                onChange(result); 
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                        }}
+                        {...rest}
                       />
                     </FormControl>
                     <FormDescription>
@@ -265,6 +301,7 @@ export default function EditEventPage() {
                   </FormItem>
                 )}
               />
+
 
               <div className="flex justify-end gap-4">
                 <Button
