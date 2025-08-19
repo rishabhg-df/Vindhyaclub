@@ -64,7 +64,7 @@ export default function EditEventPage() {
       ? { ...event, date: new Date(event.date), entryTime: event.entryTime ?? '' }
       : {
           title: '',
-          date: new Date(),
+          date: undefined,
           description: '',
           entryTime: '',
           imageHint: 'club event',
@@ -111,11 +111,22 @@ export default function EditEventPage() {
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    let finalImageUrl = event?.image;
-
     try {
+      let finalImageUrl = event?.image;
+  
       if (imageFile) {
-        finalImageUrl = await uploadImage(imageFile, 'events');
+        try {
+          finalImageUrl = await uploadImage(imageFile, 'events');
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          toast({
+            variant: 'destructive',
+            title: 'Image Upload Failed',
+            description: 'Could not upload the image. Please try again.',
+          });
+          setIsSubmitting(false);
+          return;
+        }
       }
       
       const eventData: Omit<Event, 'id'> = {
