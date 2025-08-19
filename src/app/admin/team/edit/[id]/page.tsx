@@ -25,7 +25,6 @@ import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
-import { uploadImage } from '@/lib/firebase';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -43,7 +42,6 @@ export default function EditTeamMemberPage() {
   const { toast } = useToast();
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -80,7 +78,6 @@ export default function EditTeamMemberPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -92,13 +89,12 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+    // In a real app, you would upload the image to a server and get a URL.
+    // For this prototype, we'll use the preview URL which is a base64 string.
+    // This will work for the session but will be lost on refresh for new items.
+    let imageUrl = imagePreview || 'https://placehold.co/128x128.png';
 
     try {
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'team-images');
-      }
-
       const memberData: TeamMember = {
         id: isNew ? `new-${Date.now().toString()}` : memberId,
         name: data.name,
