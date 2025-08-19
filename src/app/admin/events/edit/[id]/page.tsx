@@ -40,7 +40,7 @@ const eventSchema = z.object({
   date: z.date({ required_error: 'Date is required.' }),
   entryTime: z.string().optional(),
   description: z.string().min(1, 'Description is required.'),
-  image: z.any().optional(),
+  image: z.instanceof(File).optional(),
   imageHint: z.string().optional(),
 });
 
@@ -53,7 +53,6 @@ export default function EditEventPage() {
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
@@ -62,7 +61,7 @@ export default function EditEventPage() {
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: event
-      ? { ...event, date: new Date(event.date) }
+      ? { ...event, date: new Date(event.date), image: undefined }
       : {
           title: '',
           entryTime: '',
@@ -82,17 +81,19 @@ export default function EditEventPage() {
       router.push('/admin/events');
     }
     if (event) {
-      form.reset({ ...event, date: new Date(event.date) });
+      form.reset({ ...event, date: new Date(event.date), image: undefined });
       if (event.image) {
         setImagePreview(event.image);
       }
+    } else {
+      // For new events, don't set a preview initially
+      setImagePreview(null);
     }
   }, [isNew, event, router, toast, form]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -103,49 +104,49 @@ export default function EditEventPage() {
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    
-    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
+    let imageUrl = event?.image;
 
-    if (imageFile) {
-      try {
-        imageUrl = await uploadImage(imageFile, 'events');
-      } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Image Upload Failed',
-          description: 'There was an error uploading the image. Please try again.',
-        });
-        setIsSubmitting(false);
-        return;
+    try {
+      if (data.image) {
+        imageUrl = await uploadImage(data.image, 'events');
+      } else if (isNew) {
+        imageUrl = 'https://placehold.co/800x600.png';
       }
-    } else if (isNew) {
-      imageUrl = 'https://placehold.co/800x600.png';
+
+      const eventData: Event = {
+        id: isNew ? Date.now().toString() : eventId,
+        title: data.title,
+        date: data.date.toISOString(),
+        entryTime: data.entryTime,
+        description: data.description,
+        image: imageUrl || 'https://placehold.co/800x600.png',
+        imageHint: data.imageHint || 'club event',
+      };
+
+      if (isNew) {
+        addEvent(eventData);
+      } else {
+        updateEvent(eventData);
+      }
+
+      toast({
+        title: `Event ${isNew ? 'Added' : 'Updated'}`,
+        description: `${data.title} has been successfully saved.`,
+      });
+      router.push('/admin/events');
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Operation Failed',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-
-    const eventData: Event = {
-      id: isNew ? Date.now().toString() : eventId,
-      title: data.title,
-      date: data.date.toISOString(),
-      entryTime: data.entryTime,
-      description: data.description,
-      image: imageUrl,
-      imageHint: data.imageHint || 'club event',
-    };
-
-    if (isNew) {
-      addEvent(eventData);
-    } else {
-      updateEvent(eventData);
-    }
-
-    toast({
-      title: `Event ${isNew ? 'Added' : 'Updated'}`,
-      description: `${data.title} has been successfully saved.`,
-    });
-    router.push('/admin/events');
-
-    setIsSubmitting(false);
   };
 
   return (
@@ -262,7 +263,7 @@ export default function EditEventPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Upload a new image for the event. If no image is selected, a default placeholder will be used for new events.
+                      Upload a new image for the event. If no image is selected, the existing image will be kept, or a placeholder used for new events.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">

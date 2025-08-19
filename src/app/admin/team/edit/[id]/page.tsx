@@ -31,7 +31,7 @@ const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   role: z.string().min(1, 'Role is required.'),
   bio: z.string().min(1, 'Bio is required.'),
-  image: z.any().optional(),
+  image: z.instanceof(File).optional(),
   imageHint: z.string().optional(),
 });
 
@@ -44,7 +44,6 @@ export default function EditTeamMemberPage() {
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -71,17 +70,18 @@ export default function EditTeamMemberPage() {
       router.push('/admin/team');
     }
     if (member) {
-      form.reset(member);
+      form.reset({ ...member, image: undefined });
       if (member.image) {
         setImagePreview(member.image);
       }
+    } else {
+      setImagePreview(null);
     }
   }, [isNew, member, router, toast, form]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -92,48 +92,48 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    
-    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+    let imageUrl = member?.image;
 
-    if (imageFile) {
-      try {
-        imageUrl = await uploadImage(imageFile, 'team');
-      } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Image Upload Failed',
-          description: 'There was an error uploading the image. Please try again.',
-        });
-        setIsSubmitting(false);
-        return;
+    try {
+      if (data.image) {
+        imageUrl = await uploadImage(data.image, 'team');
+      } else if (isNew) {
+        imageUrl = 'https://placehold.co/128x128.png';
       }
-    } else if (isNew) {
-      imageUrl = 'https://placehold.co/128x128.png';
+
+      const memberData: TeamMember = {
+        id: isNew ? Date.now().toString() : memberId,
+        name: data.name,
+        role: data.role,
+        bio: data.bio,
+        image: imageUrl || 'https://placehold.co/128x128.png',
+        imageHint: data.imageHint || 'professional portrait',
+      };
+
+      if (isNew) {
+        addMember(memberData);
+      } else {
+        updateMember(memberData);
+      }
+
+      toast({
+        title: `Member ${isNew ? 'Added' : 'Updated'}`,
+        description: `${data.name} has been successfully saved.`,
+      });
+      router.push('/admin/team');
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Operation Failed',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-
-    const memberData: TeamMember = {
-      id: isNew ? Date.now().toString() : memberId,
-      name: data.name,
-      role: data.role,
-      bio: data.bio,
-      image: imageUrl,
-      imageHint: data.imageHint || 'professional portrait',
-    };
-
-    if (isNew) {
-      addMember(memberData);
-    } else {
-      updateMember(memberData);
-    }
-
-    toast({
-      title: `Member ${isNew ? 'Added' : 'Updated'}`,
-      description: `${data.name} has been successfully saved.`,
-    });
-    router.push('/admin/team');
-    
-    setIsSubmitting(false);
   };
 
   return (
@@ -204,7 +204,7 @@ export default function EditTeamMemberPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                     Upload a new photo. If no image is selected, a default placeholder will be used for new members.
+                     Upload a new photo. If no image is selected, the existing one will be kept, or a placeholder used for new members.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">
