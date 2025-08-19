@@ -10,7 +10,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -25,6 +24,8 @@ import { Section } from '@/components/shared/Section';
 import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
+import { uploadImage } from '@/lib/firebase';
+import { Loader2 } from 'lucide-react';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -41,13 +42,15 @@ export default function EditTeamMemberPage() {
   const params = useParams();
   const { toast } = useToast();
   const { team, addMember, updateMember } = useTeam();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
   const member = isNew ? null : team.find((m) => m.id === memberId);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    member?.image || null
-  );
+  
+  const [imagePreview, setImagePreview] = useState<string | null>(member?.image || null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
 
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
@@ -75,51 +78,58 @@ export default function EditTeamMemberPage() {
     }
   }, [isNew, member, router, toast, form]);
 
-  const handleImageChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    fieldChange: (value: string) => void
-  ) => {
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result as string;
-        setImagePreview(result);
-        fieldChange(result);
+        setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const onSubmit = (data: MemberFormValues) => {
-    let finalImage = imagePreview;
+  const onSubmit = async (data: MemberFormValues) => {
+    setIsSubmitting(true);
+    let imageUrl = member?.image || '';
 
-    if (typeof data.image === 'string' && data.image.startsWith('data:')) {
-      finalImage = data.image;
-    } else if (member) {
-      finalImage = member.image;
+    try {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'team-images/');
+      }
+
+      const memberData: TeamMember = {
+        id: isNew ? new Date().getTime().toString() : memberId,
+        name: data.name,
+        role: data.role,
+        bio: data.bio,
+        image: imageUrl,
+        imageHint: data.imageHint || 'professional portrait',
+      };
+
+      if (isNew) {
+        addMember(memberData);
+      } else {
+        updateMember(memberData);
+      }
+
+      toast({
+        title: `Member ${isNew ? 'Added' : 'Updated'}`,
+        description: `${data.name} has been successfully saved.`,
+      });
+      router.push('/admin/team');
+
+    } catch (error) {
+      console.error("Failed to upload image or save member", error);
+      toast({
+        variant: 'destructive',
+        title: 'Save failed',
+        description: 'There was an error saving the team member. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const memberData: TeamMember = {
-      id: isNew ? new Date().getTime().toString() : memberId,
-      name: data.name,
-      role: data.role,
-      bio: data.bio,
-      image: finalImage!,
-      imageHint: data.imageHint || 'professional portrait',
-    };
-
-    if (isNew) {
-      addMember(memberData);
-    } else {
-      updateMember(memberData);
-    }
-
-    toast({
-      title: `Member ${isNew ? 'Added' : 'Updated'}`,
-      description: `${data.name} has been successfully saved.`,
-    });
-    router.push('/admin/team');
   };
 
   return (
@@ -176,14 +186,15 @@ export default function EditTeamMemberPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => handleImageChange(e, field.onChange)}
+                        onChange={handleImageChange}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormDescription>
@@ -210,11 +221,21 @@ export default function EditTeamMemberPage() {
                   type="button"
                   variant="outline"
                   onClick={() => router.back()}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {isNew ? 'Add Member' : 'Update Member'}
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : isNew ? (
+                    'Add Member'
+                  ) : (
+                    'Update Member'
+                  )}
                 </Button>
               </div>
             </form>

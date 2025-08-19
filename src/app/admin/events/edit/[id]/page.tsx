@@ -10,7 +10,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -32,8 +31,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { uploadImage } from '@/lib/firebase';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -51,13 +51,14 @@ export default function EditEventPage() {
   const params = useParams();
   const { toast } = useToast();
   const { events, addEvent, updateEvent } = useEvents();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
   const event = isNew ? null : events.find((e) => e.id === eventId);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    event?.image || null
-  );
+  
+  const [imagePreview, setImagePreview] = useState<string | null>(event?.image || null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -87,57 +88,60 @@ export default function EditEventPage() {
     }
   }, [isNew, event, router, toast, form]);
 
-  const handleImageChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    fieldChange: (value: string) => void
-  ) => {
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result as string;
-        setImagePreview(result);
-        fieldChange(result); // This updates the form state with the base64 string
+        setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const onSubmit = (data: EventFormValues) => {
-    let finalImage = imagePreview;
+  const onSubmit = async (data: EventFormValues) => {
+    setIsSubmitting(true);
+    let imageUrl = event?.image || '';
 
-    // If a new image was uploaded, `data.image` will be a base64 string
-    // and `imagePreview` will also be the same base64 string.
-    // If not, `data.image` will be the original URL, and we should keep it.
-    if (typeof data.image === 'string' && data.image.startsWith('data:')) {
-      finalImage = data.image;
-    } else if (event) {
-      finalImage = event.image;
+    try {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'event-images/');
+      }
+
+      const eventData: Event = {
+        id: isNew ? new Date().getTime().toString() : eventId,
+        title: data.title,
+        date: data.date.toISOString(),
+        entryTime: data.entryTime,
+        description: data.description,
+        image: imageUrl,
+        imageHint: data.imageHint || 'club event',
+      };
+
+      if (isNew) {
+        addEvent(eventData);
+      } else {
+        updateEvent(eventData);
+      }
+
+      toast({
+        title: `Event ${isNew ? 'Added' : 'Updated'}`,
+        description: `${data.title} has been successfully saved.`,
+      });
+      router.push('/admin/events');
+
+    } catch (error) {
+      console.error("Failed to upload image or save event", error);
+      toast({
+        variant: 'destructive',
+        title: 'Save failed',
+        description: 'There was an error saving the event. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const eventData: Event = {
-      id: isNew ? new Date().getTime().toString() : eventId,
-      title: data.title,
-      date: data.date.toISOString(),
-      entryTime: data.entryTime,
-      description: data.description,
-      image: finalImage!,
-      imageHint: data.imageHint || 'club event',
-    };
-
-    if (isNew) {
-      addEvent(eventData);
-    } else {
-      updateEvent(eventData);
-    }
-
-    toast({
-      title: `Event ${isNew ? 'Added' : 'Updated'}`,
-      description: `${data.title} has been successfully saved.`,
-    });
-    router.push('/admin/events');
   };
-  
 
   return (
     <Section title={isNew ? 'Add New Event' : 'Edit Event'}>
@@ -239,14 +243,15 @@ export default function EditEventPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => handleImageChange(e, field.onChange)}
+                        onChange={handleImageChange}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormDescription>
@@ -274,11 +279,21 @@ export default function EditEventPage() {
                   type="button"
                   variant="outline"
                   onClick={() => router.back()}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {isNew ? 'Add Event' : 'Update Event'}
+                <Button type="submit" disabled={isSubmitting}>
+                   {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : isNew ? (
+                    'Add Event'
+                  ) : (
+                    'Update Event'
+                  )}
                 </Button>
               </div>
             </form>
