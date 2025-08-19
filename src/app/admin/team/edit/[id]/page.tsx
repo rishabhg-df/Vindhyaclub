@@ -25,6 +25,7 @@ import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
+import { uploadImage } from '@/lib/image-upload';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -43,6 +44,7 @@ export default function EditTeamMemberPage() {
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -77,6 +79,7 @@ export default function EditTeamMemberPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -88,9 +91,21 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    // For localStorage, we use the preview URL if available, or the existing URL.
-    // New images won't persist on full reload, but work for the session.
-    let imageUrl = imagePreview || member?.image || 'https://placehold.co/128x128.png';
+    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+
+    if (selectedFile) {
+      try {
+        imageUrl = await uploadImage(selectedFile);
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Image Upload Failed',
+          description: 'Could not upload the image. Please try again.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    }
 
     const memberData: TeamMember = {
       id: isNew ? `new-${Date.now().toString()}` : memberId,
@@ -182,7 +197,7 @@ export default function EditTeamMemberPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      For best results, upload a square image. New images will not persist after a page refresh.
+                      For best results, upload a square image.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">
