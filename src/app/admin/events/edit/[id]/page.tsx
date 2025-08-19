@@ -40,7 +40,6 @@ const eventSchema = z.object({
   date: z.date({ required_error: 'Date is required.' }),
   entryTime: z.string().optional(),
   description: z.string().min(1, 'Description is required.'),
-  image: z.instanceof(File).optional(),
   imageHint: z.string().optional(),
 });
 
@@ -53,6 +52,7 @@ export default function EditEventPage() {
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
@@ -61,12 +61,11 @@ export default function EditEventPage() {
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: event
-      ? { ...event, date: new Date(event.date), entryTime: event.entryTime ?? '', image: undefined }
+      ? { ...event, date: new Date(event.date), entryTime: event.entryTime ?? '' }
       : {
           title: '',
-          entryTime: '',
           description: '',
-          image: undefined,
+          entryTime: '',
           imageHint: 'club event',
         },
   });
@@ -88,6 +87,7 @@ export default function EditEventPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -101,11 +101,9 @@ export default function EditEventPage() {
     try {
       let imageUrl = event?.image;
 
-      if (data.image instanceof File) {
-        imageUrl = await uploadImage(data.image, 'events');
-      }
-      
-      if (isNew && !imageUrl) {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'events');
+      } else if (isNew) {
         imageUrl = 'https://placehold.co/800x600.png';
       }
 
@@ -242,41 +240,31 @@ export default function EditEventPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field: { onChange, ...fieldProps } }) => (
-                  <FormItem>
-                    <FormLabel>Photo</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...fieldProps}
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                           handleImageChange(e);
-                           onChange(e.target.files?.[0] ?? undefined);
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Upload a new image for the event. If no image is selected, the existing image will be kept, or a placeholder used for new events.
-                    </FormDescription>
-                    {imagePreview && (
-                      <div className="mt-4">
-                        <Image
-                          src={imagePreview}
-                          alt="Event preview"
-                          width={200}
-                          height={150}
-                          className="rounded-md object-cover"
-                        />
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
+              <FormItem>
+                <FormLabel>Photo</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Upload a new image for the event. If no image is selected, the existing image will be kept, or a placeholder used for new events.
+                </FormDescription>
+                {imagePreview && (
+                  <div className="mt-4">
+                    <Image
+                      src={imagePreview}
+                      alt="Event preview"
+                      width={200}
+                      height={150}
+                      className="rounded-md object-cover"
+                    />
+                  </div>
                 )}
-              />
+                <FormMessage />
+              </FormItem>
 
 
               <div className="flex justify-end gap-4">
@@ -308,3 +296,4 @@ export default function EditEventPage() {
     </Section>
   );
 }
+

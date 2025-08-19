@@ -31,7 +31,6 @@ const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   role: z.string().min(1, 'Role is required.'),
   bio: z.string().min(1, 'Bio is required.'),
-  image: z.instanceof(File).optional(),
   imageHint: z.string().optional(),
 });
 
@@ -44,6 +43,7 @@ export default function EditTeamMemberPage() {
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -51,11 +51,10 @@ export default function EditTeamMemberPage() {
   
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
-    defaultValues: member ? { ...member, image: undefined } : {
+    defaultValues: member ? member : {
       name: '',
       role: '',
       bio: '',
-      image: undefined,
       imageHint: 'professional portrait',
     },
   });
@@ -77,6 +76,7 @@ export default function EditTeamMemberPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -90,11 +90,9 @@ export default function EditTeamMemberPage() {
     try {
       let imageUrl = member?.image; 
 
-      if (data.image instanceof File) {
-        imageUrl = await uploadImage(data.image, 'team');
-      }
-
-      if (isNew && !imageUrl) {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'team');
+      } else if (isNew) {
         imageUrl = 'https://placehold.co/128x128.png';
       }
 
@@ -184,41 +182,31 @@ export default function EditTeamMemberPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field: { onChange, ...fieldProps } }) => (
-                  <FormItem>
-                    <FormLabel>Photo</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...fieldProps}
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          handleImageChange(e);
-                          onChange(e.target.files?.[0] ?? undefined);
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                     Upload a new photo. If no image is selected, the existing one will be kept, or a placeholder used for new members.
-                    </FormDescription>
-                    {imagePreview && (
-                      <div className="mt-4">
-                        <Image
-                          src={imagePreview}
-                          alt="Profile preview"
-                          width={128}
-                          height={128}
-                          className="h-32 w-32 rounded-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
+              <FormItem>
+                <FormLabel>Photo</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                 Upload a new photo. If no image is selected, the existing one will be kept, or a placeholder used for new members.
+                </FormDescription>
+                {imagePreview && (
+                  <div className="mt-4">
+                    <Image
+                      src={imagePreview}
+                      alt="Profile preview"
+                      width={128}
+                      height={128}
+                      className="h-32 w-32 rounded-full object-cover"
+                    />
+                  </div>
                 )}
-              />
+                <FormMessage />
+              </FormItem>
 
               <div className="flex justify-end gap-4">
                 <Button
