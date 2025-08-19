@@ -10,10 +10,12 @@ import {
   doc,
   query,
   orderBy,
+  Timestamp,
 } from 'firebase/firestore';
 import type { Event } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { events as initialEvents } from '@/lib/data';
+import { format } from 'date-fns';
 
 type EventContextType = {
   events: Event[];
@@ -24,6 +26,16 @@ type EventContextType = {
 };
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
+
+const formatEventDate = (event: any): Event => {
+    const data = event.data();
+    if (data.date instanceof Timestamp) {
+        // format to YYYY-MM-DD string
+        data.date = format(data.date.toDate(), 'yyyy-MM-dd');
+    }
+    return { id: event.id, ...data } as Event;
+};
+
 
 export function EventProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
@@ -37,22 +49,20 @@ export function EventProvider({ children }: { children: ReactNode }) {
       const q = query(eventsCollection, orderBy('date', 'desc'));
       const querySnapshot = await getDocs(q);
 
-      let fetchedEvents: Event[] = [];
-      querySnapshot.forEach((docSnap) => {
-        fetchedEvents.push({ id: docSnap.id, ...docSnap.data() } as Event);
-      });
+      let fetchedEvents: Event[] = querySnapshot.docs.map(formatEventDate);
 
       // Populate Firestore with seed data if empty
       if (fetchedEvents.length === 0 && initialEvents.length > 0) {
         const initialDataPromises = initialEvents.map((event) =>
-          addDoc(collection(db, 'events'), event)
+          addDoc(collection(db, 'events'), {
+            ...event,
+            date: Timestamp.fromDate(new Date(event.date))
+          })
         );
         await Promise.all(initialDataPromises);
 
         const newSnapshot = await getDocs(q);
-        fetchedEvents = newSnapshot.docs.map(
-          (d) => ({ id: d.id, ...d.data() } as Event)
-        );
+        fetchedEvents = newSnapshot.docs.map(formatEventDate);
       }
 
       setEvents(fetchedEvents);
@@ -74,7 +84,11 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
   const addEvent = async (event: Omit<Event, 'id'>) => {
     try {
-      const docRef = await addDoc(collection(db, 'events'), event);
+      const eventDataWithTimestamp = {
+        ...event,
+        date: Timestamp.fromDate(new Date(event.date)),
+      };
+      const docRef = await addDoc(collection(db, 'events'), eventDataWithTimestamp);
       const newEvent: Event = { id: docRef.id, ...event };
       setEvents((prev) =>
         [...prev, newEvent].sort(
@@ -91,7 +105,10 @@ export function EventProvider({ children }: { children: ReactNode }) {
     try {
       const { id, ...eventData } = updatedEvent; // strip out id
       const eventDoc = doc(db, 'events', id);
-      await updateDoc(eventDoc, eventData);
+      await updateDoc(eventDoc, {
+        ...eventData,
+        date: Timestamp.fromDate(new Date(eventData.date)),
+      });
 
       setEvents((prev) =>
         prev

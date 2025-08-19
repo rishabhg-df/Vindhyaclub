@@ -10,8 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Timestamp } from "firebase/firestore";
-
 import {
   Form,
   FormControl,
@@ -128,7 +126,7 @@ export default function EditEventPage() {
       
       const eventData = {
         title: data.title,
-        date: Timestamp.fromDate(data.date),
+        date: format(data.date, 'yyyy-MM-dd'),
         entryTime: data.entryTime || '',
         description: data.description,
         image: imageUrl,
