@@ -25,7 +25,6 @@ import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
-import { uploadImage } from '@/lib/image-upload';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -44,7 +43,6 @@ export default function EditTeamMemberPage() {
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -79,7 +77,6 @@ export default function EditTeamMemberPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -91,22 +88,8 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
-
-    if (selectedFile) {
-      try {
-        imageUrl = await uploadImage(selectedFile);
-      } catch (error) {
-        console.error('Image upload failed.', error);
-        toast({
-          variant: 'destructive',
-          title: 'Image Upload Failed',
-          description: 'Could not upload the image. Please try again.',
-        });
-        setIsSubmitting(false);
-        return;
-      }
-    }
+    // For now, new images are not saved. Use placeholder for new members.
+    const imageUrl = member?.image || 'https://placehold.co/128x128.png';
 
     const memberData: TeamMember = {
       id: isNew ? Date.now().toString() : memberId,
@@ -198,7 +181,7 @@ export default function EditTeamMemberPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      For best results, upload a square image.
+                      For best results, upload a square image. New images will not be saved on refresh.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">

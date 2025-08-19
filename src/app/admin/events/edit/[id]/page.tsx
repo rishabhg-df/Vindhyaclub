@@ -33,7 +33,6 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { uploadImage } from '@/lib/image-upload';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -53,7 +52,6 @@ export default function EditEventPage() {
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
@@ -90,7 +88,6 @@ export default function EditEventPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -102,21 +99,8 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
-
-    if (selectedFile) {
-      try {
-        imageUrl = await uploadImage(selectedFile);
-      } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Image Upload Failed',
-          description: 'Could not upload the image. Please try again.',
-        });
-        setIsSubmitting(false);
-        return;
-      }
-    }
+    // For now, new images are not saved. Use placeholder for new events.
+    const imageUrl = event?.image || 'https://placehold.co/800x600.png';
 
     const eventData: Event = {
       id: isNew ? Date.now().toString() : eventId,
@@ -255,7 +239,7 @@ export default function EditEventPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Upload a landscape image (e.g., 800x600 pixels).
+                      Upload a landscape image (e.g., 800x600 pixels). New images will not be saved on refresh.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">
