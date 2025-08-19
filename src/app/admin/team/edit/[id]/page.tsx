@@ -71,10 +71,8 @@ export default function EditTeamMemberPage() {
     }
     if (member?.image) {
       setImagePreview(member.image);
-    } else {
-      setImagePreview(null);
     }
-  }, [isNew, member, router, toast, form]);
+  }, [isNew, member, router, toast]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,11 +88,15 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = member?.image;
+      let imageUrl = member?.image; // Start with the existing image URL
 
+      // If a new image file is uploaded, upload it and get the new URL
       if (data.image instanceof File) {
         imageUrl = await uploadImage(data.image, 'team');
-      } else if (isNew) {
+      }
+
+      // If it's a new member and there's no image URL yet, use a placeholder
+      if (isNew && !imageUrl) {
         imageUrl = 'https://placehold.co/128x128.png';
       }
 
@@ -103,7 +105,7 @@ export default function EditTeamMemberPage() {
         name: data.name,
         role: data.role,
         bio: data.bio,
-        image: imageUrl || 'https://placehold.co/128x128.png',
+        image: imageUrl || 'https://placehold.co/128x128.png', // Fallback placeholder
         imageHint: data.imageHint || 'professional portrait',
       };
 
@@ -187,16 +189,17 @@ export default function EditTeamMemberPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field }) => (
+                render={({ field: { onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
+                        {...fieldProps}
                         type="file"
                         accept="image/*"
                         onChange={(e) => {
                           handleImageChange(e);
-                          field.onChange(e.target.files?.[0] ?? undefined);
+                          onChange(e.target.files?.[0] ?? undefined);
                         }}
                       />
                     </FormControl>
