@@ -71,8 +71,6 @@ export default function EditTeamMemberPage() {
     if (member) {
       form.reset(member);
       setImagePreview(member.image);
-    } else if (isNew) {
-      setImagePreview('https://placehold.co/128x128.png');
     }
   }, [isNew, member, router, toast, form]);
 
@@ -90,13 +88,10 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
-    if (imagePreview && imagePreview.startsWith('data:')) {
-      // In a real app, you would upload the new imagePreview (which is a base64 string)
-      // For this prototype, we will just keep the existing or default placeholder.
-      // If it's a new item, it will use the default placeholder.
-    } else if (member) {
-      imageUrl = member.image;
+    let imageUrl = member?.image;
+
+    if (isNew) {
+      imageUrl = 'https://placehold.co/128x128.png';
     }
 
 
@@ -105,7 +100,7 @@ export default function EditTeamMemberPage() {
       name: data.name,
       role: data.role,
       bio: data.bio,
-      image: imageUrl,
+      image: imageUrl as string,
       imageHint: data.imageHint || 'professional portrait',
     };
 

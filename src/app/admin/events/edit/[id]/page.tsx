@@ -82,8 +82,6 @@ export default function EditEventPage() {
     if (event) {
       form.reset({ ...event, date: new Date(event.date) });
       setImagePreview(event.image);
-    } else if (isNew) {
-      setImagePreview('https://placehold.co/800x600.png');
     }
   }, [isNew, event, router, toast, form]);
 
@@ -101,13 +99,10 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
-    if (imagePreview && imagePreview.startsWith('data:')) {
-      // In a real app, you would upload the new imagePreview (which is a base64 string)
-      // For this prototype, we will just keep the existing or default placeholder.
-      // If it's a new item, it will use the default placeholder.
-    } else if (event) {
-      imageUrl = event.image;
+    let imageUrl = event?.image;
+    
+    if (isNew) {
+      imageUrl = 'https://placehold.co/800x600.png';
     }
 
 
@@ -117,7 +112,7 @@ export default function EditEventPage() {
       date: data.date.toISOString(),
       entryTime: data.entryTime,
       description: data.description,
-      image: imageUrl,
+      image: imageUrl as string,
       imageHint: data.imageHint || 'club event',
     };
 
