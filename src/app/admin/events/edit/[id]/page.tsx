@@ -109,13 +109,14 @@ export default function EditEventPage() {
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    let imageUrl: string | undefined;
-
+    
     try {
+      let imageUrl: string | undefined;
+
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'events');
-      } else if (!isNew) {
-        imageUrl = event?.image;
+      } else if (event) {
+        imageUrl = event.image;
       } else {
         imageUrl = 'https://placehold.co/800x600.png';
       }
@@ -124,19 +125,27 @@ export default function EditEventPage() {
         throw new Error('Image URL could not be determined.');
       }
       
-      const eventData = {
-        title: data.title,
-        date: format(data.date, 'yyyy-MM-dd'),
-        entryTime: data.entryTime || '',
-        description: data.description,
-        image: imageUrl,
-        imageHint: data.imageHint || 'club event',
-      };
-
       if (isNew) {
+        const eventData = {
+          title: data.title,
+          date: format(data.date, 'yyyy-MM-dd'),
+          entryTime: data.entryTime || '',
+          description: data.description,
+          image: imageUrl,
+          imageHint: data.imageHint || 'club event',
+        };
         await addEvent(eventData);
-      } else {
-        await updateEvent({ id: eventId, ...eventData });
+      } else if (event) {
+        const eventData = {
+          id: event.id,
+          title: data.title,
+          date: format(data.date, 'yyyy-MM-dd'),
+          entryTime: data.entryTime || '',
+          description: data.description,
+          image: imageUrl,
+          imageHint: data.imageHint || 'club event',
+        };
+        await updateEvent(eventData);
       }
 
       toast({

@@ -97,13 +97,14 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    let imageUrl: string | undefined;
-
+    
     try {
+      let imageUrl: string | undefined;
+
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'team');
-      } else if (!isNew) {
-        imageUrl = member?.image;
+      } else if (member) {
+        imageUrl = member.image;
       } else {
         imageUrl = 'https://placehold.co/128x128.png';
       }
@@ -112,18 +113,25 @@ export default function EditTeamMemberPage() {
         throw new Error('Image URL could not be determined.');
       }
 
-      const memberData = {
-        name: data.name,
-        role: data.role,
-        bio: data.bio,
-        image: imageUrl,
-        imageHint: data.imageHint || 'professional portrait',
-      };
-
       if (isNew) {
+        const memberData = {
+          name: data.name,
+          role: data.role,
+          bio: data.bio,
+          image: imageUrl,
+          imageHint: data.imageHint || 'professional portrait',
+        };
         await addMember(memberData);
-      } else {
-        await updateMember({ id: memberId, ...memberData });
+      } else if (member) {
+        const memberData = {
+          id: member.id,
+          name: data.name,
+          role: data.role,
+          bio: data.bio,
+          image: imageUrl,
+          imageHint: data.imageHint || 'professional portrait',
+        };
+        await updateMember(memberData);
       }
 
       toast({
