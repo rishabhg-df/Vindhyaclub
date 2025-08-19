@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -60,6 +59,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
 
   const addMember = async (member: Omit<TeamMember, 'id'>) => {
     try {
+      console.log('Adding member to Firestore:', member);
       const docRef = await addDoc(collection(db, 'team'), member);
       setTeam((prevTeam) => [...prevTeam, { id: docRef.id, ...member } as TeamMember]);
     } catch (error) {
@@ -70,8 +70,9 @@ export function TeamProvider({ children }: { children: ReactNode }) {
 
   const updateMember = async (updatedMember: TeamMember) => {
     try {
-      const memberDoc = doc(db, 'team', updatedMember.id);
-      await updateDoc(memberDoc, updatedMember);
+      const { id, ...memberData } = updatedMember;
+      const memberDoc = doc(db, 'team', id);
+      await updateDoc(memberDoc, memberData);
       setTeam((prevTeam) =>
         prevTeam.map((member) =>
           member.id === updatedMember.id ? updatedMember : member
@@ -87,7 +88,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
     try {
       await deleteDoc(doc(db, 'team', id));
       setTeam((prevTeam) => prevTeam.filter((member) => member.id !== id));
-    } catch (error) {
+    } catch (error)      {
       console.error('Error deleting member from Firestore:', error);
       throw error;
     }

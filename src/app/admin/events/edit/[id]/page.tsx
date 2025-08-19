@@ -111,38 +111,29 @@ export default function EditEventPage() {
     setIsSubmitting(true);
     
     try {
+      let imageUrl: string;
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'events');
+      } else if (isNew) {
+        imageUrl = 'https://placehold.co/800x600.png';
+      } else {
+        imageUrl = event!.image;
+      }
+
+      const eventData = {
+        title: data.title,
+        date: format(data.date, 'yyyy-MM-dd'),
+        entryTime: data.entryTime || '',
+        description: data.description,
+        image: imageUrl,
+        imageHint: data.imageHint || 'club event',
+      };
+      
       if (isNew) {
-        let imageUrl = 'https://placehold.co/800x600.png';
-        if (imageFile) {
-          imageUrl = await uploadImage(imageFile, 'events');
-        }
-        
-        const eventData = {
-          title: data.title,
-          date: format(data.date, 'yyyy-MM-dd'),
-          entryTime: data.entryTime || '',
-          description: data.description,
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event',
-        };
         await addEvent(eventData);
-
-      } else if (event) {
-        let imageUrl = event.image;
-        if (imageFile) {
-          imageUrl = await uploadImage(imageFile, 'events');
-        }
-
-        const eventData = {
-          id: event.id,
-          title: data.title,
-          date: format(data.date, 'yyyy-MM-dd'),
-          entryTime: data.entryTime || '',
-          description: data.description,
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event',
-        };
-        await updateEvent(eventData);
+      } else {
+        await updateEvent({ id: eventId, ...eventData });
       }
 
       toast({

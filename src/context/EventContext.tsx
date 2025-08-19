@@ -84,6 +84,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
   const addEvent = async (event: Omit<Event, 'id'>) => {
     try {
+      console.log('Adding event to Firestore:', event);
       const eventDataWithTimestamp = {
         ...event,
         date: Timestamp.fromDate(new Date(event.date)),
@@ -104,8 +105,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const updateEvent = async (updatedEvent: Event) => {
     try {
       const { id, ...eventData } = updatedEvent; // strip out id
-      const eventDoc = doc(db, 'events', id);
-      await updateDoc(eventDoc, {
+      await updateDoc(doc(db, 'events', id), {
         ...eventData,
         date: Timestamp.fromDate(new Date(eventData.date)),
       });

@@ -99,36 +99,28 @@ export default function EditTeamMemberPage() {
     setIsSubmitting(true);
     
     try {
+      let imageUrl: string;
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'team');
+      } else if (isNew) {
+        imageUrl = 'https://placehold.co/128x128.png';
+      } else {
+        imageUrl = member!.image;
+      }
+      
+      const memberData = {
+        name: data.name,
+        role: data.role,
+        bio: data.bio,
+        image: imageUrl,
+        imageHint: data.imageHint || 'professional portrait',
+      };
+
       if (isNew) {
-        let imageUrl = 'https://placehold.co/128x128.png';
-        if (imageFile) {
-          imageUrl = await uploadImage(imageFile, 'team');
-        }
-        
-        const memberData = {
-          name: data.name,
-          role: data.role,
-          bio: data.bio,
-          image: imageUrl,
-          imageHint: data.imageHint || 'professional portrait',
-        };
         await addMember(memberData);
-
-      } else if (member) {
-        let imageUrl = member.image;
-        if (imageFile) {
-          imageUrl = await uploadImage(imageFile, 'team');
-        }
-
-        const memberData = {
-          id: member.id,
-          name: data.name,
-          role: data.role,
-          bio: data.bio,
-          image: imageUrl,
-          imageHint: data.imageHint || 'professional portrait',
-        };
-        await updateMember(memberData);
+      } else {
+        await updateMember({ id: memberId, ...memberData });
       }
 
       toast({
