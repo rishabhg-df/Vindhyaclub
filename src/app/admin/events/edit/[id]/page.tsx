@@ -99,14 +99,7 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = event?.image;
-    if (data.image instanceof File && data.image.size > 0) {
-      // Image upload logic was here, but is now removed.
-      // For now, we'll use a placeholder for any new image upload attempt.
-      imageUrl = 'https://placehold.co/800x600.png';
-    } else if (isNew || !imageUrl) {
-      imageUrl = 'https://placehold.co/800x600.png';
-    }
+    const imageUrl = event?.image || 'https://placehold.co/800x600.png';
 
     const eventData: Event = {
       id: isNew ? Date.now().toString() : eventId,

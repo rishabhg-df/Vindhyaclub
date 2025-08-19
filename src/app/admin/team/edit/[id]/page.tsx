@@ -88,7 +88,6 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    // For now, new images are not saved. Use placeholder for new members.
     const imageUrl = member?.image || 'https://placehold.co/128x128.png';
 
     const memberData: TeamMember = {
