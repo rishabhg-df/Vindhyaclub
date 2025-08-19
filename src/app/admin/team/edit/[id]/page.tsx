@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
 import { uploadImage } from '@/lib/firebase';
+import { compressImage } from '@/lib/imageCompressor';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -72,27 +73,39 @@ export default function EditTeamMemberPage() {
     }
   }, [isNew, member, router, toast]);
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedFile = await compressImage(file);
+        setImageFile(compressedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Image compression error:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Image Error',
+          description: 'There was a problem processing your image. Please try another one.',
+        });
+      }
     }
   };
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    try {
-      let imageUrl: string | undefined;
+    let imageUrl: string | undefined;
 
+    try {
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'team');
+      } else if (!isNew) {
+        imageUrl = member?.image;
       } else {
-        imageUrl = isNew ? 'https://placehold.co/128x128.png' : member?.image;
+        imageUrl = 'https://placehold.co/128x128.png';
       }
 
       if (!imageUrl) {

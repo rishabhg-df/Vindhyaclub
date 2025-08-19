@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { uploadImage } from '@/lib/firebase';
+import { compressImage } from '@/lib/imageCompressor';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -86,33 +87,45 @@ export default function EditEventPage() {
     }
   }, [isNew, event, router, toast]);
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedFile = await compressImage(file);
+        setImageFile(compressedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Image compression error:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Image Error',
+          description: 'There was a problem processing your image. Please try another one.',
+        });
+      }
     }
   };
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    try {
-      let imageUrl: string | undefined;
+    let imageUrl: string | undefined;
 
+    try {
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'events');
+      } else if (!isNew) {
+        imageUrl = event?.image;
       } else {
-        imageUrl = isNew ? 'https://placehold.co/800x600.png' : event?.image;
+        imageUrl = 'https://placehold.co/800x600.png';
       }
-      
+
       if (!imageUrl) {
         throw new Error('Image URL could not be determined.');
       }
-
+      
       const eventData = {
         title: data.title,
         date: Timestamp.fromDate(data.date),
