@@ -23,6 +23,14 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
+      // Clear old data to ensure the new data source is used.
+      // This is a one-time fix.
+      const hasCleared = localStorage.getItem('vindhya-club-events-cleared');
+      if (!hasCleared) {
+          localStorage.removeItem('vindhya-club-events');
+          localStorage.setItem('vindhya-club-events-cleared', 'true');
+      }
+
       const storedEvents = localStorage.getItem('vindhya-club-events');
       if (storedEvents) {
         setEvents(JSON.parse(storedEvents));
@@ -59,7 +67,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
   }, [events, isInitialized]);
 
   const addEvent = (event: Event) => {
-    setEvents((prevEvents) => [event, ...prevEvents].sort((a, b) => new Date(b.date).getTime() - new date(a.date).getTime()));
+    setEvents((prevEvents) => [event, ...prevEvents].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   };
 
   const updateEvent = (updatedEvent: Event) => {
