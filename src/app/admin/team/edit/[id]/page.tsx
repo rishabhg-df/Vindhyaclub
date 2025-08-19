@@ -48,15 +48,17 @@ export default function EditTeamMemberPage() {
   const memberId = params.id as string;
   const isNew = memberId === 'new';
   const member = isNew ? null : team.find((m) => m.id === memberId);
-  
+
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
-    defaultValues: member ? member : {
-      name: '',
-      role: '',
-      bio: '',
-      imageHint: 'professional portrait',
-    },
+    defaultValues: member
+      ? member
+      : {
+          name: '',
+          role: '',
+          bio: '',
+          imageHint: 'professional portrait',
+        },
   });
 
   useEffect(() => {
@@ -88,7 +90,8 @@ export default function EditTeamMemberPage() {
         toast({
           variant: 'destructive',
           title: 'Image Error',
-          description: 'There was a problem processing your image. Please try another one.',
+          description:
+            'There was a problem processing your image. Please try another one.',
         });
         setImageFile(null);
         setImagePreview(member?.image ?? null);
@@ -98,29 +101,38 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    try {
-      let finalImageUrl: string | undefined = member?.image;
+    let finalImageUrl = member?.image; // Default to existing image if editing
 
-      if (isNew) {
-        if (imageFile) {
+    try {
+      // Step 1: Handle image upload if a new image file is present
+      if (imageFile) {
+        try {
           finalImageUrl = await uploadImage(imageFile, 'team');
-        } else {
-          finalImageUrl = 'https://placehold.co/128x128.png';
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          toast({
+            variant: 'destructive',
+            title: 'Image Upload Failed',
+            description: 'Could not upload the new image. Please try again.',
+          });
+          setIsSubmitting(false);
+          return; // Stop the submission process
         }
-      } else {
-        // We are editing
-        if (imageFile) {
-          finalImageUrl = await uploadImage(imageFile, 'team');
-        }
-        // If no new image file, finalImageUrl remains member.image
       }
-      
+
+      // Step 2: Determine final image URL
+      if (isNew && !finalImageUrl) {
+        finalImageUrl = 'https://placehold.co/128x128.png';
+      }
+
+      // Step 3: Prepare the final data object
       const memberData = {
         ...data,
-        image: finalImageUrl || 'https://placehold.co/128x128.png',
+        image: finalImageUrl || 'https://placehold.co/128x128.png', // Final fallback
         imageHint: data.imageHint || 'professional portrait',
       };
-      
+
+      // Step 4: Add or update the document in Firestore
       if (isNew) {
         await addMember(memberData);
       } else {
@@ -208,7 +220,8 @@ export default function EditTeamMemberPage() {
                   />
                 </FormControl>
                 <FormDescription>
-                 Upload a new photo. If no image is selected, the existing one will be kept, or a placeholder used for new members.
+                  Upload a new photo. If no image is selected, the existing one
+                  will be kept, or a placeholder used for new members.
                 </FormDescription>
                 {imagePreview && (
                   <div className="mt-4">
