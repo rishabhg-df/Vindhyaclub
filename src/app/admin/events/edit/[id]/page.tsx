@@ -51,7 +51,6 @@ export default function EditEventPage() {
   const { toast } = useToast();
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const eventId = params.id as string;
@@ -80,9 +79,6 @@ export default function EditEventPage() {
       });
       router.push('/admin/events');
     }
-    if (event?.image) {
-      setImagePreview(event.image);
-    }
   }, [isNew, event, router, toast]);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -91,11 +87,6 @@ export default function EditEventPage() {
       try {
         const compressedFile = await compressImage(file);
         setImageFile(compressedFile);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(compressedFile);
       } catch (error) {
         console.error('Image compression error:', error);
         toast({
@@ -111,29 +102,31 @@ export default function EditEventPage() {
     setIsSubmitting(true);
     
     try {
-      let imageUrl: string;
-
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'events');
-      } else if (isNew) {
-        imageUrl = 'https://placehold.co/800x600.png';
-      } else {
-        imageUrl = event!.image;
-      }
-
-      const eventData = {
-        title: data.title,
-        date: format(data.date, 'yyyy-MM-dd'),
-        entryTime: data.entryTime || '',
-        description: data.description,
-        image: imageUrl,
-        imageHint: data.imageHint || 'club event',
-      };
-      
       if (isNew) {
+        let imageUrl = 'https://placehold.co/800x600.png';
+        if (imageFile) {
+          imageUrl = await uploadImage(imageFile, 'events');
+        }
+        const eventData = {
+          ...data,
+          date: format(data.date, 'yyyy-MM-dd'),
+          image: imageUrl,
+          imageHint: data.imageHint || 'club event'
+        };
         await addEvent(eventData);
       } else {
-        await updateEvent({ id: eventId, ...eventData });
+        let imageUrl = event!.image;
+        if (imageFile) {
+          imageUrl = await uploadImage(imageFile, 'events');
+        }
+        const eventData = {
+          ...data,
+          id: eventId,
+          date: format(data.date, 'yyyy-MM-dd'),
+          image: imageUrl,
+          imageHint: data.imageHint || 'club event'
+        };
+        await updateEvent(eventData);
       }
 
       toast({
@@ -156,6 +149,8 @@ export default function EditEventPage() {
       setIsSubmitting(false);
     }
   };
+
+  const imagePreview = imageFile ? URL.createObjectURL(imageFile) : event?.image;
 
   return (
     <Section title={isNew ? 'Add New Event' : 'Edit Event'}>

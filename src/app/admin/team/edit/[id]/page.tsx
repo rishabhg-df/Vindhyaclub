@@ -42,7 +42,6 @@ export default function EditTeamMemberPage() {
   const { toast } = useToast();
   const { team, addMember, updateMember } = useTeam();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const memberId = params.id as string;
@@ -68,9 +67,6 @@ export default function EditTeamMemberPage() {
       });
       router.push('/admin/team');
     }
-    if (member?.image) {
-      setImagePreview(member.image);
-    }
   }, [isNew, member, router, toast]);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -79,11 +75,6 @@ export default function EditTeamMemberPage() {
       try {
         const compressedFile = await compressImage(file);
         setImageFile(compressedFile);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(compressedFile);
       } catch (error) {
         console.error('Image compression error:', error);
         toast({
@@ -99,28 +90,29 @@ export default function EditTeamMemberPage() {
     setIsSubmitting(true);
     
     try {
-      let imageUrl: string;
-
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'team');
-      } else if (isNew) {
-        imageUrl = 'https://placehold.co/128x128.png';
-      } else {
-        imageUrl = member!.image;
-      }
-      
-      const memberData = {
-        name: data.name,
-        role: data.role,
-        bio: data.bio,
-        image: imageUrl,
-        imageHint: data.imageHint || 'professional portrait',
-      };
-
       if (isNew) {
+        let imageUrl = 'https://placehold.co/128x128.png';
+        if (imageFile) {
+          imageUrl = await uploadImage(imageFile, 'team');
+        }
+        const memberData = {
+          ...data,
+          image: imageUrl,
+          imageHint: data.imageHint || 'professional portrait',
+        };
         await addMember(memberData);
       } else {
-        await updateMember({ id: memberId, ...memberData });
+        let imageUrl = member!.image;
+        if (imageFile) {
+          imageUrl = await uploadImage(imageFile, 'team');
+        }
+        const memberData = {
+          ...data,
+          id: memberId,
+          image: imageUrl,
+          imageHint: data.imageHint || 'professional portrait',
+        };
+        await updateMember(memberData);
       }
 
       toast({
@@ -142,6 +134,8 @@ export default function EditTeamMemberPage() {
       setIsSubmitting(false);
     }
   };
+
+  const imagePreview = imageFile ? URL.createObjectURL(imageFile) : member?.image;
 
   return (
     <Section title={isNew ? 'Add New Team Member' : 'Edit Team Member'}>
