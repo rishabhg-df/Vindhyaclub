@@ -104,7 +104,7 @@ export default function EditEventPage() {
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'events');
-      } else if (isNew) {
+      } else if (!imageUrl) {
         imageUrl = 'https://placehold.co/800x600.png';
       }
 
@@ -113,7 +113,7 @@ export default function EditEventPage() {
         date: data.date.toISOString(),
         entryTime: data.entryTime,
         description: data.description,
-        image: imageUrl || 'https://placehold.co/800x600.png',
+        image: imageUrl,
         imageHint: data.imageHint || 'club event',
       };
 
