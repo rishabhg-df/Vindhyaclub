@@ -61,7 +61,7 @@ export default function EditEventPage() {
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: event
-      ? { ...event, date: new Date(event.date), image: undefined }
+      ? { ...event, date: new Date(event.date), entryTime: event.entryTime ?? '', image: undefined }
       : {
           title: '',
           entryTime: '',
@@ -217,7 +217,7 @@ export default function EditEventPage() {
                   <FormItem>
                     <FormLabel>Entry Time</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 10:30pm" {...field} value={field.value ?? ''} />
+                      <Input placeholder="e.g., 10:30pm" {...field} />
                     </FormControl>
                     <FormDescription>
                       The last time for entry.
