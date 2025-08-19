@@ -90,15 +90,12 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = 'https://placehold.co/128x128.png';
-    if (!isNew && member) {
-      imageUrl = member.image;
-    }
+    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
     if (imagePreview && imagePreview.startsWith('data:')) {
       // In a real app, you would upload the new imagePreview (which is a base64 string)
       // For this prototype, we will just keep the existing or default placeholder.
       // If it's a new item, it will use the default placeholder.
-    } else if (!isNew && member) {
+    } else if (member) {
       imageUrl = member.image;
     }
 

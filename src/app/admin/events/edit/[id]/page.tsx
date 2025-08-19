@@ -101,15 +101,12 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = 'https://placehold.co/800x600.png';
-    if (!isNew && event) {
-      imageUrl = event.image;
-    }
+    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
     if (imagePreview && imagePreview.startsWith('data:')) {
       // In a real app, you would upload the new imagePreview (which is a base64 string)
       // For this prototype, we will just keep the existing or default placeholder.
       // If it's a new item, it will use the default placeholder.
-    } else if (!isNew && event) {
+    } else if (event) {
       imageUrl = event.image;
     }
 
