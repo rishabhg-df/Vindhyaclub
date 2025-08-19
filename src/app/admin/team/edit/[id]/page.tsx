@@ -25,7 +25,7 @@ import type { TeamMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
-import { uploadImage } from '@/lib/image-upload';
+import { uploadImage } from '@/lib/firebase';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -95,7 +95,7 @@ export default function EditTeamMemberPage() {
 
     if (selectedFile) {
       try {
-        imageUrl = await uploadImage(selectedFile);
+        imageUrl = await uploadImage(selectedFile, 'team');
       } catch (error) {
         toast({
           variant: 'destructive',

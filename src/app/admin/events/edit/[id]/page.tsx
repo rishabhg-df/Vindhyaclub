@@ -33,7 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { uploadImage } from '@/lib/image-upload';
+import { uploadImage } from '@/lib/firebase';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -106,7 +106,7 @@ export default function EditEventPage() {
 
     if (selectedFile) {
       try {
-        imageUrl = await uploadImage(selectedFile);
+        imageUrl = await uploadImage(selectedFile, 'events');
       } catch (error) {
         toast({
           variant: 'destructive',
