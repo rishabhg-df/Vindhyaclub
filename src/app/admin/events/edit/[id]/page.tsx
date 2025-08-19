@@ -102,7 +102,7 @@ export default function EditEventPage() {
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    let imageUrl = event?.image || '';
+    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
 
     try {
       if (imageFile) {

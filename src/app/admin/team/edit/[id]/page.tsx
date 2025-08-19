@@ -92,7 +92,7 @@ export default function EditTeamMemberPage() {
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
-    let imageUrl = member?.image || '';
+    let imageUrl = member?.image || 'https://placehold.co/128x128.png';
 
     try {
       if (imageFile) {

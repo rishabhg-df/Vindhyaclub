@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import type { Event } from '@/lib/types';
 import { events as initialEvents } from '@/lib/data';
 
