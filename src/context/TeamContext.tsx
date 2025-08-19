@@ -24,7 +24,8 @@ const getInitialTeam = (): TeamMember[] => {
     if (storedTeam) {
       return JSON.parse(storedTeam);
     }
-  } catch (error) {
+  } catch (error)
+  {
     console.error('Failed to parse team from localStorage', error);
   }
   return initialTeam;

@@ -33,7 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { uploadImage } from '@/lib/firebase';
+import { uploadImage } from '@/lib/image-upload';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -106,7 +106,7 @@ export default function EditEventPage() {
 
     if (selectedFile) {
       try {
-        imageUrl = await uploadImage(selectedFile, 'events');
+        imageUrl = await uploadImage(selectedFile);
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -119,7 +119,7 @@ export default function EditEventPage() {
     }
 
     const eventData: Event = {
-      id: isNew ? `new-${Date.now().toString()}` : eventId,
+      id: isNew ? Date.now().toString() : eventId,
       title: data.title,
       date: data.date.toISOString(),
       entryTime: data.entryTime,

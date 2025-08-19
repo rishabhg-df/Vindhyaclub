@@ -17,23 +17,23 @@ const EventContext = createContext<EventContextType | undefined>(undefined);
 // Function to get initial state, trying localStorage first
 const getInitialEvents = (): Event[] => {
   if (typeof window === 'undefined') {
-    return initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString() + Math.random()}));
+    return initialEvents;
   }
   try {
     const storedEvents = localStorage.getItem('vindhya-club-events');
     if (storedEvents) {
-      // Clear localStorage if it has the old data structure
-      const parsedEvents = JSON.parse(storedEvents);
-      if (parsedEvents.some((e: any) => e.title === 'Club Marathon')) {
-        localStorage.removeItem('vindhya-club-events');
-        return initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString() + Math.random()}));
+      const parsed = JSON.parse(storedEvents);
+      // Backwards compatibility check to clear out old data.
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].title === 'Club Marathon') {
+         localStorage.removeItem('vindhya-club-events');
+         return initialEvents;
       }
-      return parsedEvents;
+      return parsed;
     }
   } catch (error) {
     console.error('Failed to parse events from localStorage', error);
   }
-  return initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString() + Math.random()}));
+  return initialEvents;
 };
 
 
@@ -42,7 +42,6 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      // When events change, save to localStorage
       localStorage.setItem('vindhya-club-events', JSON.stringify(events));
     } catch (error) {
       console.error('Failed to save events to localStorage', error);
