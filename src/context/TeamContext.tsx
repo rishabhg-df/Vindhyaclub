@@ -14,8 +14,20 @@ type TeamContextType = {
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
 
+// Helper to remove base64 image data before saving to localStorage
+const getTeamForStorage = (team: TeamMember[]): TeamMember[] => {
+    return team.map(member => {
+        if (member.image.startsWith('data:image')) {
+            const originalMember = initialTeam.find(m => m.id === member.id);
+            return { ...member, image: originalMember ? originalMember.image : 'https://placehold.co/128x128.png' };
+        }
+        return member;
+    });
+};
+
+
 export function TeamProvider({ children }: { children: ReactNode }) {
-  const [team, setTeam] = useState<TeamMember[]>(initialTeam);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
@@ -23,10 +35,11 @@ export function TeamProvider({ children }: { children: ReactNode }) {
       const storedTeam = localStorage.getItem('teamData');
       if (storedTeam) {
         setTeam(JSON.parse(storedTeam));
+      } else {
+        setTeam(initialTeam);
       }
     } catch (error) {
       console.error('Failed to parse team data from localStorage', error);
-      // Initialize with default if localStorage is corrupt
       setTeam(initialTeam);
     }
     setIsInitialized(true);
@@ -35,7 +48,8 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isInitialized) {
       try {
-        localStorage.setItem('teamData', JSON.stringify(team));
+        const storableTeam = getTeamForStorage(team);
+        localStorage.setItem('teamData', JSON.stringify(storableTeam));
       } catch (error) {
         console.error('Failed to save team data to localStorage', error);
       }
@@ -60,7 +74,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   };
 
   if (!isInitialized) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (

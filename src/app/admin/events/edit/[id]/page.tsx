@@ -40,20 +40,7 @@ const eventSchema = z.object({
   date: z.date({ required_error: 'Date is required.' }),
   entryTime: z.string().min(1, 'Entry time is required.'),
   description: z.string().min(1, 'Description is required.'),
-  image: z.any().refine(
-    (value) => {
-      // If the value is a string, it's a URL and is valid.
-      if (typeof value === 'string') return true;
-      // If it's a FileList, it should have at least one file.
-      if (typeof value === 'object' && value instanceof FileList) {
-        return value.length > 0;
-      }
-      return false;
-    },
-    {
-      message: 'Image is required.',
-    }
-  ),
+  image: z.any().optional(),
   imageHint: z.string().optional(),
 });
 
@@ -100,38 +87,48 @@ export default function EditEventPage() {
     }
   }, [isNew, event, router, toast, form]);
 
- const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    fieldChange: (value: string) => void
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         setImagePreview(result);
-        form.setValue('image', result); 
+        fieldChange(result); // This updates the form state with the base64 string
       };
       reader.readAsDataURL(file);
     }
   };
 
-
   const onSubmit = (data: EventFormValues) => {
-    const eventData = { ...data, date: data.date.toISOString() };
+    let finalImage = imagePreview;
+
+    // If a new image was uploaded, `data.image` will be a base64 string
+    // and `imagePreview` will also be the same base64 string.
+    // If not, `data.image` will be the original URL, and we should keep it.
+    if (typeof data.image === 'string' && data.image.startsWith('data:')) {
+      finalImage = data.image;
+    } else if (event) {
+      finalImage = event.image;
+    }
+
+    const eventData: Event = {
+      id: isNew ? new Date().getTime().toString() : eventId,
+      title: data.title,
+      date: data.date.toISOString(),
+      entryTime: data.entryTime,
+      description: data.description,
+      image: finalImage!,
+      imageHint: data.imageHint || 'club event',
+    };
 
     if (isNew) {
-      addEvent({
-        id: new Date().getTime().toString(),
-        ...eventData,
-      });
+      addEvent(eventData);
     } else {
-      // If the image field is a string, it means it hasn't been changed.
-      // Use the original image from the event object.
-      // Otherwise, the new Data URL from the preview is already in eventData.
-      if (typeof eventData.image !== 'string') {
-         eventData.image = imagePreview!; // Use the new image from preview
-      } else if (event) {
-         eventData.image = event.image; // Keep original image
-      }
-      updateEvent({ ...event!, ...eventData });
+      updateEvent(eventData);
     }
 
     toast({
@@ -141,24 +138,6 @@ export default function EditEventPage() {
     router.push('/admin/events');
   };
   
-    // Watch for changes in the image field of the form
-  const watchedImage = form.watch('image');
-  useEffect(() => {
-    if (typeof watchedImage === 'string') {
-      setImagePreview(watchedImage);
-    } else if (watchedImage instanceof FileList && watchedImage.length > 0) {
-      const file = watchedImage[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else if (event?.image) {
-       setImagePreview(event.image);
-    }
-
-  }, [watchedImage, event]);
-
 
   return (
     <Section title={isNew ? 'Add New Event' : 'Edit Event'}>
@@ -260,27 +239,14 @@ export default function EditEventPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field: { onChange, value, ...rest } }) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                           if (file) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                const result = reader.result as string;
-                                setImagePreview(result);
-                                // The form's value is now the base64 string
-                                onChange(result); 
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                        }}
-                        {...rest}
+                        onChange={(e) => handleImageChange(e, field.onChange)}
                       />
                     </FormControl>
                     <FormDescription>

@@ -30,18 +30,7 @@ const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   role: z.string().min(1, 'Role is required.'),
   bio: z.string().min(1, 'Bio is required.'),
-  image: z.any().refine(
-    (value) => {
-      if (typeof value === 'string') return true;
-      if (typeof value === 'object' && value instanceof FileList) {
-        return value.length > 0;
-      }
-      return false;
-    },
-    {
-      message: 'Image is required.',
-    }
-  ),
+  image: z.any().optional(),
   imageHint: z.string().optional(),
 });
 
@@ -103,20 +92,27 @@ export default function EditTeamMemberPage() {
   };
 
   const onSubmit = (data: MemberFormValues) => {
-    const finalData = { ...data };
-    
+    let finalImage = imagePreview;
+
+    if (typeof data.image === 'string' && data.image.startsWith('data:')) {
+      finalImage = data.image;
+    } else if (member) {
+      finalImage = member.image;
+    }
+
+    const memberData: TeamMember = {
+      id: isNew ? new Date().getTime().toString() : memberId,
+      name: data.name,
+      role: data.role,
+      bio: data.bio,
+      image: finalImage!,
+      imageHint: data.imageHint || 'professional portrait',
+    };
+
     if (isNew) {
-      addMember({
-        id: new Date().getTime().toString(),
-        ...finalData,
-      });
+      addMember(memberData);
     } else {
-       if (typeof finalData.image !== 'string') {
-         finalData.image = imagePreview!; // Use the new image from preview
-      } else if (member) {
-         finalData.image = member.image; // Keep original image
-      }
-      updateMember({ ...member!, ...finalData });
+      updateMember(memberData);
     }
 
     toast({
