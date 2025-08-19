@@ -111,13 +111,13 @@ export default function EditEventPage() {
     setIsSubmitting(true);
     
     try {
-      let imageUrl: string | undefined;
+      let imageUrl = event?.image; // Default to existing image if updating
 
       if (imageFile) {
+        // If a new image is selected, upload it
         imageUrl = await uploadImage(imageFile, 'events');
-      } else if (event) {
-        imageUrl = event.image;
-      } else {
+      } else if (isNew) {
+        // If it's a new event and no image is selected, use placeholder
         imageUrl = 'https://placehold.co/800x600.png';
       }
 
@@ -125,27 +125,19 @@ export default function EditEventPage() {
         throw new Error('Image URL could not be determined.');
       }
       
+      const eventData = {
+        title: data.title,
+        date: format(data.date, 'yyyy-MM-dd'),
+        entryTime: data.entryTime || '',
+        description: data.description,
+        image: imageUrl,
+        imageHint: data.imageHint || 'club event',
+      };
+
       if (isNew) {
-        const eventData = {
-          title: data.title,
-          date: format(data.date, 'yyyy-MM-dd'),
-          entryTime: data.entryTime || '',
-          description: data.description,
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event',
-        };
         await addEvent(eventData);
       } else if (event) {
-        const eventData = {
-          id: event.id,
-          title: data.title,
-          date: format(data.date, 'yyyy-MM-dd'),
-          entryTime: data.entryTime || '',
-          description: data.description,
-          image: imageUrl,
-          imageHint: data.imageHint || 'club event',
-        };
-        await updateEvent(eventData);
+        await updateEvent({ ...eventData, id: event.id });
       }
 
       toast({

@@ -99,13 +99,13 @@ export default function EditTeamMemberPage() {
     setIsSubmitting(true);
     
     try {
-      let imageUrl: string | undefined;
+      let imageUrl = member?.image; // Default to existing image if updating
 
       if (imageFile) {
+        // If a new image is selected, upload it
         imageUrl = await uploadImage(imageFile, 'team');
-      } else if (member) {
-        imageUrl = member.image;
-      } else {
+      } else if (isNew) {
+        // If it's a new member and no image is selected, use placeholder
         imageUrl = 'https://placehold.co/128x128.png';
       }
 
@@ -113,25 +113,18 @@ export default function EditTeamMemberPage() {
         throw new Error('Image URL could not be determined.');
       }
 
+      const memberData = {
+        name: data.name,
+        role: data.role,
+        bio: data.bio,
+        image: imageUrl,
+        imageHint: data.imageHint || 'professional portrait',
+      };
+
       if (isNew) {
-        const memberData = {
-          name: data.name,
-          role: data.role,
-          bio: data.bio,
-          image: imageUrl,
-          imageHint: data.imageHint || 'professional portrait',
-        };
         await addMember(memberData);
       } else if (member) {
-        const memberData = {
-          id: member.id,
-          name: data.name,
-          role: data.role,
-          bio: data.bio,
-          image: imageUrl,
-          imageHint: data.imageHint || 'professional portrait',
-        };
-        await updateMember(memberData);
+        await updateMember({ ...memberData, id: member.id });
       }
 
       toast({
