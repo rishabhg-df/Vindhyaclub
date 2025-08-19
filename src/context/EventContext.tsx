@@ -30,12 +30,12 @@ const EventContext = createContext<EventContextType | undefined>(undefined);
 
 const formatEventFromFirestore = (doc: any): Event => {
     const data = doc.data();
-    // Firestore Timestamps need to be converted to a serializable format.
-    // We'll use YYYY-MM-DD strings, which is what our form expects.
-    const date = data.date instanceof Timestamp ? format(data.date.toDate(), 'yyyy-MM-dd') : data.date;
+    // Use date-fns to ensure consistent formatting 'yyyy-MM-dd'
+    const date = data.date instanceof Timestamp 
+      ? format(data.date.toDate(), 'yyyy-MM-dd') 
+      : data.date;
     return { id: doc.id, ...data, date } as Event;
 };
-
 
 export function EventProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
@@ -53,10 +53,11 @@ export function EventProvider({ children }: { children: ReactNode }) {
       if (querySnapshot.empty && initialEvents.length > 0 && user) {
         console.log('No events found, populating with initial data...');
         for (const event of initialEvents) {
-          await addDoc(collection(db, 'events'), {
+          const eventDataWithTimestamp = {
             ...event,
             date: Timestamp.fromDate(new Date(event.date)),
-          });
+          };
+          await addDoc(collection(db, 'events'), eventDataWithTimestamp);
         }
         const newSnapshot = await getDocs(q);
         fetchedEvents = newSnapshot.docs.map(formatEventFromFirestore);
@@ -64,6 +65,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
+      // Fallback to local data if firestore fails
       setEvents(initialEvents.map((e, i) => ({ ...e, id: `local-${i}` })));
     } finally {
       setLoading(false);
@@ -71,8 +73,6 @@ export function EventProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   useEffect(() => {
-    // We wait for the AdminContext to be initialized before fetching data
-    // to ensure we have the correct user authentication state.
     if (isInitialized) {
       fetchEvents();
     }
@@ -85,13 +85,11 @@ export function EventProvider({ children }: { children: ReactNode }) {
         ...event,
         date: Timestamp.fromDate(new Date(event.date)),
       };
-      const docRef = await addDoc(collection(db, 'events'), eventDataWithTimestamp);
-      // To keep local state consistent, we refetch after adding.
-      // This is simpler and more reliable than manually merging.
+      await addDoc(collection(db, 'events'), eventDataWithTimestamp);
       await fetchEvents();
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
-      throw error; // Rethrow to be caught by the form's submit handler
+      throw error; 
     }
   };
 
@@ -100,10 +98,11 @@ export function EventProvider({ children }: { children: ReactNode }) {
     try {
       const { id, ...eventData } = updatedEvent;
       const eventDocRef = doc(db, 'events', id);
-      await updateDoc(eventDocRef, {
+      const eventDataWithTimestamp = {
         ...eventData,
         date: Timestamp.fromDate(new Date(eventData.date)),
-      });
+      };
+      await updateDoc(eventDocRef, eventDataWithTimestamp);
       await fetchEvents();
     } catch (error) {
       console.error('Error updating event in Firestore:', error);

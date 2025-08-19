@@ -13,6 +13,7 @@ import { Section } from '@/components/shared/Section';
 import { useEvents } from '@/context/EventContext';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '../ui/skeleton';
+import { format, parseISO } from 'date-fns';
 
 export function EventsSection({ className }: { className?: string }) {
   const { events, loading } = useEvents();
@@ -51,11 +52,7 @@ export function EventsSection({ className }: { className?: string }) {
                         {event.title}
                       </h3>
                       <p className="mb-4 text-muted-foreground">
-                        {new Date(event.date).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
+                        {format(parseISO(event.date), 'PPP')}
                         {event.entryTime &&
                           ` (No Entry After ${event.entryTime})`}
                       </p>
