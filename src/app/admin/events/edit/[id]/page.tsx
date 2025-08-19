@@ -33,6 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { uploadImage } from '@/lib/firebase';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -51,6 +52,7 @@ export default function EditEventPage() {
   const { toast } = useToast();
   const { events, addEvent, updateEvent } = useEvents();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
@@ -89,6 +91,7 @@ export default function EditEventPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -100,12 +103,13 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    // In a real app, you would upload the image to a server and get a URL.
-    // For this prototype, we'll use the preview URL which is a base64 string.
-    // This will work for the session but will be lost on refresh for new items.
-    let imageUrl = imagePreview || 'https://placehold.co/800x600.png';
+    let imageUrl = event?.image || 'https://placehold.co/800x600.png';
 
     try {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'event-images');
+      }
+
       const eventData: Event = {
         id: isNew ? `new-${Date.now().toString()}` : eventId,
         title: data.title,
@@ -133,7 +137,7 @@ export default function EditEventPage() {
        toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: 'An error occurred while saving the event. Please try again.',
+        description: 'An error occurred while saving the event. It could be a network issue or a problem with the storage service.',
       });
     } finally {
       setIsSubmitting(false);
