@@ -88,14 +88,12 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = member?.image; // Start with the existing image URL
+      let imageUrl = member?.image; 
 
-      // If a new image file is uploaded, upload it and get the new URL
       if (data.image instanceof File) {
         imageUrl = await uploadImage(data.image, 'team');
       }
 
-      // If it's a new member and there's no image URL yet, use a placeholder
       if (isNew && !imageUrl) {
         imageUrl = 'https://placehold.co/128x128.png';
       }
@@ -105,7 +103,7 @@ export default function EditTeamMemberPage() {
         name: data.name,
         role: data.role,
         bio: data.bio,
-        image: imageUrl || 'https://placehold.co/128x128.png', // Fallback placeholder
+        image: imageUrl || 'https://placehold.co/128x128.png', 
         imageHint: data.imageHint || 'professional portrait',
       };
 

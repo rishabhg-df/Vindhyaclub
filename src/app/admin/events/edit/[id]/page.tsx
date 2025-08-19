@@ -99,14 +99,12 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = event?.image; // Start with the existing image URL
+      let imageUrl = event?.image;
 
-      // If a new image file is uploaded, upload it and get the new URL
       if (data.image instanceof File) {
         imageUrl = await uploadImage(data.image, 'events');
       }
-
-      // If it's a new event and there's no image URL yet, use a placeholder
+      
       if (isNew && !imageUrl) {
         imageUrl = 'https://placehold.co/800x600.png';
       }
@@ -117,7 +115,7 @@ export default function EditEventPage() {
         date: data.date.toISOString(),
         entryTime: data.entryTime,
         description: data.description,
-        image: imageUrl || 'https://placehold.co/800x600.png', // Fallback placeholder
+        image: imageUrl || 'https://placehold.co/800x600.png',
         imageHint: data.imageHint || 'club event',
       };
 
