@@ -111,16 +111,18 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl: string | undefined = event?.image;
+      let finalImageUrl: string | undefined = event?.image;
 
       if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'events');
+        finalImageUrl = await uploadImage(imageFile, 'events');
+      } else if (isNew) {
+        finalImageUrl = 'https://placehold.co/800x600.png';
       }
 
       const eventData = {
         ...data,
         date: format(data.date, 'yyyy-MM-dd'),
-        image: imageUrl || 'https://placehold.co/800x600.png',
+        image: finalImageUrl || 'https://placehold.co/800x600.png',
         imageHint: data.imageHint || 'club event'
       };
 
