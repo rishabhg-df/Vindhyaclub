@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import {
   collection,
   getDocs,
@@ -28,106 +28,83 @@ type EventContextType = {
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
-const formatEventDate = (event: any): Event => {
-    const data = event.data();
-    if (data.date instanceof Timestamp) {
-        // format to YYYY-MM-DD string
-        data.date = format(data.date.toDate(), 'yyyy-MM-dd');
-    }
-    return { id: event.id, ...data } as Event;
+const formatEventFromFirestore = (doc: any): Event => {
+    const data = doc.data();
+    // Firestore Timestamps need to be converted to a serializable format.
+    // We'll use YYYY-MM-DD strings, which is what our form expects.
+    const date = data.date instanceof Timestamp ? format(data.date.toDate(), 'yyyy-MM-dd') : data.date;
+    return { id: doc.id, ...data, date } as Event;
 };
 
 
 export function EventProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAdmin();
+  const { user, isInitialized } = useAdmin();
+
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const eventsCollection = collection(db, 'events');
+      const q = query(eventsCollection, orderBy('date', 'desc'));
+      const querySnapshot = await getDocs(q);
+      let fetchedEvents: Event[] = querySnapshot.docs.map(formatEventFromFirestore);
+      
+      if (querySnapshot.empty && initialEvents.length > 0 && user) {
+        console.log('No events found, populating with initial data...');
+        for (const event of initialEvents) {
+          await addDoc(collection(db, 'events'), {
+            ...event,
+            date: Timestamp.fromDate(new Date(event.date)),
+          });
+        }
+        const newSnapshot = await getDocs(q);
+        fetchedEvents = newSnapshot.docs.map(formatEventFromFirestore);
+      }
+      setEvents(fetchedEvents);
+    } catch (error) {
+      console.error('Error fetching events from Firestore:', error);
+      setEvents(initialEvents.map((e, i) => ({ ...e, id: `local-${i}` })));
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
-      try {
-        const eventsCollection = collection(db, 'events');
-        const q = query(eventsCollection, orderBy('date', 'desc'));
-        const querySnapshot = await getDocs(q);
-
-        let fetchedEvents: Event[] = querySnapshot.docs.map(formatEventDate);
-
-        // Populate Firestore with seed data if empty and user is logged in
-        if (fetchedEvents.length === 0 && initialEvents.length > 0 && user) {
-          console.log('No events found in Firestore, populating with initial data...');
-          const initialDataPromises = initialEvents.map((event) =>
-            addDoc(collection(db, 'events'), {
-              ...event,
-              date: Timestamp.fromDate(new Date(event.date))
-            })
-          );
-          await Promise.all(initialDataPromises);
-          console.log('Initial data populated.');
-
-          const newSnapshot = await getDocs(q);
-          fetchedEvents = newSnapshot.docs.map(formatEventDate);
-        }
-
-        setEvents(fetchedEvents);
-      } catch (error) {
-        console.error('Error fetching events from Firestore:', error);
-        // fallback to local seed data on error
-        setEvents(initialEvents.map((e, i) => ({ ...e, id: `local-${i}` })));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Only fetch if the user is loaded and authenticated, or for public routes
-    // For this app, we assume events can be public, but writes require auth.
-    // The main fix is ensuring contexts that require auth wait for the user.
-    // Let's trigger fetch regardless of user for public view, but keep user dependency for auth-gated fetches.
-    fetchEvents();
-
-  }, [user]); // Re-fetch if user state changes
+    // We wait for the AdminContext to be initialized before fetching data
+    // to ensure we have the correct user authentication state.
+    if (isInitialized) {
+      fetchEvents();
+    }
+  }, [isInitialized, fetchEvents]);
 
   const addEvent = async (event: Omit<Event, 'id'>) => {
-    if (!user) {
-      throw new Error('You must be logged in to add an event.');
-    }
+    if (!user) throw new Error('You must be logged in to add an event.');
     try {
-      console.log('Adding event to Firestore:', event);
       const eventDataWithTimestamp = {
         ...event,
         date: Timestamp.fromDate(new Date(event.date)),
       };
       const docRef = await addDoc(collection(db, 'events'), eventDataWithTimestamp);
-      const newEvent: Event = { id: docRef.id, ...event };
-      setEvents((prev) =>
-        [...prev, newEvent].sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        )
-      );
+      // To keep local state consistent, we refetch after adding.
+      // This is simpler and more reliable than manually merging.
+      await fetchEvents();
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
-      throw error;
+      throw error; // Rethrow to be caught by the form's submit handler
     }
   };
 
   const updateEvent = async (updatedEvent: Event) => {
-     if (!user) {
-      throw new Error('You must be logged in to update an event.');
-    }
+     if (!user) throw new Error('You must be logged in to update an event.');
     try {
-      const { id, ...eventData } = updatedEvent; // strip out id
-      await updateDoc(doc(db, 'events', id), {
+      const { id, ...eventData } = updatedEvent;
+      const eventDocRef = doc(db, 'events', id);
+      await updateDoc(eventDocRef, {
         ...eventData,
         date: Timestamp.fromDate(new Date(eventData.date)),
       });
-
-      setEvents((prev) =>
-        prev
-          .map((ev) => (ev.id === id ? updatedEvent : ev))
-          .sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-          )
-      );
+      await fetchEvents();
     } catch (error) {
       console.error('Error updating event in Firestore:', error);
       throw error;
@@ -135,12 +112,10 @@ export function EventProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteEvent = async (id: string) => {
-    if (!user) {
-      throw new Error('You must be logged in to delete an event.');
-    }
+    if (!user) throw new Error('You must be logged in to delete an event.');
     try {
       await deleteDoc(doc(db, 'events', id));
-      setEvents((prev) => prev.filter((ev) => ev.id !== id));
+      await fetchEvents();
     } catch (error) {
       console.error('Error deleting event from Firestore:', error);
       throw error;

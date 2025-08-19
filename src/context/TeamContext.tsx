@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query } from 'firebase/firestore';
 import type { TeamMember } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { team as initialTeam } from '@/lib/data';
@@ -20,53 +20,44 @@ const TeamContext = createContext<TeamContextType | undefined>(undefined);
 export function TeamProvider({ children }: { children: ReactNode }) {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAdmin();
+  const { user, isInitialized } = useAdmin();
   
-  useEffect(() => {
-    const fetchTeam = async () => {
-      setLoading(true);
-      try {
-        const teamCollection = collection(db, 'team');
-        const querySnapshot = await getDocs(teamCollection);
-        const fetchedTeam: TeamMember[] = [];
-        querySnapshot.forEach((doc) => {
-          fetchedTeam.push({ id: doc.id, ...doc.data() } as TeamMember);
-        });
-
-        if (fetchedTeam.length === 0 && initialTeam.length > 0 && user) {
-          console.log('No team members in Firestore, populating with initial data...');
-          const initialDataPromises = initialTeam.map(member => addDoc(collection(db, 'team'), member));
-          await Promise.all(initialDataPromises);
-          console.log('Initial data populated.');
-          const newSnapshot = await getDocs(teamCollection);
-          newSnapshot.forEach((doc) => {
-            fetchedTeam.push({ id: doc.id, ...doc.data() } as TeamMember);
-          });
+  const fetchTeam = useCallback(async () => {
+    setLoading(true);
+    try {
+      const teamCollection = collection(db, 'team');
+      const q = query(teamCollection); // Can add orderBy here if needed
+      const querySnapshot = await getDocs(q);
+      let fetchedTeam: TeamMember[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
+      
+      if (querySnapshot.empty && initialTeam.length > 0 && user) {
+        console.log('No team members in Firestore, populating with initial data...');
+        for (const member of initialTeam) {
+          await addDoc(collection(db, 'team'), member);
         }
-        setTeam(fetchedTeam);
-      } catch (error) {
-        console.error('Error fetching team from Firestore:', error);
-        setTeam(initialTeam.map((t, i) => ({...t, id: `local-${i}`})));
-      } finally {
-        setLoading(false);
+        const newSnapshot = await getDocs(q);
+        fetchedTeam = newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
       }
-    };
-    
-    // The team data is public, so we can fetch it regardless of auth state.
-    // However, any write operations will be protected by context logic.
-    fetchTeam();
-
+      setTeam(fetchedTeam);
+    } catch (error) {
+      console.error('Error fetching team from Firestore:', error);
+      setTeam(initialTeam.map((t, i) => ({...t, id: `local-${i}`})));
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
 
-  const addMember = async (member: Omit<TeamMember, 'id'>) => {
-    if (!user) {
-      throw new Error('You must be logged in to add a team member.');
+  useEffect(() => {
+    if (isInitialized) {
+      fetchTeam();
     }
+  }, [isInitialized, fetchTeam]);
+
+  const addMember = async (member: Omit<TeamMember, 'id'>) => {
+    if (!user) throw new Error('You must be logged in to add a team member.');
     try {
-      console.log('Adding member to Firestore:', member);
-      const docRef = await addDoc(collection(db, 'team'), member);
-      const newMember = { id: docRef.id, ...member } as TeamMember;
-      setTeam((prevTeam) => [...prevTeam, newMember]);
+      await addDoc(collection(db, 'team'), member);
+      await fetchTeam();
     } catch (error) {
       console.error('Error adding member to Firestore:', error);
       throw error;
@@ -74,18 +65,12 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   };
 
   const updateMember = async (updatedMember: TeamMember) => {
-    if (!user) {
-      throw new Error('You must be logged in to update a team member.');
-    }
+    if (!user) throw new Error('You must be logged in to update a team member.');
     try {
       const { id, ...memberData } = updatedMember;
       const memberDoc = doc(db, 'team', id);
       await updateDoc(memberDoc, memberData);
-      setTeam((prevTeam) =>
-        prevTeam.map((member) =>
-          member.id === updatedMember.id ? updatedMember : member
-        )
-      );
+      await fetchTeam();
     } catch (error) {
       console.error('Error updating member in Firestore:', error);
       throw error;
@@ -93,12 +78,10 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteMember = async (id: string) => {
-    if (!user) {
-      throw new Error('You must be logged in to delete a team member.');
-    }
+    if (!user) throw new Error('You must be logged in to delete a team member.');
     try {
       await deleteDoc(doc(db, 'team', id));
-      setTeam((prevTeam) => prevTeam.filter((member) => member.id !== id));
+      await fetchTeam();
     } catch (error)      {
       console.error('Error deleting member from Firestore:', error);
       throw error;

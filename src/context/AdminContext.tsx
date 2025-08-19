@@ -14,6 +14,7 @@ import { usePathname, useRouter } from 'next/navigation';
 type AdminContextType = {
   user: User | null;
   isLoggedIn: boolean;
+  isInitialized: boolean; // <-- Expose initialization status
   login: () => void;
   logout: () => void;
 };
@@ -51,13 +52,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  if (!isInitialized) {
-    // You might want to render a loading spinner here
-    return null;
-  }
-
   return (
-    <AdminContext.Provider value={{ user, isLoggedIn: !!user, login, logout }}>
+    <AdminContext.Provider value={{ user, isLoggedIn: !!user, isInitialized, login, logout }}>
       {children}
     </AdminContext.Provider>
   );

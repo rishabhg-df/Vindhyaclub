@@ -76,9 +76,9 @@ export default function EditEventPage() {
       setImagePreview(event.image);
     }
   }, [event]);
-
+  
   useEffect(() => {
-    if (!isNew && !event) {
+    if (!isNew && !event && events.length > 0) {
       toast({
         variant: 'destructive',
         title: 'Event not found',
@@ -86,7 +86,7 @@ export default function EditEventPage() {
       });
       router.push('/admin/events');
     }
-  }, [isNew, event, router, toast]);
+  }, [isNew, event, router, toast, events]);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,17 +111,13 @@ export default function EditEventPage() {
 
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
-    let finalImageUrl = event?.image; // Default to existing image if editing
+    let finalImageUrl = event?.image;
 
     try {
       if (imageFile) {
         finalImageUrl = await uploadImage(imageFile, 'events');
       }
-
-      if (isNew && !finalImageUrl) {
-        finalImageUrl = 'https://placehold.co/800x600.png';
-      }
-
+      
       const eventData: Omit<Event, 'id'> = {
         title: data.title,
         description: data.description,
@@ -130,7 +126,7 @@ export default function EditEventPage() {
         image: finalImageUrl || 'https://placehold.co/800x600.png',
         imageHint: data.imageHint || 'club event',
       };
-      
+
       if (isNew) {
         await addEvent(eventData);
       } else {

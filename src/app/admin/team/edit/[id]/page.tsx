@@ -68,7 +68,7 @@ export default function EditTeamMemberPage() {
   }, [member]);
 
   useEffect(() => {
-    if (!isNew && !member) {
+    if (!isNew && !member && team.length > 0) {
       toast({
         variant: 'destructive',
         title: 'Member not found',
@@ -76,7 +76,7 @@ export default function EditTeamMemberPage() {
       });
       router.push('/admin/team');
     }
-  }, [isNew, member, router, toast]);
+  }, [isNew, member, router, toast, team]);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -108,10 +108,6 @@ export default function EditTeamMemberPage() {
         finalImageUrl = await uploadImage(imageFile, 'team');
       }
       
-      if (isNew && !finalImageUrl) {
-        finalImageUrl = 'https://placehold.co/128x128.png';
-      }
-
       const memberData: Omit<TeamMember, 'id'> = {
         name: data.name,
         role: data.role,
