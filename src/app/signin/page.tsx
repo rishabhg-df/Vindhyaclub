@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -28,6 +29,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/context/AdminContext';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { Loader2 } from 'lucide-react';
 
 const signInSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -41,6 +45,7 @@ export default function SignInPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { login } = useAdmin();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -51,28 +56,33 @@ export default function SignInPage() {
     },
   });
 
-  const onSubmit = (data: SignInFormValues) => {
-    if (data.email === 'admin@example.com') {
-      if (data.password === 'admin') {
-        login();
-        toast({
-          title: 'Admin Login Successful',
-          description: 'Welcome back, Admin!',
-        });
-        router.push('/admin');
-      } else {
+  const onSubmit = async (data: SignInFormValues) => {
+    setIsSubmitting(true);
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      login();
+      toast({
+        title: 'Admin Login Successful',
+        description: 'Welcome back, Admin!',
+      });
+      router.push('/admin');
+    } catch (error: any) {
+      console.error("Firebase Auth Error:", error);
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         toast({
           variant: 'destructive',
           title: 'Invalid Credentials',
-          description: 'The password you entered is incorrect. Please try again.',
+          description: 'The email or password you entered is incorrect.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Authentication Failed',
+          description: 'An unexpected error occurred. Please try again.',
         });
       }
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Invalid User',
-        description: 'This email is not authorized for admin access.',
-      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,7 +109,7 @@ export default function SignInPage() {
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="member@example.com"
+                        placeholder="admin@example.com"
                         {...field}
                       />
                     </FormControl>
@@ -114,7 +124,7 @@ export default function SignInPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" placeholder="********" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -130,12 +140,13 @@ export default function SignInPage() {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          disabled={true}
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <Label
                           htmlFor="remember-me"
-                          className="cursor-pointer"
+                          className="cursor-pointer text-muted-foreground"
                         >
                           Remember me
                         </Label>
@@ -152,8 +163,16 @@ export default function SignInPage() {
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={isSubmitting}
               >
-                Sign In
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </CardFooter>
           </form>

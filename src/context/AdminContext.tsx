@@ -7,8 +7,12 @@ import {
   ReactNode,
   useEffect,
 } from 'react';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { usePathname, useRouter } from 'next/navigation';
 
 type AdminContextType = {
+  user: User | null;
   isLoggedIn: boolean;
   login: () => void;
   logout: () => void;
@@ -17,45 +21,43 @@ type AdminContextType = {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    try {
-      const storedLoginStatus = localStorage.getItem('isAdminLoggedIn');
-      if (storedLoginStatus === 'true') {
-        setIsLoggedIn(true);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (!isInitialized) {
+        setIsInitialized(true);
       }
-    } catch (error) {
-      console.error('Failed to read admin login status from localStorage', error);
-    }
-    setIsInitialized(true);
-  }, []);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [isInitialized]);
 
   const login = () => {
-    try {
-      localStorage.setItem('isAdminLoggedIn', 'true');
-    } catch (error) {
-       console.error('Failed to save admin login status to localStorage', error);
-    }
-    setIsLoggedIn(true);
+    // This function is now a placeholder as onAuthStateChanged handles the state.
+    // It's kept for semantic consistency in the signin page.
   };
-  
-  const logout = () => {
-    try {
-      localStorage.removeItem('isAdminLoggedIn');
-    } catch (error) {
-       console.error('Failed to remove admin login status from localStorage', error);
+
+  const logout = async () => {
+    await signOut(auth);
+    // Redirect to home page after logout
+    if (pathname.startsWith('/admin')) {
+      router.push('/');
     }
-    setIsLoggedIn(false);
   };
 
   if (!isInitialized) {
+    // You might want to render a loading spinner here
     return null;
   }
 
   return (
-    <AdminContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AdminContext.Provider value={{ user, isLoggedIn: !!user, login, logout }}>
       {children}
     </AdminContext.Provider>
   );

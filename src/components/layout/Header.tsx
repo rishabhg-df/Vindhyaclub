@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Menu, UserCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import { useAdmin } from '@/context/AdminContext';
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { isLoggedIn, logout } = useAdmin();
 
   const authLink = isLoggedIn
@@ -30,8 +31,9 @@ export function Header() {
 
   const allLinks = [...navLinks, authLink];
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
   };
 
   const NavLinks = ({ className }: { className?: string }) => (
