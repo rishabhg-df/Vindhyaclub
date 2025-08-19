@@ -45,10 +45,8 @@ export function TeamProvider({ children }: { children: ReactNode }) {
 
   const addMember = async (member: Omit<TeamMember, 'id'>) => {
     try {
-      const docRef = await addDoc(collection(db, 'team'), member);
-      // Optimistic update
-      setTeam(prevTeam => [...prevTeam, { id: docRef.id, ...member }]);
-      // Re-fetch to ensure consistency
+      await addDoc(collection(db, 'team'), member);
+      // Refetch all members to ensure data consistency
       await fetchTeam();
     } catch (error) {
       console.error('Error adding member to Firestore:', error);

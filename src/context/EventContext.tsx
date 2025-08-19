@@ -29,9 +29,10 @@ const EventContext = createContext<EventContextType | undefined>(undefined);
 
 const formatEventFromFirestore = (doc: any): Event => {
     const data = doc.data();
+    // Firestore Timestamps need to be converted to JS Dates, then formatted.
     const date = data.date instanceof Timestamp 
       ? format(data.date.toDate(), 'yyyy-MM-dd') 
-      : data.date;
+      : data.date; // Keep it as a string if it's already formatted
     return { id: doc.id, ...data, date } as Event;
 };
 
@@ -66,14 +67,11 @@ export function EventProvider({ children }: { children: ReactNode }) {
     try {
       const eventDataWithTimestamp = {
         ...event,
+        // Convert the string date back to a Timestamp for Firestore
         date: Timestamp.fromDate(parseISO(event.date)),
       };
-      const docRef = await addDoc(collection(db, 'events'), eventDataWithTimestamp);
-      // Optimistic update
-      setEvents(prevEvents => [
-        { ...event, id: docRef.id },
-        ...prevEvents
-      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      await addDoc(collection(db, 'events'), eventDataWithTimestamp);
+      // Refetch all events to ensure data consistency
       await fetchEvents();
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
