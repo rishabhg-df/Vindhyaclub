@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -51,6 +52,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
+      // On error, revert to an empty state to avoid hydration mismatch
       setEvents([]);
     } finally {
       setLoading(false);
@@ -75,7 +77,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       await fetchEvents();
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
-      throw error; 
+      throw error; // Re-throw to be caught by the form handler
     }
   };
 
