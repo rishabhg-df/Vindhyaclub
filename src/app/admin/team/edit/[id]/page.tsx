@@ -100,11 +100,19 @@ export default function EditTeamMemberPage() {
     setIsSubmitting(true);
     
     try {
+      let imageUrl = member?.image;
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'team');
+      } else if (isNew) {
+        imageUrl = 'https://placehold.co/128x128.png';
+      }
+
+      if (!imageUrl) {
+        throw new Error("Image URL is missing.");
+      }
+
       if (isNew) {
-        let imageUrl = 'https://placehold.co/128x128.png';
-        if (imageFile) {
-          imageUrl = await uploadImage(imageFile, 'team');
-        }
         const memberData = {
           ...data,
           image: imageUrl,
@@ -112,10 +120,6 @@ export default function EditTeamMemberPage() {
         };
         await addMember(memberData);
       } else {
-        let imageUrl = member!.image;
-        if (imageFile) {
-          imageUrl = await uploadImage(imageFile, 'team');
-        }
         const memberData = {
           ...data,
           id: memberId,
