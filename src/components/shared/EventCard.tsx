@@ -12,7 +12,7 @@ export function EventCard({ event }: EventCardProps) {
     <Card className="h-full overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20">
       <CardHeader className="p-0">
         <Image
-          src={event.image}
+          src={event.imageUrl || 'https://placehold.co/600x400.png'}
           alt={event.title}
           data-ai-hint={event.imageHint}
           width={600}
