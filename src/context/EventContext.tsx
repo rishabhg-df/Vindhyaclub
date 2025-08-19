@@ -60,9 +60,10 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const addEvent = async (event: Omit<Event, 'id'>) => {
     try {
       const docRef = await addDoc(collection(db, 'events'), event);
-      setEvents((prevEvents) => [{ id: docRef.id, ...event }, ...prevEvents].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      setEvents((prevEvents) => [{ id: docRef.id, ...event } as Event, ...prevEvents].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
+      throw error;
     }
   };
 
@@ -77,6 +78,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       );
     } catch (error) {
       console.error('Error updating event in Firestore:', error);
+      throw error;
     }
   };
 
@@ -86,6 +88,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       setEvents((prevEvents) => prevEvents.filter((event) => event.id !== id));
     } catch (error) {
       console.error('Error deleting event from Firestore:', error);
+      throw error;
     }
   };
   

@@ -59,9 +59,10 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   const addMember = async (member: Omit<TeamMember, 'id'>) => {
     try {
       const docRef = await addDoc(collection(db, 'team'), member);
-      setTeam((prevTeam) => [...prevTeam, { id: docRef.id, ...member }]);
+      setTeam((prevTeam) => [...prevTeam, { id: docRef.id, ...member } as TeamMember]);
     } catch (error) {
       console.error('Error adding member to Firestore:', error);
+      throw error;
     }
   };
 
@@ -76,6 +77,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
       );
     } catch (error) {
       console.error('Error updating member in Firestore:', error);
+      throw error;
     }
   };
 
@@ -85,6 +87,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
       setTeam((prevTeam) => prevTeam.filter((member) => member.id !== id));
     } catch (error) {
       console.error('Error deleting member from Firestore:', error);
+      throw error;
     }
   };
   
