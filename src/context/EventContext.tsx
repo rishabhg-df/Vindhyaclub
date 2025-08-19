@@ -15,35 +15,9 @@ type EventContextType = {
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
 export function EventProvider({ children }: { children: ReactNode }) {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    try {
-      const storedEvents = localStorage.getItem('eventData');
-      if (storedEvents) {
-        setEvents(JSON.parse(storedEvents));
-      } else {
-        // if no data in localstorage, use initial data with unique IDs
-        setEvents(initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString() + Math.random()})));
-      }
-    } catch (error) {
-      console.error('Failed to parse event data from localStorage', error);
-      setEvents(initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString() + Math.random()})));
-    }
-    setIsInitialized(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialized) {
-      try {
-        localStorage.setItem('eventData', JSON.stringify(events));
-      } catch (error) {
-        console.error('Failed to save event data to localStorage', error);
-      }
-    }
-  }, [events, isInitialized]);
-  
+  const [events, setEvents] = useState<Event[]>(() => 
+    initialEvents.map(e => ({...e, id: new Date(e.date).getTime().toString() + Math.random()}))
+  );
 
   const addEvent = (event: Event) => {
     setEvents((prevEvents) => [...prevEvents, event].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
@@ -60,10 +34,6 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const deleteEvent = (id: string) => {
     setEvents((prevEvents) => prevEvents.filter((event) => event.id !== id));
   };
-
-  if (!isInitialized) {
-    return null; // Or a loading spinner
-  }
 
   return (
     <EventContext.Provider value={{ events, addEvent, updateEvent, deleteEvent }}>
