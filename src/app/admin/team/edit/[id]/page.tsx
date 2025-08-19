@@ -70,7 +70,9 @@ export default function EditTeamMemberPage() {
     }
     if (member) {
       form.reset(member);
-      setImagePreview(member.image);
+      if (member.image) {
+        setImagePreview(member.image);
+      }
     }
   }, [isNew, member, router, toast, form]);
 
@@ -88,10 +90,14 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = member?.image;
+    let imageUrl: string;
 
     if (isNew) {
+       // For new members, always use the placeholder.
       imageUrl = 'https://placehold.co/128x128.png';
+    } else {
+      // For existing members, use their current image or a placeholder if none exists.
+      imageUrl = member?.image || 'https://placehold.co/128x128.png';
     }
 
 
@@ -100,7 +106,7 @@ export default function EditTeamMemberPage() {
       name: data.name,
       role: data.role,
       bio: data.bio,
-      image: imageUrl as string,
+      image: imageUrl,
       imageHint: data.imageHint || 'professional portrait',
     };
 
@@ -181,11 +187,11 @@ export default function EditTeamMemberPage() {
                         type="file"
                         accept="image/*"
                         onChange={handleImageChange}
-                        disabled={isSubmitting}
+                        disabled={true}
                       />
                     </FormControl>
                     <FormDescription>
-                      For best results, upload a square image. New images will not be saved on refresh.
+                     Image uploads are disabled. New members use a placeholder image.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">

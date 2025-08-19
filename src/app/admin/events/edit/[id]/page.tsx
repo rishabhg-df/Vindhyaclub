@@ -81,7 +81,9 @@ export default function EditEventPage() {
     }
     if (event) {
       form.reset({ ...event, date: new Date(event.date) });
-      setImagePreview(event.image);
+      if (event.image) {
+        setImagePreview(event.image);
+      }
     }
   }, [isNew, event, router, toast, form]);
 
@@ -99,10 +101,14 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     
-    let imageUrl = event?.image;
-    
+    let imageUrl: string;
+
     if (isNew) {
+      // For new events, always use the placeholder. The file input is disabled anyway.
       imageUrl = 'https://placehold.co/800x600.png';
+    } else {
+      // For existing events, use the current image.
+      imageUrl = event?.image || 'https://placehold.co/800x600.png';
     }
 
 
@@ -112,7 +118,7 @@ export default function EditEventPage() {
       date: data.date.toISOString(),
       entryTime: data.entryTime,
       description: data.description,
-      image: imageUrl as string,
+      image: imageUrl,
       imageHint: data.imageHint || 'club event',
     };
 
@@ -201,7 +207,7 @@ export default function EditEventPage() {
                   <FormItem>
                     <FormLabel>Entry Time</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 10:30pm" {...field} />
+                      <Input placeholder="e.g., 10:30pm" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormDescription>
                       The last time for entry.
@@ -242,11 +248,11 @@ export default function EditEventPage() {
                            handleImageChange(e);
                            field.onChange(e.target.files?.[0] ?? undefined);
                         }}
-                        disabled={isSubmitting}
+                        disabled={true}
                       />
                     </FormControl>
                     <FormDescription>
-                      Upload a landscape image (e.g., 800x600 pixels). New images will not be saved on refresh.
+                      Image uploads are disabled. New events use a placeholder image.
                     </FormDescription>
                     {imagePreview && (
                       <div className="mt-4">
