@@ -108,19 +108,27 @@ export default function EditEventPage() {
         imageUrl = event?.image || 'https://placehold.co/800x600.png';
       }
 
-      const eventData: Omit<Event, 'id'> = {
-        title: data.title,
-        date: data.date.toISOString(),
-        entryTime: data.entryTime,
-        description: data.description,
-        image: imageUrl,
-        imageHint: data.imageHint || 'club event',
-      };
-
       if (isNew) {
+        const eventData: Omit<Event, 'id'> = {
+          title: data.title,
+          date: data.date.toISOString(),
+          entryTime: data.entryTime,
+          description: data.description,
+          image: imageUrl,
+          imageHint: data.imageHint || 'club event',
+        };
         await addEvent(eventData);
       } else {
-        await updateEvent({ id: eventId, ...eventData });
+        const eventData: Event = {
+          id: eventId,
+          title: data.title,
+          date: data.date.toISOString(),
+          entryTime: data.entryTime,
+          description: data.description,
+          image: imageUrl,
+          imageHint: data.imageHint || 'club event',
+        };
+        await updateEvent(eventData);
       }
 
       toast({

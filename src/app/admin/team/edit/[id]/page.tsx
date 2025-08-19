@@ -95,18 +95,25 @@ export default function EditTeamMemberPage() {
         imageUrl = member?.image || 'https://placehold.co/128x128.png';
       }
 
-      const memberData: Omit<TeamMember, 'id'> = {
-        name: data.name,
-        role: data.role,
-        bio: data.bio,
-        image: imageUrl,
-        imageHint: data.imageHint || 'professional portrait',
-      };
-
       if (isNew) {
+        const memberData: Omit<TeamMember, 'id'> = {
+          name: data.name,
+          role: data.role,
+          bio: data.bio,
+          image: imageUrl,
+          imageHint: data.imageHint || 'professional portrait',
+        };
         await addMember(memberData);
       } else {
-        await updateMember({ id: memberId, ...memberData });
+         const memberData: TeamMember = {
+          id: memberId,
+          name: data.name,
+          role: data.role,
+          bio: data.bio,
+          image: imageUrl,
+          imageHint: data.imageHint || 'professional portrait',
+        };
+        await updateMember(memberData);
       }
 
       toast({
