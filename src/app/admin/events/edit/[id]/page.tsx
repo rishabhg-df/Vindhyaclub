@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Timestamp } from "firebase/firestore";
+
 import {
   Form,
   FormControl,
@@ -99,17 +101,15 @@ export default function EditEventPage() {
   const onSubmit = async (data: EventFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl: string;
+      let imageUrl = event?.image || 'https://placehold.co/800x600.png';
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, 'events');
-      } else {
-        imageUrl = event?.image || 'https://placehold.co/800x600.png';
       }
 
       const eventData = {
         title: data.title,
-        date: data.date.toISOString(),
+        date: Timestamp.fromDate(data.date),
         entryTime: data.entryTime || '',
         description: data.description,
         image: imageUrl,
