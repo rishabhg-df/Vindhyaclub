@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import type { Event } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useAdmin } from './AdminContext';
 
 type EventContextType = {
@@ -29,7 +29,6 @@ const EventContext = createContext<EventContextType | undefined>(undefined);
 
 const formatEventFromFirestore = (doc: any): Event => {
     const data = doc.data();
-    // Use date-fns to ensure consistent formatting 'yyyy-MM-dd'
     const date = data.date instanceof Timestamp 
       ? format(data.date.toDate(), 'yyyy-MM-dd') 
       : data.date;
@@ -39,7 +38,7 @@ const formatEventFromFirestore = (doc: any): Event => {
 export function EventProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, isInitialized } = useAdmin();
+  const { isInitialized } = useAdmin();
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -51,7 +50,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
-      setEvents([]); // Fallback to empty array on error
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -64,19 +63,17 @@ export function EventProvider({ children }: { children: ReactNode }) {
   }, [isInitialized, fetchEvents]);
 
   const addEvent = async (event: Omit<Event, 'id'>) => {
-    if (!user) throw new Error('You must be logged in to add an event.');
     try {
       const eventDataWithTimestamp = {
         ...event,
-        date: Timestamp.fromDate(new Date(event.date)),
+        date: Timestamp.fromDate(parseISO(event.date)),
       };
       const docRef = await addDoc(collection(db, 'events'), eventDataWithTimestamp);
-      // Optimistically update UI
+      // Optimistic update
       setEvents(prevEvents => [
-        formatEventFromFirestore({ id: docRef.id, data: () => ({ ...event, date: eventDataWithTimestamp.date }) }),
+        { ...event, id: docRef.id },
         ...prevEvents
       ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-      // Re-fetch to ensure consistency
       await fetchEvents();
     } catch (error) {
       console.error('Error adding event to Firestore:', error);
@@ -85,13 +82,12 @@ export function EventProvider({ children }: { children: ReactNode }) {
   };
 
   const updateEvent = async (updatedEvent: Event) => {
-     if (!user) throw new Error('You must be logged in to update an event.');
     try {
       const { id, ...eventData } = updatedEvent;
       const eventDocRef = doc(db, 'events', id);
       const eventDataWithTimestamp = {
         ...eventData,
-        date: Timestamp.fromDate(new Date(eventData.date)),
+        date: Timestamp.fromDate(parseISO(eventData.date)),
       };
       await updateDoc(eventDocRef, eventDataWithTimestamp);
       await fetchEvents();
@@ -102,7 +98,6 @@ export function EventProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteEvent = async (id: string) => {
-    if (!user) throw new Error('You must be logged in to delete an event.');
     try {
       await deleteDoc(doc(db, 'events', id));
       await fetchEvents();
