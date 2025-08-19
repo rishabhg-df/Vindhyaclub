@@ -19,38 +19,6 @@ export const events: Omit<Event, 'id'>[] = [
     image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=1920',
     imageHint: 'new year party',
   },
-  {
-    title: 'Annual Tennis Tournament',
-    date: '2024-08-15',
-    description:
-      'Join our most anticipated tennis event of the year. All skill levels welcome.',
-    image: 'https://images.unsplash.com/photo-1543310728-76cf54c45ac1?w=600',
-    imageHint: 'tennis match',
-  },
-  {
-    title: 'Swimming Gala',
-    date: '2024-09-05',
-    description:
-      'A fun-filled day of swimming competitions for all age groups. Prizes to be won!',
-    image: 'https://images.unsplash.com/photo-1559437655-274a0c57504f?w=600',
-    imageHint: 'swimming competition',
-  },
-  {
-    title: 'Club Marathon',
-    date: '2024-10-20',
-    description:
-      'Challenge yourself in our annual 10k club marathon. A test of endurance and spirit.',
-    image: 'https://images.unsplash.com/photo-1512428208326-813539b5a755?w=600',
-    imageHint: 'running marathon',
-  },
-   {
-    title: 'Youth Soccer Camp',
-    date: '2024-07-22',
-    description:
-      'A week-long soccer camp for kids aged 8-14. Coached by certified professionals.',
-    image: 'https://images.unsplash.com/photo-1551957442-f53835a4b9e2?w=600',
-    imageHint: 'soccer kids',
-  },
 ];
 
 export const facilities: Facility[] = [
