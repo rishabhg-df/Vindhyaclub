@@ -41,6 +41,7 @@ const eventSchema = z.object({
   entryTime: z.string().optional(),
   description: z.string().min(1, 'Description is required.'),
   imageHint: z.string().optional(),
+  image: z.any().optional(), // We'll handle validation for this manually
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
@@ -114,6 +115,7 @@ export default function EditEventPage() {
         const compressedFile = await compressImage(file);
         setImageFile(compressedFile);
         setImagePreview(URL.createObjectURL(compressedFile));
+        form.clearErrors('image'); // Clear error message when an image is selected
       } catch (error) {
         console.error('Image processing error:', error);
         toast({
@@ -129,22 +131,21 @@ export default function EditEventPage() {
   };
 
   const onSubmit = async (data: EventFormValues) => {
+    // Manual validation for new event image
+    if (isNew && !imageFile) {
+      form.setError('image', {
+        type: 'manual',
+        message: 'An image is required for a new event.',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       let imageUrl = event?.imageUrl;
 
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
-      }
-
-      if (isNew && !imageUrl) {
-        toast({
-          variant: 'destructive',
-          title: 'Image Required',
-          description: 'Please upload an image for the new event.',
-        });
-        setIsSubmitting(false);
-        return;
       }
 
       const eventData: Omit<Event, 'id'> = {
@@ -287,32 +288,38 @@ export default function EditEventPage() {
                 )}
               />
 
-              <FormItem>
-                <FormLabel>Photo</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    required={isNew}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Upload an image for the event (max 50KB). A photo is required for new events.
-                </FormDescription>
-                {imagePreview && (
-                  <div className="mt-4">
-                    <Image
-                      src={imagePreview}
-                      alt="Event preview"
-                      width={200}
-                      height={150}
-                      className="rounded-md object-cover"
-                    />
-                  </div>
+              <FormField
+                control={form.control}
+                name="image"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Photo</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Upload an image for the event (max 50KB). A photo is required for new events.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <FormMessage />
-              </FormItem>
+              />
+              
+              {imagePreview && (
+                <div className="mt-4">
+                  <Image
+                    src={imagePreview}
+                    alt="Event preview"
+                    width={200}
+                    height={150}
+                    className="rounded-md object-cover"
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-4">
                 <Button
