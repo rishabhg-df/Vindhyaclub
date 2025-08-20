@@ -26,8 +26,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const teamCollection = collection(db, 'team');
-      const q = query(teamCollection, orderBy('createdAt', 'asc'));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(teamCollection);
       const fetchedTeam: TeamMember[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
       setTeam(fetchedTeam);
     } catch (error) {
