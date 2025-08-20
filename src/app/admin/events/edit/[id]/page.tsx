@@ -38,11 +38,18 @@ import { compressImage } from '@/lib/imageCompressor';
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   date: z.date({ required_error: 'Date is required.' }),
-  entryTime: z.string().optional(),
+  entryTime: z.string().min(1, 'Entry time is required.'),
   description: z.string().min(1, 'Description is required.'),
   imageHint: z.string().optional(),
-  image: z.any().optional(), // We'll handle validation for this manually
+  image: z.any().refine(files => {
+    // For new events, image is required
+    if (typeof window === 'undefined') return true; // Skip validation on server
+    const params = new URLSearchParams(window.location.search);
+    const isNew = window.location.pathname.includes('/edit/new');
+    return !isNew || (files instanceof FileList && files.length > 0);
+  }, 'An image is required for a new event.'),
 });
+
 
 type EventFormValues = z.infer<typeof eventSchema>;
 
@@ -108,14 +115,14 @@ export default function EditEventPage() {
     }
   }, [isNew, event, router, toast, events]);
 
-  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>, fieldChange: (value: FileList | null) => void) => {
     const file = e.target.files?.[0];
+    fieldChange(e.target.files);
     if (file) {
       try {
         const compressedFile = await compressImage(file);
         setImageFile(compressedFile);
         setImagePreview(URL.createObjectURL(compressedFile));
-        form.clearErrors('image'); // Clear error message when an image is selected
       } catch (error) {
         console.error('Image processing error:', error);
         toast({
@@ -131,15 +138,6 @@ export default function EditEventPage() {
   };
 
   const onSubmit = async (data: EventFormValues) => {
-    // Manual validation for new event image
-    if (isNew && !imageFile) {
-      form.setError('image', {
-        type: 'manual',
-        message: 'An image is required for a new event.',
-      });
-      return;
-    }
-    
     setIsSubmitting(true);
     try {
       let imageUrl = event?.imageUrl;
@@ -291,14 +289,14 @@ export default function EditEventPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Photo</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={(e) => handleImageChange(e, field.onChange)}
                       />
                     </FormControl>
                     <FormDescription>
@@ -350,3 +348,5 @@ export default function EditEventPage() {
     </Section>
   );
 }
+
+    
