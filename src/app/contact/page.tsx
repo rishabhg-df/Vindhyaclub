@@ -7,7 +7,7 @@ export default function ContactPage() {
     {
       icon: MapPin,
       title: 'Address',
-      content: ['Vindhya Club, Station Road, Satna, MP'],
+      content: ['Vindhya club, Civil Lines, Satna, Madhya Pradesh 485001'],
     },
     {
       icon: Phone,
