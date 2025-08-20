@@ -20,7 +20,7 @@ export function EventsSection({ className }: { className?: string }) {
 
   if (loading) {
     return (
-      <Section title="Our Events" id="events" className={className}>
+      <Section title="Our Event" id="events" className={className}>
         <div className="flex justify-center">
           <Skeleton className="h-[400px] w-full max-w-4xl" />
         </div>
@@ -33,7 +33,7 @@ export function EventsSection({ className }: { className?: string }) {
   }
 
   return (
-    <Section title="Our Events" id="events" className={className}>
+    <Section title="Our Event" id="events" className={className}>
       <Carousel
         opts={{
           align: 'start',
