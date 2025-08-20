@@ -293,7 +293,7 @@ export default function EditEventPage() {
                   />
                 </FormControl>
                 <FormDescription>
-                  Upload a new image for the event. If no image is selected, the
+                  Upload a new image for the event (max 50KB). If no image is selected, the
                   existing image will be kept, or a placeholder used for new
                   events.
                 </FormDescription>

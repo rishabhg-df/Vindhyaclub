@@ -227,7 +227,7 @@ export default function EditTeamMemberPage() {
                   />
                 </FormControl>
                 <FormDescription>
-                  Upload a new photo. If no image is selected, the existing one
+                  Upload a new photo (max 50KB). If no image is selected, the existing one
                   will be kept. A photo is required for new members.
                 </FormDescription>
                 {imagePreview && (
