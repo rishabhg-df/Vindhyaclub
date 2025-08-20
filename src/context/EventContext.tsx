@@ -30,7 +30,6 @@ const EventContext = createContext<EventContextType | undefined>(undefined);
 
 const formatEventFromFirestore = (docSnap: any): Event => {
   const data = docSnap.data();
-  // Ensure date is always formatted correctly, whether it's a Timestamp or a string
   const date =
     data.date instanceof Timestamp
       ? format(data.date.toDate(), 'yyyy-MM-dd')
@@ -48,12 +47,13 @@ export function EventProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const eventsCollection = collection(db, 'events');
-      // Query to order events by date in descending order
       const q = query(eventsCollection, orderBy('date', 'desc'));
       const querySnapshot = await getDocs(q);
       const fetchedEvents: Event[] = querySnapshot.docs.map(formatEventFromFirestore);
-      // Client-side sort as a fallback to ensure order
+      
+      // Perform a reliable client-side sort to ensure descending order
       fetchedEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
@@ -71,13 +71,12 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
   const addEvent = async (event: Omit<Event, 'id'>) => {
     try {
-      // Ensure the date is stored as a Firestore Timestamp
       const eventDataWithTimestamp = {
         ...event,
         date: Timestamp.fromDate(new Date(event.date)),
       };
       await addDoc(collection(db, 'events'), eventDataWithTimestamp);
-      await fetchEvents(); // Refresh the list to show the new event
+      await fetchEvents();
     } catch (error) {
       console.error('Error adding event:', error);
       throw error;
@@ -89,14 +88,13 @@ export function EventProvider({ children }: { children: ReactNode }) {
       const { id, ...eventData } = updatedEvent;
       const eventRef = doc(db, 'events', id);
 
-      // Ensure the date is stored as a Firestore Timestamp
       const eventDataWithTimestamp = {
         ...eventData,
         date: Timestamp.fromDate(new Date(eventData.date)),
       };
       
       await updateDoc(eventRef, eventDataWithTimestamp);
-      await fetchEvents(); // Refresh the list to show the updated event
+      await fetchEvents();
     } catch (error) {
       console.error('Error updating event:', error);
       throw error;
@@ -106,7 +104,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const deleteEvent = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'events', id));
-      await fetchEvents(); // Refresh the list
+      await fetchEvents();
     } catch (error) {
       console.error('Error deleting event from Firestore:', error);
       throw error;
