@@ -6,12 +6,15 @@ import { useMemo } from 'react';
 import { Mail, MapPin, Phone, ChevronRight } from 'lucide-react';
 import { useEvents } from '@/context/EventContext';
 import { navLinks as defaultLinks } from '@/lib/data';
+import { useLocation } from '@/context/LocationContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function Footer() {
-  const { events, loading } = useEvents();
+  const { events, loading: eventsLoading } = useEvents();
+  const { location, loading: locationLoading } = useLocation();
 
   const links = useMemo(() => {
-    if (loading || events.length > 0) {
+    if (eventsLoading || events.length > 0) {
       return defaultLinks.filter(
         (link) =>
           link.label === 'Home' ||
@@ -26,7 +29,7 @@ export function Footer() {
         link.label === 'About' ||
         link.label === 'Facilities'
     );
-  }, [events, loading]);
+  }, [events, eventsLoading]);
 
   const otherLinks = [
     { href: '#', label: 'Terms & Condition' },
@@ -41,7 +44,7 @@ export function Footer() {
       content: 'vindhyaclub@example.com',
       href: 'mailto:vindhyaclub@example.com',
     },
-    { icon: MapPin, content: 'Vindhya Club, Satna.', href: '#' },
+    { icon: MapPin, content: 'Vindhya Club, Satna.', href: location?.mapsUrl || '#' },
   ];
 
   return (
@@ -108,23 +111,31 @@ export function Footer() {
         </div>
 
         <div>
-           <a
-            href="https://maps.app.goo.gl/HLvSxaQ8k4jsd69u5"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Vindhya Club location on Google Maps"
-          >
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d80.8351536759954!3d24.57947797811091!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1721290823995!5m2!1sen!2sin"
-              width="100%"
-              height="200"
-              style={{ border: 0 }}
-              allowFullScreen={false}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="rounded-lg"
-            ></iframe>
-          </a>
+          {locationLoading ? (
+             <Skeleton className="h-[200px] w-full rounded-lg" />
+          ) : location ? (
+             <a
+              href={location.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Vindhya Club location on Google Maps"
+            >
+              <iframe
+                src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d${location.longitude}!3d${location.latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1721290823995!5m2!1sen!2sin`}
+                width="100%"
+                height="200"
+                style={{ border: 0 }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="rounded-lg"
+              ></iframe>
+            </a>
+          ) : (
+            <div className="flex h-[200px] w-full items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              Map not available
+            </div>
+          )}
         </div>
       </div>
       <div className="border-t border-gray-800 py-4">

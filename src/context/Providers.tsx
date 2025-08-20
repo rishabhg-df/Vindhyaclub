@@ -1,15 +1,19 @@
+
 'use client';
 
 import { AdminProvider } from '@/context/AdminContext';
 import { EventProvider } from '@/context/EventContext';
 import { TeamProvider } from '@/context/TeamContext';
+import { LocationProvider } from '@/context/LocationContext';
 import type { ReactNode } from 'react';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <AdminProvider>
       <TeamProvider>
-        <EventProvider>{children}</EventProvider>
+        <LocationProvider>
+          <EventProvider>{children}</EventProvider>
+        </LocationProvider>
       </TeamProvider>
     </AdminProvider>
   );
