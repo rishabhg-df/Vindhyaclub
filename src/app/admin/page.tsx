@@ -8,7 +8,7 @@ import { Users, Calendar } from 'lucide-react';
 export default function AdminDashboardPage() {
   return (
     <Section title="Admin Dashboard">
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
         <Card className="flex flex-col text-center transition-transform hover:scale-105">
           <CardHeader>
             <Users className="mx-auto mb-4 h-12 w-12 text-primary" />
