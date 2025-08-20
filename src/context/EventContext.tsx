@@ -52,6 +52,8 @@ export function EventProvider({ children }: { children: ReactNode }) {
       const q = query(eventsCollection, orderBy('date', 'desc'));
       const querySnapshot = await getDocs(q);
       const fetchedEvents: Event[] = querySnapshot.docs.map(formatEventFromFirestore);
+      // Client-side sort as a fallback to ensure order
+      fetchedEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setEvents(fetchedEvents);
     } catch (error) {
       console.error('Error fetching events from Firestore:', error);
