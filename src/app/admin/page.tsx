@@ -9,12 +9,12 @@ export default function AdminDashboardPage() {
   return (
     <Section title="Admin Dashboard">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <Card className="text-center transition-transform hover:scale-105">
+        <Card className="flex flex-col text-center transition-transform hover:scale-105">
           <CardHeader>
             <Users className="mx-auto mb-4 h-12 w-12 text-primary" />
             <CardTitle>Manage Management Team</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col justify-between">
             <p className="mb-4 text-muted-foreground">
               Add, edit, or remove members from the management team.
             </p>
@@ -23,12 +23,12 @@ export default function AdminDashboardPage() {
             </Button>
           </CardContent>
         </Card>
-        <Card className="text-center transition-transform hover:scale-105">
+        <Card className="flex flex-col text-center transition-transform hover:scale-105">
           <CardHeader>
             <Calendar className="mx-auto mb-4 h-12 w-12 text-primary" />
             <CardTitle>Manage Events</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col justify-between">
             <p className="mb-4 text-muted-foreground">
               Create, update, or delete club events and announcements.
             </p>
