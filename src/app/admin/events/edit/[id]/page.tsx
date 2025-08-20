@@ -71,6 +71,7 @@ export default function EditEventPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const eventId = params.id as string;
   const isNew = eventId === 'new';
@@ -211,7 +212,7 @@ export default function EditEventPage() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Event Date</FormLabel>
-                    <Popover>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -234,7 +235,10 @@ export default function EditEventPage() {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setIsCalendarOpen(false);
+                          }}
                           disabled={(date) => date < new Date('1900-01-01')}
                           initialFocus
                         />
@@ -290,12 +294,11 @@ export default function EditEventPage() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
+                    required={isNew}
                   />
                 </FormControl>
                 <FormDescription>
-                  Upload a new image for the event (max 50KB). If no image is selected, the
-                  existing image will be kept, or a placeholder used for new
-                  events.
+                  Upload an image for the event (max 50KB). A photo is required for new events.
                 </FormDescription>
                 {imagePreview && (
                   <div className="mt-4">

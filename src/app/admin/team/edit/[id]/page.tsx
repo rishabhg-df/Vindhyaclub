@@ -224,11 +224,11 @@ export default function EditTeamMemberPage() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
+                    required={isNew}
                   />
                 </FormControl>
                 <FormDescription>
-                  Upload a new photo (max 50KB). If no image is selected, the existing one
-                  will be kept. A photo is required for new members.
+                  Upload a new photo (max 50KB). A photo is required for new members.
                 </FormDescription>
                 {imagePreview && (
                   <div className="mt-4">
