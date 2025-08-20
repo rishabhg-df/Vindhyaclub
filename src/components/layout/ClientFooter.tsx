@@ -46,8 +46,8 @@ export function ClientFooter() {
     { icon: Phone, content: '9425868667', href: 'tel:9425868667' },
     {
       icon: Mail,
-      content: 'vindhyaclub@example.com',
-      href: 'mailto:vindhyaclub@example.com',
+      content: 'vindhyaclub9@gmail.com',
+      href: 'mailto:vindhyaclub9@gmail.com',
     },
     { icon: MapPin, content: 'Vindhya Club, Satna.', href: mapsUrl },
   ];

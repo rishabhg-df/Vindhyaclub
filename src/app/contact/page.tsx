@@ -17,14 +17,14 @@ export default function ContactPage() {
     {
       icon: Mail,
       title: 'Email',
-      content: ['admin@vindhyaclub.in'],
+      content: ['vindhyaclub9@gmail.com'],
     },
   ];
 
   return (
     <>
       <Hero
-        imageUrl="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?q=80&w=1920&auto=format=fit=crop"
+        imageUrl="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?q=80&w=1920&auto=format&fit=crop"
         imageHint="contact us"
         title=""
         subtitle=""
