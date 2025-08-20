@@ -32,6 +32,12 @@ const memberSchema = z.object({
   role: z.string().min(1, 'Role is required.'),
   bio: z.string().min(1, 'Bio is required.'),
   imageHint: z.string().optional(),
+  image: z.any().refine(files => {
+    // For new members, image is required
+    if (typeof window === 'undefined') return true; // Skip validation on server
+    const isNew = window.location.pathname.includes('/edit/new');
+    return !isNew || (files instanceof FileList && files.length > 0);
+  }, 'An image is required for a new member.'),
 });
 
 type MemberFormValues = z.infer<typeof memberSchema>;
@@ -95,8 +101,9 @@ export default function EditTeamMemberPage() {
     }
   }, [isNew, member, router, toast, team]);
 
-  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>, fieldChange: (value: FileList | null) => void) => {
     const file = e.target.files?.[0];
+    fieldChange(e.target.files);
     if (file) {
       try {
         const compressedFile = await compressImage(file);
@@ -125,18 +132,11 @@ export default function EditTeamMemberPage() {
         imageUrl = await uploadImage(imageFile);
       }
 
-      if (isNew && !imageUrl) {
-        toast({
-          variant: 'destructive',
-          title: 'Image Required',
-          description: 'Please upload a photo for the new team member.',
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
       const memberData: Omit<TeamMember, 'id'> = {
-        ...data,
+        name: data.name,
+        role: data.role,
+        bio: data.bio,
+        imageHint: data.imageHint,
         image: imageUrl || 'https://placehold.co/128x128.png',
       };
 
@@ -217,32 +217,38 @@ export default function EditTeamMemberPage() {
                   </FormItem>
                 )}
               />
-              <FormItem>
-                <FormLabel>Photo</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    required={isNew}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Upload a new photo (max 50KB). A photo is required for new members.
-                </FormDescription>
-                {imagePreview && (
-                  <div className="mt-4">
-                    <Image
-                      src={imagePreview}
-                      alt="Profile preview"
-                      width={128}
-                      height={128}
-                      className="h-32 w-32 rounded-full object-cover"
-                    />
-                  </div>
+               <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Photo</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, field.onChange)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Upload a photo for the member (max 50KB). A photo is required for new members.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <FormMessage />
-              </FormItem>
+              />
+
+              {imagePreview && (
+                <div className="mt-4">
+                  <Image
+                    src={imagePreview}
+                    alt="Profile preview"
+                    width={128}
+                    height={128}
+                    className="h-32 w-32 rounded-full object-cover"
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-4">
                 <Button

@@ -12,8 +12,8 @@ export type Event = {
   date: string;
   entryTime?: string;
   description: string;
-  imageUrl?: string; // Changed from image to imageUrl to align with new context
-  imageHint?: string; // Kept for now, but should be phased out
+  imageUrl?: string; 
+  imageHint?: string;
 };
 
 export type Facility = {
