@@ -47,11 +47,11 @@ export function EventsSection({ className }: { className?: string }) {
               <div className="p-1">
                 <Card className="overflow-hidden bg-card text-card-foreground shadow-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className="flex flex-col justify-center p-8">
+                    <div className="flex flex-col justify-center bg-white p-8 text-black">
                       <h3 className="mb-2 font-headline text-2xl font-bold text-primary">
                         {event.title}
                       </h3>
-                      <p className="mb-4 text-muted-foreground">
+                      <p className="mb-4 text-gray-500">
                         {format(parseISO(event.date), 'PPP')}
                         {event.entryTime &&
                           ` (No Entry After ${event.entryTime})`}
