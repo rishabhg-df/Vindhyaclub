@@ -132,18 +132,23 @@ export default function EditTeamMemberPage() {
         imageUrl = await uploadImage(imageFile);
       }
 
-      const memberData: Omit<TeamMember, 'id'> = {
-        name: data.name,
-        role: data.role,
-        bio: data.bio,
-        imageHint: data.imageHint,
-        image: imageUrl || 'https://placehold.co/128x128.png',
-      };
-
       if (isNew) {
-        await addMember(memberData);
+        await addMember({
+          name: data.name,
+          role: data.role,
+          bio: data.bio,
+          imageHint: data.imageHint,
+          image: imageUrl || 'https://placehold.co/128x128.png',
+        });
       } else if (member) {
-        await updateMember({ ...member, ...memberData });
+        await updateMember({
+          ...member,
+          name: data.name,
+          role: data.role,
+          bio: data.bio,
+          imageHint: data.imageHint,
+          image: imageUrl || 'https://placehold.co/128x128.png',
+        });
       }
 
       toast({

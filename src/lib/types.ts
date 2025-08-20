@@ -30,6 +30,7 @@ export type TeamMember = {
   bio: string;
   image: string;
   imageHint: string;
+  createdAt: any;
 };
 
 export type HistoryItem = {

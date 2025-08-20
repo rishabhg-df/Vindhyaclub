@@ -1,14 +1,15 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import type { TeamMember } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
 
 type TeamContextType = {
   team: TeamMember[];
-  addMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
+  addMember: (member: Omit<TeamMember, 'id' | 'createdAt'>) => Promise<void>;
   updateMember: (updatedMember: TeamMember) => Promise<void>;
   deleteMember: (id: string) => Promise<void>;
   loading: boolean;
@@ -25,7 +26,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const teamCollection = collection(db, 'team');
-      const q = query(teamCollection);
+      const q = query(teamCollection, orderBy('createdAt', 'asc'));
       const querySnapshot = await getDocs(q);
       const fetchedTeam: TeamMember[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
       setTeam(fetchedTeam);
@@ -43,9 +44,12 @@ export function TeamProvider({ children }: { children: ReactNode }) {
     }
   }, [isInitialized, fetchTeam]);
 
-  const addMember = async (member: Omit<TeamMember, 'id'>) => {
+  const addMember = async (member: Omit<TeamMember, 'id' | 'createdAt'>) => {
     try {
-      await addDoc(collection(db, 'team'), member);
+      await addDoc(collection(db, 'team'), {
+        ...member,
+        createdAt: serverTimestamp(),
+      });
       await fetchTeam();
     } catch (error) {
       console.error('Error adding member to Firestore:', error);

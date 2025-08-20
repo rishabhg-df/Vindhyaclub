@@ -47,7 +47,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const eventsCollection = collection(db, 'events');
-      const q = query(eventsCollection, orderBy('date', 'desc'));
+      const q = query(eventsCollection, orderBy('date', 'asc'));
       const querySnapshot = await getDocs(q);
       const fetchedEvents: Event[] = querySnapshot.docs.map(formatEventFromFirestore);
       setEvents(fetchedEvents);
