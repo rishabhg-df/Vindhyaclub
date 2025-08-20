@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Providers } from '@/context/Providers';
+import { ClientHeader } from '@/components/layout/ClientHeader';
+import { ClientFooter } from '@/components/layout/ClientFooter';
 
 export const metadata: Metadata = {
   title: 'Vindhya Club Central',
@@ -35,9 +35,9 @@ export default function RootLayout({
       >
         <Providers>
           <div className="flex min-h-screen flex-col">
-            <Header />
+            <ClientHeader />
             <main className="flex-grow">{children}</main>
-            <Footer />
+            <ClientFooter />
           </div>
           <Toaster />
         </Providers>
