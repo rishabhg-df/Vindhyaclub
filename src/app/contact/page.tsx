@@ -12,7 +12,7 @@ export default function ContactPage() {
     {
       icon: Phone,
       title: 'Phone',
-      content: ['(O) 0761-2621326', '(R) 0761-2692637'],
+      content: ['+91 9425868667'],
     },
     {
       icon: Mail,
