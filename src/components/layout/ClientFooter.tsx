@@ -39,9 +39,8 @@ export function ClientFooter() {
     { href: '/contact', label: 'Contact' },
   ];
 
-  const mapsUrl = 'https://maps.app.goo.gl/HLvSxaQ8k4jsd69u5';
-  const embedUrl = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d80.837728!3d24.579478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1628087948251!5m2!1sen!2sin';
-
+  const mapsUrl = 'https://maps.app.goo.gl/5sM3whx8RNETGMHV8';
+  const embedUrl = 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3628.2518091227385!2d80.8202516!3d24.5805045!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39847ffa697bcdd5%3A0xb65239d70e6c0f0f!2sVindhya%20club!5e0!3m2!1sen!2sin!4v1755685081066!5m2!1sen!2sin';
   const contactDetails = [
     { icon: Phone, content: '9425868667', href: 'tel:9425868667' },
     {
