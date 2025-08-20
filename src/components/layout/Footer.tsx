@@ -122,7 +122,7 @@ export function Footer() {
               allowFullScreen={false}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              className="pointer-events-none rounded-lg"
+              className="rounded-lg"
             ></iframe>
           </a>
         </div>
