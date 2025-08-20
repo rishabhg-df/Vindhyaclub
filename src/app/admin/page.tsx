@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Section } from '@/components/shared/Section';
-import { Users, Calendar, Map } from 'lucide-react';
+import { Users, Calendar } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   return (
@@ -34,20 +34,6 @@ export default function AdminDashboardPage() {
             </p>
             <Button asChild>
               <Link href="/admin/events">Go to Event Management</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="flex flex-col text-center transition-transform hover:scale-105">
-          <CardHeader>
-            <Map className="mx-auto mb-4 h-12 w-12 text-primary" />
-            <CardTitle>Manage Location</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-1 flex-col justify-between">
-            <p className="mb-4 text-muted-foreground">
-              Update the club's location on the map.
-            </p>
-            <Button asChild>
-              <Link href="/admin/location">Go to Location Management</Link>
             </Button>
           </CardContent>
         </Card>

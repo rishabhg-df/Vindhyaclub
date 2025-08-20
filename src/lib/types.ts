@@ -39,11 +39,3 @@ export type HistoryItem = {
   image: string;
   imageHint: string;
 };
-
-export type Location = {
-  id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  mapsUrl: string;
-};
