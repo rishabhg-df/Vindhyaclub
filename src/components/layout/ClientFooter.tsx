@@ -34,8 +34,8 @@ export function ClientFooter() {
   }, [events, eventsLoading, isClient]);
 
   const otherLinks = [
-    { href: '#', label: 'Terms & Condition' },
-    { href: '#', label: 'Privacy Policy' },
+    { href: '/terms', label: 'Terms & Condition' },
+    { href: '/privacy', label: 'Privacy Policy' },
     { href: '/contact', label: 'Contact' },
   ];
 
@@ -43,7 +43,7 @@ export function ClientFooter() {
   const embedUrl ='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d80.8351530149984!3d24.57947798418847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1628087948251!5m2!1sen!2sin';
 
   const contactDetails = [
-    { icon: Phone, content: '+91 9425868667', href: 'tel:+919425868667' },
+    { icon: Phone, content: '9425868667', href: 'tel:9425868667' },
     {
       icon: Mail,
       content: 'vindhyaclub@example.com',
