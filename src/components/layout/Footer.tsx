@@ -35,8 +35,7 @@ export function Footer() {
   ];
 
   const mapsUrl = 'https://maps.app.goo.gl/HLvSxaQ8k4jsd69u5';
-  const latitude = 24.579478;
-  const longitude = 80.837728;
+  const embedUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d80.8351530149984!3d24.57947798418847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1628087948251!5m2!1sen!2sin`;
 
   const contactDetails = [
     { icon: Phone, content: '+91 1234567890', href: 'tel:+911234567890' },
@@ -119,14 +118,14 @@ export function Footer() {
             aria-label="Vindhya Club location on Google Maps"
           >
             <iframe
-              src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d${longitude}!3d${latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1721290823995!5m2!1sen!2sin`}
+              src={embedUrl}
               width="100%"
               height="200"
               style={{ border: 0 }}
               allowFullScreen={false}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              className="rounded-lg"
+              className="pointer-events-none rounded-lg"
             ></iframe>
           </a>
         </div>
