@@ -1,5 +1,5 @@
+
 import { initializeApp, getApp, getApps } from "firebase/app";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -14,18 +14,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const storage = getStorage(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/**
- * Uploads an image to Firebase Storage and returns download URL.
- */
-export const uploadImage = async (file: File, path: string): Promise<string> => {
-  const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
-  const snapshot = await uploadBytes(storageRef, file);
-  const downloadUrl = await getDownloadURL(snapshot.ref);
-  return downloadUrl;
-};
 
-export { db, storage, auth };
+export { db, auth };

@@ -34,7 +34,6 @@ import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { compressImage } from '@/lib/imageCompressor';
-import { uploadImage } from '@/lib/firebase';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -45,6 +44,24 @@ const eventSchema = z.object({
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
+
+async function uploadImage(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Something went wrong');
+  }
+
+  return data.url;
+}
+
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -116,7 +133,17 @@ export default function EditEventPage() {
       let imageUrl = event?.imageUrl;
 
       if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'events');
+        imageUrl = await uploadImage(imageFile);
+      }
+
+      if (isNew && !imageUrl) {
+        toast({
+          variant: 'destructive',
+          title: 'Image Required',
+          description: 'Please upload an image for the new event.',
+        });
+        setIsSubmitting(false);
+        return;
       }
 
       const eventData: Omit<Event, 'id'> = {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, ChangeEvent } from 'react';
@@ -25,7 +26,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useTeam } from '@/context/TeamContext';
 import { Loader2 } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompressor';
-import { uploadImage } from '@/lib/firebase';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -35,6 +35,23 @@ const memberSchema = z.object({
 });
 
 type MemberFormValues = z.infer<typeof memberSchema>;
+
+async function uploadImage(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Something went wrong');
+  }
+
+  return data.url;
+}
 
 export default function EditTeamMemberPage() {
   const router = useRouter();
@@ -102,15 +119,25 @@ export default function EditTeamMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = member?.image || 'https://placehold.co/128x128.png';
+      let imageUrl = member?.image;
 
       if (imageFile) {
-        imageUrl = await uploadImage(imageFile, 'team');
+        imageUrl = await uploadImage(imageFile);
+      }
+
+      if (isNew && !imageUrl) {
+        toast({
+          variant: 'destructive',
+          title: 'Image Required',
+          description: 'Please upload a photo for the new team member.',
+        });
+        setIsSubmitting(false);
+        return;
       }
 
       const memberData: Omit<TeamMember, 'id'> = {
         ...data,
-        image: imageUrl,
+        image: imageUrl || 'https://placehold.co/128x128.png',
       };
 
       if (isNew) {
@@ -201,7 +228,7 @@ export default function EditTeamMemberPage() {
                 </FormControl>
                 <FormDescription>
                   Upload a new photo. If no image is selected, the existing one
-                  will be kept, or a placeholder used for new members.
+                  will be kept. A photo is required for new members.
                 </FormDescription>
                 {imagePreview && (
                   <div className="mt-4">
