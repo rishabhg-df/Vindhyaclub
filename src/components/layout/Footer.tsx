@@ -1,13 +1,31 @@
+'use client';
+
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { Mail, MapPin, Phone, ChevronRight } from 'lucide-react';
+import { useEvents } from '@/context/EventContext';
+import { navLinks as defaultLinks } from '@/lib/data';
 
 export function Footer() {
-  const links = [
-    { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/events', label: 'Events' },
-    { href: '/facilities', label: 'Facilities' },
-  ];
+  const { events, loading } = useEvents();
+
+  const links = useMemo(() => {
+    if (loading || events.length > 0) {
+      return defaultLinks.filter(
+        (link) =>
+          link.label === 'Home' ||
+          link.label === 'About' ||
+          link.label === 'Events' ||
+          link.label === 'Facilities'
+      );
+    }
+    return defaultLinks.filter(
+      (link) =>
+        link.label === 'Home' ||
+        link.label === 'About' ||
+        link.label === 'Facilities'
+    );
+  }, [events, loading]);
 
   const otherLinks = [
     { href: '#', label: 'Terms & Condition' },
@@ -17,34 +35,28 @@ export function Footer() {
 
   const contactDetails = [
     { icon: Phone, content: '+91 1234567890', href: 'tel:+911234567890' },
-    { icon: Mail, content: 'vindhyaclub@example.com', href: 'mailto:vindhyaclub@example.com' },
+    {
+      icon: Mail,
+      content: 'vindhyaclub@example.com',
+      href: 'mailto:vindhyaclub@example.com',
+    },
     { icon: MapPin, content: 'Vindhya Club, Satna.', href: '#' },
   ];
 
   return (
     <footer className="bg-black text-white">
       <div className="container mx-auto grid grid-cols-1 gap-8 px-4 py-12 md:grid-cols-4 md:px-6">
-        
         <div>
-          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">Links</h3>
+          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">
+            Links
+          </h3>
           <ul className="space-y-2">
             {links.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="flex items-center gap-2 transition-colors hover:text-primary">
-                  <ChevronRight className="h-4 w-4 text-primary" />
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        <div>
-          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">Other Links</h3>
-          <ul className="space-y-2">
-            {otherLinks.map((link) => (
-              <li key={link.label}>
-                <Link href={link.href} className="flex items-center gap-2 transition-colors hover:text-primary">
+                <Link
+                  href={link.href}
+                  className="flex items-center gap-2 transition-colors hover:text-primary"
+                >
                   <ChevronRight className="h-4 w-4 text-primary" />
                   {link.label}
                 </Link>
@@ -54,14 +66,38 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">Contact</h3>
+          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">
+            Other Links
+          </h3>
+          <ul className="space-y-2">
+            {otherLinks.map((link) => (
+              <li key={link.label}>
+                <Link
+                  href={link.href}
+                  className="flex items-center gap-2 transition-colors hover:text-primary"
+                >
+                  <ChevronRight className="h-4 w-4 text-primary" />
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="mb-4 font-headline text-lg font-semibold text-primary">
+            Contact
+          </h3>
           <ul className="space-y-3">
             {contactDetails.map((detail, index) => {
               const Icon = detail.icon;
               return (
                 <li key={index} className="flex items-center gap-3">
                   <Icon className="h-5 w-5 text-primary" />
-                  <a href={detail.href} className="transition-colors hover:text-primary">
+                  <a
+                    href={detail.href}
+                    className="transition-colors hover:text-primary"
+                  >
                     {detail.content}
                   </a>
                 </li>
@@ -69,7 +105,7 @@ export function Footer() {
             })}
           </ul>
         </div>
-        
+
         <div>
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.291342993335!2d80.8351536759954!3d24.57947797811091!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39845a246f90bd21%3A0x6b8f6789a71a5665!2sVindhya%20Club!5e0!3m2!1sen!2sin!4v1721290823995!5m2!1sen!2sin"
@@ -85,7 +121,8 @@ export function Footer() {
       </div>
       <div className="border-t border-gray-800 py-4">
         <p className="text-center text-sm text-gray-400">
-          Copyright © {new Date().getFullYear()} Vindhya Club. All Rights Reserved
+          Copyright © {new Date().getFullYear()} Vindhya Club. All Rights
+          Reserved
         </p>
       </div>
     </footer>

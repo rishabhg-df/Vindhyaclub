@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, UserCircle } from 'lucide-react';
@@ -16,14 +16,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { navLinks } from '@/lib/data';
+import { navLinks as defaultNavLinks } from '@/lib/data';
 import { useAdmin } from '@/context/AdminContext';
+import { useEvents } from '@/context/EventContext';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { isLoggedIn, logout } = useAdmin();
+  const { events, loading } = useEvents();
+
+  const navLinks = useMemo(() => {
+    if (loading || events.length > 0) {
+      return defaultNavLinks;
+    }
+    return defaultNavLinks.filter((link) => link.href !== '/events');
+  }, [events, loading]);
 
   const authLink = isLoggedIn
     ? { href: '/admin', label: 'Admin' }
