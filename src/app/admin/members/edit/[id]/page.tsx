@@ -358,8 +358,14 @@ export default function EditMemberPage() {
                       <Input
                         placeholder="e.g., john.doe@example.com"
                         {...field}
+                        disabled={!isNew}
                       />
                     </FormControl>
+                    {!isNew && (
+                       <FormDescription>
+                        Email address cannot be changed after creation.
+                       </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
