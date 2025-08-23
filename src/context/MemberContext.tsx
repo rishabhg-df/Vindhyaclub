@@ -25,7 +25,7 @@ import {
 import type { RegisteredMember, Payment } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 type MemberContextType = {
   members: RegisteredMember[];
@@ -43,6 +43,21 @@ type MemberContextType = {
 };
 
 const MemberContext = createContext<MemberContextType | undefined>(undefined);
+
+const formatPaymentFromFirestore = (docSnap: any): Payment => {
+  const data = docSnap.data();
+  // Ensure date is always a string in yyyy-MM-dd format
+  const date =
+    data.date instanceof Timestamp
+      ? format(data.date.toDate(), 'yyyy-MM-dd')
+      : data.date;
+  const paymentDate =
+    data.paymentDate instanceof Timestamp
+      ? format(data.paymentDate.toDate(), 'yyyy-MM-dd')
+      : data.paymentDate;
+
+  return { id: docSnap.id, ...data, date, paymentDate } as Payment;
+};
 
 export function MemberProvider({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<RegisteredMember[]>([]);
@@ -69,7 +84,7 @@ export function MemberProvider({ children }: { children: ReactNode }) {
       const paymentsCollection = collection(db, 'payments');
       const querySnapshot = await getDocs(paymentsCollection);
       const fetchedPayments: Payment[] = querySnapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as Payment)
+        formatPaymentFromFirestore
       );
       setPayments(fetchedPayments);
     } catch (error) {
@@ -80,7 +95,10 @@ export function MemberProvider({ children }: { children: ReactNode }) {
 
   const seedInitialAdmin = useCallback(async () => {
     try {
-      const adminQuery = query(collection(db, 'members'), where('role', '==', 'admin'));
+      const adminQuery = query(
+        collection(db, 'members'),
+        where('role', '==', 'admin')
+      );
       const adminSnapshot = await getDocs(adminQuery);
 
       if (adminSnapshot.empty) {
@@ -97,19 +115,23 @@ export function MemberProvider({ children }: { children: ReactNode }) {
             displayName: 'Admin User',
           }),
         });
-        
+
         const data = await response.json();
 
         if (!response.ok) {
-           if (data.error && data.error.includes('auth/email-already-exists')) {
-            console.warn('Admin user already exists in Auth, but not in Firestore. This might happen on re-runs and is okay.');
+          if (data.error && data.error.includes('auth/email-already-exists')) {
+            console.warn(
+              'Admin user already exists in Auth, but not in Firestore. This might happen on re-runs and is okay.'
+            );
           } else {
-            throw new Error(data.error || 'Failed to create admin user in Firebase Auth.');
+            throw new Error(
+              data.error || 'Failed to create admin user in Firebase Auth.'
+            );
           }
         }
-        
+
         if (data.uid) {
-           const adminData = {
+          const adminData = {
             uid: data.uid,
             name: 'Admin User',
             email: adminEmail,
@@ -130,7 +152,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchMembers]);
 
-
   useEffect(() => {
     if (isInitialized) {
       const initializeData = async () => {
@@ -142,16 +163,19 @@ export function MemberProvider({ children }: { children: ReactNode }) {
       initializeData();
     }
   }, [isInitialized, fetchMembers, fetchPayments, seedInitialAdmin]);
-  
+
   const addRegisteredMember = async (
     member: Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>,
     password: string
   ) => {
     try {
-      const adminQuery = query(collection(db, 'members'), where('role', '==', 'admin'));
+      const adminQuery = query(
+        collection(db, 'members'),
+        where('role', '==', 'admin')
+      );
       const adminSnapshot = await getDocs(adminQuery);
       const isFirstMember = adminSnapshot.empty;
-  
+
       const response = await fetch('/api/create-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -171,7 +195,7 @@ export function MemberProvider({ children }: { children: ReactNode }) {
 
       const uid = data.uid;
       const memberDocRef = doc(db, 'members', uid);
-      
+
       const role = isFirstMember ? 'admin' : member.role;
 
       const memberPayload: Omit<RegisteredMember, 'id'> = {
@@ -188,7 +212,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
 
       await setDoc(memberDocRef, memberPayload);
       await fetchMembers();
-
     } catch (error) {
       console.error('Error adding member:', error);
       throw error;
@@ -202,7 +225,7 @@ export function MemberProvider({ children }: { children: ReactNode }) {
 
       const updatePayload = { ...memberData };
       if (!updatePayload.dob) {
-         delete (updatePayload as Partial<RegisteredMember>).dob;
+        delete (updatePayload as Partial<RegisteredMember>).dob;
       }
 
       await updateDoc(memberDoc, updatePayload);
@@ -224,22 +247,20 @@ export function MemberProvider({ children }: { children: ReactNode }) {
   };
 
   const getPaymentsByMember = (memberId: string) => {
-    return payments.filter(p => p.memberId === memberId);
+    return payments.filter((p) => p.memberId === memberId);
   };
 
-  const addPayment = async (
-    payment: Omit<Payment, 'id' | 'createdAt'>
-  ) => {
+  const addPayment = async (payment: Omit<Payment, 'id' | 'createdAt'>) => {
     try {
-      const paymentDataWithTimestamp = {
+      const paymentDataWithTimestamp: any = {
         ...payment,
-        date: Timestamp.fromDate(new Date(payment.date)),
+        date: Timestamp.fromDate(parseISO(payment.date)),
         createdAt: serverTimestamp(),
       };
-      
+
       if (payment.paymentDate) {
-        (paymentDataWithTimestamp as any).paymentDate = Timestamp.fromDate(
-          new Date(payment.paymentDate)
+        paymentDataWithTimestamp.paymentDate = Timestamp.fromDate(
+          parseISO(payment.paymentDate)
         );
       }
 
@@ -255,13 +276,13 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     try {
       const { id, ...paymentData } = updatedPayment;
       const paymentRef = doc(db, 'payments', id);
-      const dataToUpdate = {
+      const dataToUpdate: any = {
         ...paymentData,
-        date: Timestamp.fromDate(new Date(paymentData.date)),
+        date: Timestamp.fromDate(parseISO(paymentData.date)),
       };
       if (paymentData.paymentDate) {
-        (dataToUpdate as any).paymentDate = Timestamp.fromDate(
-          new Date(paymentData.paymentDate)
+        dataToUpdate.paymentDate = Timestamp.fromDate(
+          parseISO(paymentData.paymentDate)
         );
       }
       await updateDoc(paymentRef, dataToUpdate);

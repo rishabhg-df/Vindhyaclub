@@ -133,8 +133,10 @@ export default function MemberPaymentsPage() {
     setIsSubmitting(true);
     try {
       await addPayment({
-        ...data,
         memberId: member.id,
+        amount: data.amount,
+        description: data.description,
+        status: data.status,
         date: format(data.date, 'yyyy-MM-dd'),
         paymentDate: data.status === 'Paid' ? format(new Date(), 'yyyy-MM-dd') : undefined,
       });
