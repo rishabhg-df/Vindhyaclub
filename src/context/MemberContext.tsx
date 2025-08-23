@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, serverTimestamp, setDoc, updateDoc, deleteDoc, query, where, addDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, serverTimestamp, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import type { RegisteredMember } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
@@ -79,19 +79,16 @@ export function MemberProvider({ children }: { children: ReactNode }) {
       const membersCollection = collection(db, 'members');
       const querySnapshot = await getDocs(membersCollection);
       const fetchedMembers: RegisteredMember[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as RegisteredMember));
-      if (fetchedMembers.length === 0) {
-        // We call seed directly, and it will call fetchMembers again after it's done.
-        // This avoids state update issues.
-        await seedInitialAdmin();
+      
+      const adminExists = fetchedMembers.some(member => member.role === 'admin');
+
+      if (!adminExists) {
+          await seedInitialAdmin();
+          // After seeding, we don't need to set members here as addRegisteredMember will trigger a refetch.
       } else {
-         // Check if an admin exists, if not, seed one.
-        const adminExists = fetchedMembers.some(member => member.role === 'admin');
-        if (!adminExists) {
-            await seedInitialAdmin();
-        } else {
-            setMembers(fetchedMembers);
-        }
+          setMembers(fetchedMembers);
       }
+
     } catch (error) {
       console.error('Error fetching members from Firestore:', error);
       setMembers([]);
