@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, serverTimestamp, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, serverTimestamp, setDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
 import type { RegisteredMember } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
@@ -52,42 +52,51 @@ export function MemberProvider({ children }: { children: ReactNode }) {
       throw error;
     }
   };
-
+  
   const seedInitialAdmin = useCallback(async () => {
+    console.log('No admin user found. Seeding initial admin...');
+    const initialAdminData = {
+      name: 'Vindhya Club Admin',
+      email: 'admin@example.com',
+      phone: '0000000000',
+      address: 'Vindhya Club',
+      dateOfJoining: new Date().toISOString().split('T')[0],
+      role: 'admin' as const,
+      photoUrl: 'https://placehold.co/128x128.png',
+      imageHint: 'admin portrait',
+    };
     try {
-      console.log('No admin user found. Seeding initial admin...');
-      const initialAdminData = {
-        name: 'Vindhya Club Admin',
-        email: 'admin@example.com',
-        phone: '0000000000',
-        address: 'Vindhya Club',
-        dateOfJoining: new Date().toISOString().split('T')[0],
-        role: 'admin' as const,
-        photoUrl: 'https://placehold.co/128x128.png',
-        imageHint: 'admin portrait',
-      };
       await addRegisteredMember(initialAdminData, 'password');
       console.log('Initial admin user created successfully.');
-    } catch (error) {
-      console.error('Error seeding initial admin user:', error);
+    } catch(error) {
+        console.error('Error seeding initial admin user:', error);
+        // It might be that the auth user already exists from a failed previous attempt.
+        // We'll proceed to fetch members again, and if login still fails, there's another issue.
     }
-  }, []); // addRegisteredMember is not a stable dependency so we omit it
+    await fetchMembers(true); // Refetch after seeding
+  }, []); // Removed addRegisteredMember and fetchMembers from dependencies to break cycle.
 
-  const fetchMembers = useCallback(async () => {
-    setLoading(true);
+  const fetchMembers = useCallback(async (forceRefetch = false) => {
+    if (!forceRefetch) {
+      setLoading(true);
+    }
     try {
       const membersCollection = collection(db, 'members');
-      const querySnapshot = await getDocs(membersCollection);
-      const fetchedMembers: RegisteredMember[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as RegisteredMember));
       
-      const adminExists = fetchedMembers.some(member => member.role === 'admin');
-
-      if (!adminExists) {
-          await seedInitialAdmin();
-          // After seeding, we don't need to set members here as addRegisteredMember will trigger a refetch.
-      } else {
-          setMembers(fetchedMembers);
+      // Check if an admin exists
+      const adminQuery = query(membersCollection, where('role', '==', 'admin'));
+      const adminSnapshot = await getDocs(adminQuery);
+      
+      if (adminSnapshot.empty) {
+        // No admin user found, so we must create one.
+        await seedInitialAdmin();
+        return; // seedInitialAdmin will trigger a refetch, so we exit here.
       }
+      
+      // Admin exists, proceed to fetch all members
+      const allMembersSnapshot = await getDocs(membersCollection);
+      const fetchedMembers: RegisteredMember[] = allMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as RegisteredMember));
+      setMembers(fetchedMembers);
 
     } catch (error) {
       console.error('Error fetching members from Firestore:', error);
@@ -117,6 +126,8 @@ export function MemberProvider({ children }: { children: ReactNode }) {
 
   const deleteRegisteredMember = async (id: string) => {
     try {
+      // Note: This does not delete the Firebase Auth user.
+      // For a production app, you would want to implement a cloud function to handle this.
       await deleteDoc(doc(db, 'members', id));
       await fetchMembers();
     } catch (error)      {
