@@ -21,6 +21,7 @@ export type Facility = {
   description: string;
   image: string;
   imageHint: string;
+  fee: number;
 };
 
 export type TeamMember = {
@@ -40,6 +41,13 @@ export type HistoryItem = {
   imageHint: string;
 };
 
+export type Payment = {
+  id: string;
+  amount: number;
+  date: string;
+  description: string;
+};
+
 export type RegisteredMember = {
   id: string; // Firestore document ID
   uid: string; // Firebase Auth User ID
@@ -53,7 +61,8 @@ export type RegisteredMember = {
   imageHint?: string;
   role: 'admin' | 'member';
   createdAt: any;
-  payments?: { amount: number; date: any }[]; // Add payments to member
+  services?: string[];
+  payments?: Payment[];
 };
 
 export type Expenditure = {
@@ -64,4 +73,3 @@ export type Expenditure = {
   date: string;
   createdAt: any;
 };
-

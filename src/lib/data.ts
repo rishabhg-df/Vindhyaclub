@@ -15,42 +15,49 @@ export const facilities: Facility[] = [
     description: 'Enjoy a friendly match or competitive game in our modern, well-lit badminton court.',
     image: 'https://cdn.pixabay.com/photo/2021/02/19/16/36/badminton-6030861_640.jpg',
     imageHint: 'badminton sport',
+    fee: 300,
   },
   {
     name: 'Swimming Pool',
     description: 'Relax and rejuvenate in our crystal-clear swimming pool, perfect for all ages.',
     image: 'https://cdn.pixabay.com/photo/2016/03/27/21/55/girls-1284419_640.jpg',
     imageHint: 'swimming pool',
+    fee: 400,
   },
   {
     name: 'Squash Court',
     description: 'Challenge your agility and speed in our professional-grade, air-conditioned squash courts.',
     image: 'https://media.istockphoto.com/id/1232520348/photo/its-all-in-how-you-serve.jpg?s=1024x1024&w=is&k=20&c=NyCn7dU6K3JEw5zl5mniogBoBxcWbpNbkeDrHF2WCwQ=',
     imageHint: 'squash court',
+    fee: 350,
   },
   {
     name: 'Half Basketball Court',
     description: 'Practice your shots and enjoy a casual game on our outdoor half basketball court.',
     image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&auto=format=fit=crop',
     imageHint: 'basketball court',
+    fee: 250,
   },
    {
     name: 'Lawn Tennis',
     description: 'Serve an ace on our beautifully maintained lawn tennis courts, available day and night.',
     image: 'https://cdn.pixabay.com/photo/2017/04/25/11/06/wilson-2259352_640.jpg',
     imageHint: 'tennis court',
+    fee: 450,
   },
   {
     name: 'Pool & Snooker',
     description: 'Unwind and test your skills on our classic pool and snooker tables in a relaxed setting.',
     image: 'https://cdn.pixabay.com/photo/2019/09/30/19/28/snooker-4516624_640.jpg',
     imageHint: 'pool table',
+    fee: 200,
   },
   {
     name: 'Gym',
     description: 'Achieve your fitness goals with our state-of-the-art gym, equipped with the latest machines.',
     image: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?q=80&w=1920&auto=format=fit=crop',
     imageHint: 'modern gym',
+    fee: 500,
   },
 ];
 
@@ -118,3 +125,5 @@ export const history: HistoryItem[] = [
     imageHint: 'modern resort',
   },
 ];
+
+export const BASE_MAINTENANCE_FEE = 450;
