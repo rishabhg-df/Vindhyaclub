@@ -51,19 +51,72 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         (doc) => ({ id: doc.id, ...doc.data() } as RegisteredMember)
       );
       setMembers(fetchedMembers);
+      return fetchedMembers; // Return for seeding check
     } catch (error) {
       console.error('Error fetching members from Firestore:', error);
       setMembers([]);
+      return []; // Return empty on error
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const seedInitialAdmin = useCallback(async () => {
+    try {
+      const q = query(collection(db, 'members'), where('role', '==', 'admin'));
+      const adminSnapshot = await getDocs(q);
+      
+      if (adminSnapshot.empty) {
+        console.log("No admin found. Seeding initial admin...");
+        const adminEmail = 'admin@example.com';
+        const adminPassword = 'admin12';
+        
+        const response = await fetch('/api/create-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: adminEmail, password: adminPassword, displayName: 'Admin' }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          // If user already exists in auth, we might just need to create the firestore doc
+          if (data.error.includes('auth/email-already-exists')) {
+            console.warn('Admin user already exists in Auth, but not in Firestore. This should be handled manually.');
+          } else {
+             throw new Error(data.error || 'Failed to create admin user in Firebase Auth.');
+          }
+        } else {
+          const uid = data.uid;
+          const adminData = {
+            uid: uid,
+            name: 'Admin User',
+            email: adminEmail,
+            role: 'admin' as const,
+            phone: '0000000000',
+            address: 'Clubhouse',
+            dateOfJoining: new Date().toISOString().split('T')[0],
+            createdAt: serverTimestamp(),
+          };
+          await setDoc(doc(db, 'members', uid), adminData);
+          console.log('Default admin created successfully.');
+        }
+      }
+    } catch (error) {
+      console.error('Error seeding initial admin:', error);
+    }
+  }, []);
+  
+
   useEffect(() => {
     if (isInitialized) {
-      fetchMembers();
+      const initializeData = async () => {
+        await seedInitialAdmin();
+        await fetchMembers();
+      };
+      initializeData();
     }
-  }, [isInitialized, fetchMembers]);
+  }, [isInitialized, fetchMembers, seedInitialAdmin]);
+
 
   const addRegisteredMember = async (
     member: Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>,
@@ -161,5 +214,3 @@ export function useMembers() {
   }
   return context;
 }
-
-    
