@@ -258,11 +258,16 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         createdAt: serverTimestamp(),
       };
 
+      // Only add paymentDate if it exists (i.e., for 'Paid' status)
       if (payment.paymentDate) {
         paymentDataWithTimestamp.paymentDate = Timestamp.fromDate(
           parseISO(payment.paymentDate)
         );
+      } else {
+        // Ensure undefined fields are not sent to Firestore
+        delete paymentDataWithTimestamp.paymentDate;
       }
+
 
       await addDoc(collection(db, 'payments'), paymentDataWithTimestamp);
       await fetchPayments();
