@@ -41,6 +41,8 @@ import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { compressImage } from '@/lib/imageCompressor';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -159,25 +161,37 @@ export default function EditMemberPage() {
         photoUrl = await uploadImage(imageFile);
       }
       
+      let finalRole = data.role;
+      if (isNew) {
+        const adminQuery = query(collection(db, 'members'), where('role', '==', 'admin'));
+        const adminSnapshot = await getDocs(adminQuery);
+        if (adminSnapshot.empty) {
+          finalRole = 'admin';
+          toast({
+            title: 'First Admin Created',
+            description: 'The first user has been assigned the admin role.',
+          });
+        }
+      }
+
+
       const memberData: Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'> = {
         name: data.name,
         email: data.email,
         phone: data.phone,
         address: data.address,
         dateOfJoining: format(data.dateOfJoining, 'yyyy-MM-dd'),
-        role: data.role,
+        role: finalRole,
         photoUrl: photoUrl || 'https://placehold.co/128x128.png',
         imageHint: data.imageHint || 'member portrait',
       };
       
       if (data.dob) {
         (memberData as Partial<RegisteredMember>).dob = format(data.dob, 'yyyy-MM-dd');
-      } else {
-        delete (memberData as Partial<RegisteredMember>).dob;
       }
 
       if (isNew) {
-        await addRegisteredMember(memberData as Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>, data.password!);
+        await addRegisteredMember(memberData, data.password!);
       } else if (member) {
         await updateRegisteredMember({ ...member, ...memberData, role: data.role });
       }
@@ -453,3 +467,5 @@ export default function EditMemberPage() {
     </Section>
   );
 }
+
+    

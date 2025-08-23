@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -45,15 +46,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const membersCollection = collection(db, 'members');
-      const q = query(collection(db, 'members'), where('role', '==', 'admin'));
-      const adminSnapshot = await getDocs(q);
-
-      if (adminSnapshot.empty) {
-        // This is a failsafe. The primary way to create the user is now the Add Member form.
-        // This will only run if the database is truly empty and no admin exists.
-        console.log('No admin found. You can log in with an admin account and it will be created, or add one from an existing admin account.');
-      }
-      
       const querySnapshot = await getDocs(membersCollection);
       const fetchedMembers: RegisteredMember[] = querySnapshot.docs.map(
         (doc) => ({ id: doc.id, ...doc.data() } as RegisteredMember)
@@ -97,11 +89,18 @@ export function MemberProvider({ children }: { children: ReactNode }) {
 
       const uid = data.uid;
       const memberDocRef = doc(db, 'members', uid);
-      await setDoc(memberDocRef, {
+      
+      const memberPayload: Omit<RegisteredMember, 'id'> = {
         ...member,
         uid: uid,
         createdAt: serverTimestamp(),
-      });
+      };
+
+      if (!member.dob) {
+        delete (memberPayload as Partial<RegisteredMember>).dob;
+      }
+
+      await setDoc(memberDocRef, memberPayload);
 
       await fetchMembers();
     } catch (error) {
@@ -114,7 +113,13 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     try {
       const { id, ...memberData } = updatedMember;
       const memberDoc = doc(db, 'members', id);
-      await updateDoc(memberDoc, memberData);
+
+      const updatePayload = { ...memberData };
+      if (!updatePayload.dob) {
+        delete (updatePayload as Partial<RegisteredMember>).dob;
+      }
+
+      await updateDoc(memberDoc, updatePayload);
       await fetchMembers();
     } catch (error) {
       console.error('Error updating member in Firestore:', error);
@@ -124,6 +129,8 @@ export function MemberProvider({ children }: { children: ReactNode }) {
 
   const deleteRegisteredMember = async (id: string) => {
     try {
+      // Note: This does not delete the user from Firebase Auth.
+      // Additional logic would be needed for that.
       await deleteDoc(doc(db, 'members', id));
       await fetchMembers();
     } catch (error) {
@@ -154,3 +161,5 @@ export function useMembers() {
   }
   return context;
 }
+
+    
