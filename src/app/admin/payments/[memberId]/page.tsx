@@ -84,16 +84,19 @@ export default function MemberPaymentsPage() {
     },
   });
 
+  const calculateTotalFee = (member: RegisteredMember) => {
+    const subscribedServices = member.services || [];
+    const servicesFee =
+      subscribedServices?.reduce((total, serviceName) => {
+        const service = facilities.find((f) => f.name === serviceName);
+        return total + (service?.fee || 0);
+      }, 0) ?? 0;
+    return BASE_MAINTENANCE_FEE + servicesFee;
+  };
+
   useEffect(() => {
     if (member) {
-      const subscribedServices = member.services || [];
-      const totalFee =
-        BASE_MAINTENANCE_FEE +
-        (subscribedServices?.reduce((total, serviceName) => {
-          const service = facilities.find((f) => f.name === serviceName);
-          return total + (service?.fee || 0);
-        }, 0) ?? 0);
-      form.setValue('amount', totalFee);
+      form.setValue('amount', calculateTotalFee(member));
     }
   }, [member, form]);
 
@@ -140,12 +143,21 @@ export default function MemberPaymentsPage() {
         date: format(data.date, 'yyyy-MM-dd'),
         paymentDate: data.status === 'Paid' ? format(new Date(), 'yyyy-MM-dd') : undefined,
       });
+
       toast({
         title: 'Payment Added',
         description: `Payment of ${data.amount} has been logged for ${member.name}.`,
       });
-      form.reset();
+
+      // Reset form to its initial state
+      form.reset({
+        amount: calculateTotalFee(member),
+        date: new Date(),
+        description: 'Monthly Maintenance Fee',
+        status: 'Paid',
+      });
       setSelectedDescription('Monthly Maintenance Fee');
+
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -204,7 +216,7 @@ export default function MemberPaymentsPage() {
                   
                   <FormItem>
                     <FormLabel>Description</FormLabel>
-                     <Select onValueChange={setSelectedDescription} defaultValue={selectedDescription}>
+                     <Select onValueChange={setSelectedDescription} value={selectedDescription}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a description" />
