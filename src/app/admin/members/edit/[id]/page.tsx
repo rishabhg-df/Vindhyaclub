@@ -44,13 +44,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, CheckCircle, ShieldAlert } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { compressImage } from '@/lib/imageCompressor';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { facilities, BASE_MAINTENANCE_FEE } from '@/lib/data';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -64,10 +65,18 @@ const memberSchema = z.object({
   imageHint: z.string().optional(),
   photo: z.any().optional(),
   services: z.array(z.string()).optional(),
+  phoneVerified: z.boolean().optional(),
 });
 
 
 type MemberFormValues = z.infer<typeof memberSchema>;
+
+declare global {
+    interface Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+        confirmationResult?: ConfirmationResult;
+    }
+}
 
 async function uploadImage(file: File) {
   const formData = new FormData();
@@ -97,6 +106,9 @@ export default function EditMemberPage() {
   const [isDojCalendarOpen, setIsDojCalendarOpen] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -110,6 +122,7 @@ export default function EditMemberPage() {
           dob: member.dob ? parseISO(member.dob) : undefined,
           dateOfJoining: parseISO(member.dateOfJoining),
           services: member.services || [],
+          phoneVerified: member.phoneVerified || false,
         }
       : {
           name: '',
@@ -122,6 +135,7 @@ export default function EditMemberPage() {
           role: 'member',
           imageHint: 'member portrait',
           services: [],
+          phoneVerified: false,
         },
   });
 
@@ -166,6 +180,64 @@ export default function EditMemberPage() {
       }
     }
   };
+  
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': () => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
+      });
+    }
+  };
+
+  const handleSendOtp = async () => {
+    const phoneNumber = form.getValues('phone');
+    if (!phoneNumber) {
+        toast({ variant: 'destructive', title: 'Phone number is required.' });
+        return;
+    }
+    
+    setupRecaptcha();
+    const appVerifier = window.recaptchaVerifier!;
+
+    try {
+        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+        window.confirmationResult = confirmationResult;
+        setOtpSent(true);
+        toast({ title: 'OTP Sent', description: 'An OTP has been sent to the member\'s phone.' });
+    } catch (error: any) {
+        console.error('Error sending OTP:', error);
+        toast({ variant: 'destructive', title: 'Failed to send OTP', description: error.message });
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.render().then(widgetId => {
+              // @ts-ignore
+              grecaptcha.reset(widgetId)
+            });
+        }
+    }
+  };
+
+  const handleConfirmOtp = async () => {
+    if (!otp) {
+        toast({ variant: 'destructive', title: 'Please enter the OTP.' });
+        return;
+    }
+    setIsVerifying(true);
+    try {
+        await window.confirmationResult?.confirm(otp);
+        form.setValue('phoneVerified', true);
+        toast({ title: 'Success', description: 'Phone number verified successfully.' });
+        setOtpSent(false);
+    } catch (error: any) {
+        console.error('Error verifying OTP:', error);
+        toast({ variant: 'destructive', title: 'Invalid OTP', description: 'The OTP you entered is incorrect.' });
+        form.setValue('phoneVerified', false);
+    } finally {
+        setIsVerifying(false);
+    }
+  };
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
@@ -203,6 +275,7 @@ export default function EditMemberPage() {
         name: data.name,
         email: data.email,
         phone: data.phone,
+        phoneVerified: data.phoneVerified,
         address: data.address,
         dateOfJoining: format(data.dateOfJoining, 'yyyy-MM-dd'),
         role: finalRole,
@@ -263,6 +336,7 @@ export default function EditMemberPage() {
           <CardTitle>Member Details</CardTitle>
         </CardHeader>
         <CardContent>
+          <div id="recaptcha-container"></div>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -321,19 +395,56 @@ export default function EditMemberPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., +1234567890" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <FormControl>
+                          <Input placeholder="e.g., +919876543210" {...field} />
+                        </FormControl>
+                        {!form.getValues('phoneVerified') && (
+                            <Button type="button" onClick={handleSendOtp} disabled={otpSent}>
+                                {otpSent ? 'OTP Sent' : 'Send OTP'}
+                            </Button>
+                        )}
+                      </div>
+                       <div className='mt-2'>
+                        {form.watch('phoneVerified') ? (
+                          <div className="flex items-center text-green-600">
+                            <CheckCircle className="mr-2 h-5 w-5" />
+                            <span>Verified</span>
+                          </div>
+                        ) : (
+                           <div className="flex items-center text-yellow-600">
+                            <ShieldAlert className="mr-2 h-5 w-5" />
+                            <span>Not Verified</span>
+                           </div>
+                        )}
+                       </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+              {otpSent && !form.getValues('phoneVerified') && (
+                <div className="space-y-2">
+                  <FormLabel>Enter OTP</FormLabel>
+                  <div className="flex items-center gap-2">
+                      <Input 
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="6-digit code"
+                       />
+                      <Button type="button" onClick={handleConfirmOtp} disabled={isVerifying}>
+                        {isVerifying ? <Loader2 className="animate-spin"/> : 'Confirm OTP'}
+                      </Button>
+                  </div>
+                </div>
+              )}
+              
               <FormField
                 control={form.control}
                 name="address"

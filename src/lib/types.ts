@@ -58,6 +58,7 @@ export type RegisteredMember = {
   name: string;
   email: string;
   phone: string;
+  phoneVerified?: boolean;
   address: string;
   dob?: string;
   dateOfJoining: string;
