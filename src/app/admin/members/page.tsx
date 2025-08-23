@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,7 @@ export default function ManageMembersPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Photo</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
@@ -74,6 +76,7 @@ export default function ManageMembersPage() {
             {loading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-48" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-24" /></TableCell>
@@ -89,6 +92,15 @@ export default function ManageMembersPage() {
             ) : (
               members.map((member) => (
                 <TableRow key={member.id}>
+                   <TableCell>
+                    <Image
+                      src={member.photoUrl || 'https://placehold.co/40x40.png'}
+                      alt={member.name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{member.name}</TableCell>
                   <TableCell>{member.email}</TableCell>
                   <TableCell>{member.phone}</TableCell>

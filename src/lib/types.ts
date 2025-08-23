@@ -46,7 +46,9 @@ export type RegisteredMember = {
   email: string;
   phone: string;
   address: string;
-  dob: string;
+  dob?: string;
   dateOfJoining: string;
+  photoUrl?: string;
+  imageHint?: string;
   createdAt: any;
 };

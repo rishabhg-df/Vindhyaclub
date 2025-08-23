@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ChangeEvent } from 'react';
+import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,17 +33,37 @@ import {
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { compressImage } from '@/lib/imageCompressor';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   email: z.string().email('Invalid email address.'),
   phone: z.string().min(1, 'Phone number is required.'),
   address: z.string().min(1, 'Address is required.'),
-  dob: z.date({ required_error: 'Date of birth is required.' }),
+  dob: z.date().optional(),
   dateOfJoining: z.date({ required_error: 'Date of joining is required.' }),
+  imageHint: z.string().optional(),
+  photo: z.any().optional(),
 });
 
 type MemberFormValues = z.infer<typeof memberSchema>;
+
+async function uploadImage(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Something went wrong');
+  }
+
+  return data.url;
+}
 
 export default function EditMemberPage() {
   const router = useRouter();
@@ -51,6 +73,8 @@ export default function EditMemberPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDobCalendarOpen, setIsDobCalendarOpen] = useState(false);
   const [isDojCalendarOpen, setIsDojCalendarOpen] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -59,7 +83,7 @@ export default function EditMemberPage() {
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
     defaultValues: member
-      ? { ...member, dob: new Date(member.dob), dateOfJoining: new Date(member.dateOfJoining) }
+      ? { ...member, dob: member.dob ? new Date(member.dob) : undefined, dateOfJoining: new Date(member.dateOfJoining) }
       : {
           name: '',
           email: '',
@@ -67,8 +91,15 @@ export default function EditMemberPage() {
           address: '',
           dob: undefined,
           dateOfJoining: undefined,
+          imageHint: 'member portrait',
         },
   });
+
+  useEffect(() => {
+    if (member?.photoUrl) {
+      setImagePreview(member.photoUrl);
+    }
+  }, [member]);
   
   useEffect(() => {
     if (!isNew && !member && members.length > 0) {
@@ -80,14 +111,47 @@ export default function EditMemberPage() {
       router.push('/admin/members');
     }
   }, [isNew, member, router, toast, members]);
+  
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>, fieldChange: (value: FileList | null) => void) => {
+    const file = e.target.files?.[0];
+    fieldChange(e.target.files);
+    if (file) {
+      try {
+        const compressedFile = await compressImage(file);
+        setImageFile(compressedFile);
+        setImagePreview(URL.createObjectURL(compressedFile));
+      } catch (error) {
+        console.error('Image processing error:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Image Error',
+          description:
+            'There was a problem processing your image. Please try another one.',
+        });
+        setImageFile(null);
+        setImagePreview(member?.photoUrl ?? null);
+      }
+    }
+  };
 
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
+      let photoUrl = member?.photoUrl;
+
+      if (imageFile) {
+        photoUrl = await uploadImage(imageFile);
+      }
+      
       const memberData: Omit<RegisteredMember, 'id' | 'createdAt'> = {
-        ...data,
-        dob: format(data.dob, 'yyyy-MM-dd'),
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        dob: data.dob ? format(data.dob, 'yyyy-MM-dd') : undefined,
         dateOfJoining: format(data.dateOfJoining, 'yyyy-MM-dd'),
+        photoUrl: photoUrl || 'https://placehold.co/128x128.png',
+        imageHint: data.imageHint || 'member portrait',
       };
 
       if (isNew) {
@@ -185,7 +249,7 @@ export default function EditMemberPage() {
                   name="dob"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Date of Birth</FormLabel>
+                      <FormLabel>Date of Birth (Optional)</FormLabel>
                       <Popover open={isDobCalendarOpen} onOpenChange={setIsDobCalendarOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -265,6 +329,40 @@ export default function EditMemberPage() {
                   )}
                 />
               </div>
+              
+              <FormField
+                control={form.control}
+                name="photo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Photo (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, field.onChange)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Upload a photo for the member (max 50KB).
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {imagePreview && (
+                <div className="mt-4">
+                  <Image
+                    src={imagePreview}
+                    alt="Member preview"
+                    width={128}
+                    height={128}
+                    className="h-32 w-32 rounded-full object-cover"
+                  />
+                </div>
+              )}
+
 
               <div className="flex justify-end gap-4 pt-4">
                 <Button
