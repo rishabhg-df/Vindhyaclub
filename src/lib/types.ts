@@ -41,7 +41,8 @@ export type HistoryItem = {
 };
 
 export type RegisteredMember = {
-  id: string;
+  id: string; // Firestore document ID
+  uid: string; // Firebase Auth User ID
   name: string;
   email: string;
   phone: string;
@@ -50,5 +51,6 @@ export type RegisteredMember = {
   dateOfJoining: string;
   photoUrl?: string;
   imageHint?: string;
+  role: 'admin' | 'member';
   createdAt: any;
 };

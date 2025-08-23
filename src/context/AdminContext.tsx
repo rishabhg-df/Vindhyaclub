@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -6,16 +7,21 @@ import {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
 } from 'react';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { usePathname, useRouter } from 'next/navigation';
+import type { RegisteredMember } from '@/lib/types';
 
 type AdminContextType = {
   user: User | null;
+  profile: RegisteredMember | null;
+  role: 'admin' | 'member' | null;
   isLoggedIn: boolean;
-  isInitialized: boolean; // <-- Expose initialization status
-  login: () => void;
+  isInitialized: boolean;
+  login: (user: User) => void;
   logout: () => void;
 };
 
@@ -23,37 +29,65 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<RegisteredMember | null>(null);
+  const [role, setRole] = useState<'admin' | 'member' | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
+  const fetchProfile = useCallback(async (user: User) => {
+    if (user) {
+      try {
+        const memberDoc = await getDoc(doc(db, 'members', user.uid));
+        if (memberDoc.exists()) {
+          const memberData = { id: memberDoc.id, ...memberDoc.data() } as RegisteredMember;
+          setProfile(memberData);
+          setRole(memberData.role);
+        } else {
+          // Handle cases where user exists in Auth but not in Firestore members collection
+          setProfile(null);
+          setRole(null);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        setProfile(null);
+        setRole(null);
+      }
+    } else {
+      setProfile(null);
+      setRole(null);
+    }
+    if (!isInitialized) {
+      setIsInitialized(true);
+    }
+  }, [isInitialized]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (!isInitialized) {
-        setIsInitialized(true);
-      }
+      fetchProfile(currentUser!);
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [isInitialized]);
-
-  const login = () => {
-    // This function is now a placeholder as onAuthStateChanged handles the state.
-    // It's kept for semantic consistency in the signin page.
+  }, [fetchProfile]);
+  
+  const login = (loggedInUser: User) => {
+    setUser(loggedInUser);
+    fetchProfile(loggedInUser);
   };
 
   const logout = async () => {
     await signOut(auth);
-    // Redirect to home page after logout
-    if (pathname.startsWith('/admin')) {
+    setUser(null);
+    setProfile(null);
+    setRole(null);
+    
+    if (pathname.startsWith('/admin') || pathname.startsWith('/member')) {
       router.push('/');
     }
   };
 
   return (
-    <AdminContext.Provider value={{ user, isLoggedIn: !!user, isInitialized, login, logout }}>
+    <AdminContext.Provider value={{ user, profile, role, isLoggedIn: !!user, isInitialized, login, logout }}>
       {children}
     </AdminContext.Provider>
   );

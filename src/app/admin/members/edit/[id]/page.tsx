@@ -30,6 +30,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -38,10 +45,12 @@ import { compressImage } from '@/lib/imageCompressor';
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   email: z.string().email('Invalid email address.'),
+  password: z.string().optional(),
   phone: z.string().min(1, 'Phone number is required.'),
   address: z.string().min(1, 'Address is required.'),
   dob: z.date().optional(),
   dateOfJoining: z.date({ required_error: 'Date of joining is required.' }),
+  role: z.enum(['admin', 'member'], { required_error: 'Role is required.' }),
   imageHint: z.string().optional(),
   photo: z.any().optional(),
 });
@@ -87,10 +96,12 @@ export default function EditMemberPage() {
       : {
           name: '',
           email: '',
+          password: '',
           phone: '',
           address: '',
           dob: undefined,
           dateOfJoining: undefined,
+          role: 'member',
           imageHint: 'member portrait',
         },
   });
@@ -137,28 +148,34 @@ export default function EditMemberPage() {
   const onSubmit = async (data: MemberFormValues) => {
     setIsSubmitting(true);
     try {
+      if (isNew && !data.password) {
+        form.setError('password', { message: 'Password is required for new members.' });
+        setIsSubmitting(false);
+        return;
+      }
+      
       let photoUrl = member?.photoUrl;
-
       if (imageFile) {
         photoUrl = await uploadImage(imageFile);
       }
       
-      const memberData: Omit<RegisteredMember, 'id' | 'createdAt'> = {
+      const memberData: Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'> = {
         name: data.name,
         email: data.email,
         phone: data.phone,
         address: data.address,
         dateOfJoining: format(data.dateOfJoining, 'yyyy-MM-dd'),
+        role: data.role,
         photoUrl: photoUrl || 'https://placehold.co/128x128.png',
         imageHint: data.imageHint || 'member portrait',
       };
-
+      
       if (data.dob) {
         (memberData as Partial<RegisteredMember>).dob = format(data.dob, 'yyyy-MM-dd');
       }
 
       if (isNew) {
-        await addRegisteredMember(memberData);
+        await addRegisteredMember(memberData as Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>, data.password!);
       } else if (member) {
         await updateRegisteredMember({ ...member, ...memberData });
       }
@@ -215,6 +232,22 @@ export default function EditMemberPage() {
                     <FormControl>
                       <Input placeholder="e.g., john.doe@example.com" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder={isNew ? 'Required for new member' : 'Leave blank to keep unchanged'} {...field} />
+                    </FormControl>
+                     <FormDescription>
+                       A password is required for new members to log in.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -332,6 +365,28 @@ export default function EditMemberPage() {
                   )}
                 />
               </div>
+
+               <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin / Manager</SelectItem>
+                          <SelectItem value="member">Member</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               
               <FormField
                 control={form.control}

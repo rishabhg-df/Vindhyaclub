@@ -25,7 +25,7 @@ export function ClientHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { isLoggedIn, logout } = useAdmin();
+  const { isLoggedIn, logout, role } = useAdmin();
   const { events, loading } = useEvents();
   const [isClient, setIsClient] = useState(false);
 
@@ -41,7 +41,7 @@ export function ClientHeader() {
   }, [events, loading, isClient]);
 
   const authLink = isLoggedIn
-    ? { href: '/admin', label: 'Admin' }
+    ? { href: role === 'admin' ? '/admin' : '/member', label: 'Dashboard' }
     : { href: '/signin', label: 'Sign In' };
 
   const allLinks = [...navLinks, authLink];
@@ -107,10 +107,10 @@ export function ClientHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/admin">Dashboard</Link>
+                <Link href={role === 'admin' ? '/admin' : '/member'}>Dashboard</Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>

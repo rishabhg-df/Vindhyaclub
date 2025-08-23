@@ -2,14 +2,14 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, serverTimestamp, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import type { RegisteredMember } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
 
 type MemberContextType = {
   members: RegisteredMember[];
-  addRegisteredMember: (member: Omit<RegisteredMember, 'id' | 'createdAt'>) => Promise<void>;
+  addRegisteredMember: (member: Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>, password: string) => Promise<void>;
   updateRegisteredMember: (updatedMember: RegisteredMember) => Promise<void>;
   deleteRegisteredMember: (id: string) => Promise<void>;
   loading: boolean;
@@ -43,15 +43,33 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     }
   }, [isInitialized, fetchMembers]);
 
-  const addRegisteredMember = async (member: Omit<RegisteredMember, 'id' | 'createdAt'>) => {
+  const addRegisteredMember = async (member: Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>, password: string) => {
     try {
-      await addDoc(collection(db, 'members'), {
+      // 1. Create Firebase Auth user
+      const response = await fetch('/api/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: member.email, password, displayName: member.name }),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create user in Firebase Auth.');
+      }
+      
+      const uid = data.uid;
+
+      // 2. Create Firestore document with UID as the ID
+      const memberDocRef = doc(db, 'members', uid);
+      await setDoc(memberDocRef, {
         ...member,
+        uid: uid,
         createdAt: serverTimestamp(),
       });
+      
       await fetchMembers();
     } catch (error) {
-      console.error('Error adding member to Firestore:', error);
+      console.error('Error adding member:', error);
       throw error;
     }
   };

@@ -11,9 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,13 +28,13 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/context/AdminContext';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
 const signInSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(1, { message: 'Password is required.' }),
-  rememberMe: z.boolean().optional(),
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
@@ -52,23 +50,42 @@ export default function SignInPage() {
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
     },
   });
 
   const onSubmit = async (data: SignInFormValues) => {
     setIsSubmitting(true);
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      login();
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      // Fetch user role from Firestore
+      const userDocRef = doc(db, 'members', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        throw new Error("User data not found in Firestore.");
+      }
+      
+      const userData = userDoc.data();
+      const role = userData.role;
+
+      login(user);
+      
       toast({
-        title: 'Admin Login Successful',
-        description: 'Welcome back, Admin!',
+        title: 'Login Successful',
+        description: `Welcome back, ${userData.name || 'User'}!`,
       });
-      router.push('/admin');
+
+      if (role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/member');
+      }
+
     } catch (error: any) {
-      console.error("Firebase Auth Error:", error);
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      console.error("Authentication Error:", error);
+       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         toast({
           variant: 'destructive',
           title: 'Invalid Credentials',
@@ -78,7 +95,7 @@ export default function SignInPage() {
         toast({
           variant: 'destructive',
           title: 'Authentication Failed',
-          description: 'An unexpected error occurred. Please try again.',
+          description: error.message || 'An unexpected error occurred. Please try again.',
         });
       }
     } finally {
@@ -131,29 +148,6 @@ export default function SignInPage() {
                 )}
               />
               <div className="flex items-center justify-between">
-                <FormField
-                  control={form.control}
-                  name="rememberMe"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={true}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <Label
-                          htmlFor="remember-me"
-                          className="cursor-pointer text-muted-foreground"
-                        >
-                          Remember me
-                        </Label>
-                      </div>
-                    </FormItem>
-                  )}
-                />
                 <a href="#" className="text-sm text-primary hover:underline">
                   Forgot password?
                 </a>
