@@ -43,14 +43,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
@@ -59,8 +51,6 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { facilities, BASE_MAINTENANCE_FEE } from '@/lib/data';
 import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Badge } from '@/components/ui/badge';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -76,15 +66,8 @@ const memberSchema = z.object({
   services: z.array(z.string()).optional(),
 });
 
-const paymentSchema = z.object({
-  amount: z.coerce.number().min(1, 'Amount must be greater than 0.'),
-  date: z.date({ required_error: 'Payment date is required.' }),
-  description: z.string().min(1, 'Description is required.'),
-  status: z.enum(['Paid', 'Due'], { required_error: 'Status is required.' }),
-});
 
 type MemberFormValues = z.infer<typeof memberSchema>;
-type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 async function uploadImage(file: File) {
   const formData = new FormData();
@@ -107,15 +90,13 @@ export default function EditMemberPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-  const { members, addRegisteredMember, updateRegisteredMember, addPayment } =
+  const { members, addRegisteredMember, updateRegisteredMember } =
     useMembers();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDobCalendarOpen, setIsDobCalendarOpen] = useState(false);
   const [isDojCalendarOpen, setIsDojCalendarOpen] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isPaymentSubmitting, setIsPaymentSubmitting] = useState(false);
-  const [selectedDescription, setSelectedDescription] = useState('Monthly Maintenance Fee');
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -144,39 +125,12 @@ export default function EditMemberPage() {
         },
   });
 
-  const paymentForm = useForm<PaymentFormValues>({
-    resolver: zodResolver(paymentSchema),
-    defaultValues: {
-      amount: 0,
-      date: new Date(),
-      description: 'Monthly Maintenance Fee',
-      status: 'Paid',
-    },
-  });
-
   useEffect(() => {
     if (member?.photoUrl) {
       setImagePreview(member.photoUrl);
     }
-    const subscribedServices = form.watch('services') || [];
-    const totalFee =
-      BASE_MAINTENANCE_FEE +
-      (subscribedServices?.reduce((total, serviceName) => {
-        const service = facilities.find((f) => f.name === serviceName);
-        return total + (service?.fee || 0);
-      }, 0) ?? 0);
-    paymentForm.setValue('amount', totalFee);
-    paymentForm.setValue('description', 'Monthly Maintenance Fee');
-  }, [member, form, paymentForm]);
+  }, [member]);
   
-    useEffect(() => {
-    if (selectedDescription !== 'Other') {
-      paymentForm.setValue('description', selectedDescription);
-    } else {
-      paymentForm.setValue('description', '');
-    }
-  }, [selectedDescription, paymentForm]);
-
   useEffect(() => {
     if (!isNew && !member && members.length > 0) {
       toast({
@@ -295,34 +249,6 @@ export default function EditMemberPage() {
     }
   };
 
-  const onAddPayment = async (data: PaymentFormValues) => {
-    if (!member) return;
-    setIsPaymentSubmitting(true);
-    try {
-      await addPayment(member.id, {
-        ...data,
-        date: format(data.date, 'yyyy-MM-dd'),
-      });
-      toast({
-        title: 'Payment Added',
-        description: `Payment of ${data.amount} has been logged for ${member.name}.`,
-      });
-      paymentForm.reset();
-      setSelectedDescription('Monthly Maintenance Fee');
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Failed to Add Payment',
-        description:
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred.',
-      });
-    } finally {
-      setIsPaymentSubmitting(false);
-    }
-  };
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -330,554 +256,340 @@ export default function EditMemberPage() {
     }).format(amount);
   };
 
-  const descriptionOptions = [
-    'Monthly Maintenance Fee',
-    ...facilities.map(f => f.name),
-    'Other',
-  ];
-
   return (
     <Section title={isNew ? 'Add New Member' : 'Edit Member'}>
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Member Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., John Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., john.doe@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder={
-                            isNew
-                              ? 'Required for new member'
-                              : 'Leave blank to keep unchanged'
-                          }
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        A password is required for new members to log in.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., +1234567890" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Enter full address" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="dob"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Date of Birth (Optional)</FormLabel>
-                        <Popover
-                          open={isDobCalendarOpen}
-                          onOpenChange={setIsDobCalendarOpen}
-                        >
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={'outline'}
-                                className={cn(
-                                  'w-full pl-3 text-left font-normal',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={(date) => {
-                                field.onChange(date);
-                                setIsDobCalendarOpen(false);
-                              }}
-                              captionLayout="dropdown-buttons"
-                              fromYear={1930}
-                              toYear={new Date().getFullYear()}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="dateOfJoining"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Date of Joining</FormLabel>
-                        <Popover
-                          open={isDojCalendarOpen}
-                          onOpenChange={setIsDojCalendarOpen}
-                        >
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={'outline'}
-                                className={cn(
-                                  'w-full pl-3 text-left font-normal',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={(date) => {
-                                field.onChange(date);
-                                setIsDojCalendarOpen(false);
-                              }}
-                              captionLayout="dropdown-buttons"
-                              fromYear={1930}
-                              toYear={new Date().getFullYear()}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="admin">Admin / Manager</SelectItem>
-                          <SelectItem value="member">Member</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="photo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Photo (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageChange(e, field.onChange)}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Upload a photo for the member (max 50KB).
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {imagePreview && (
-                  <div className="mt-4">
-                    <Image
-                      src={imagePreview}
-                      alt="Member preview"
-                      width={128}
-                      height={128}
-                      className="h-32 w-32 rounded-full object-cover"
-                    />
-                  </div>
+      <Card className="mx-auto max-w-4xl">
+        <CardHeader>
+          <CardTitle>Member Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Subscribed Services</CardTitle>
-                    <CardDescription>
-                      Select the facilities this member has subscribed to.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <FormField
-                      control={form.control}
-                      name="services"
-                      render={() => (
-                        <FormItem>
-                          <div className="grid grid-cols-2 gap-4">
-                            {facilities.map((item) => (
-                              <FormField
-                                key={item.name}
-                                control={form.control}
-                                name="services"
-                                render={({ field }) => {
-                                  return (
-                                    <FormItem
-                                      key={item.name}
-                                      className="flex flex-row items-start space-x-3 space-y-0"
-                                    >
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={field.value?.includes(
-                                            item.name
-                                          )}
-                                          onCheckedChange={(checked) => {
-                                            return checked
-                                              ? field.onChange([
-                                                  ...(field.value ?? []),
-                                                  item.name,
-                                                ])
-                                              : field.onChange(
-                                                  field.value?.filter(
-                                                    (value) =>
-                                                      value !== item.name
-                                                  )
-                                                );
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        {item.name} ({formatCurrency(item.fee)})
-                                      </FormLabel>
-                                    </FormItem>
-                                  );
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-
-
-                <div className="flex justify-end gap-4 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.back()}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : isNew ? (
-                      'Add Member'
-                    ) : (
-                      'Update Member'
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-
-        {!isNew && member && (
-          <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Add Payment</CardTitle>
-                <CardDescription>
-                  Log a new payment for this member.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...paymentForm}>
-                  <form
-                    onSubmit={paymentForm.handleSubmit(onAddPayment)}
-                    className="space-y-4"
-                  >
-                    <FormField
-                      control={paymentForm.control}
-                      name="amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Amount</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                       <Select onValueChange={setSelectedDescription} defaultValue={selectedDescription}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a description" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {descriptionOptions.map(option => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                    
-                    {selectedDescription === 'Other' && (
-                       <FormField
-                        control={paymentForm.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Custom Description</FormLabel>
-                            <FormControl>
-                              <Textarea placeholder="Enter custom payment details" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., john.doe@example.com"
+                        {...field}
                       />
-                    )}
-
-                    <FormField
-                      control={paymentForm.control}
-                      name="date"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Payment Date</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant={'outline'}
-                                  className={cn(
-                                    'w-full pl-3 text-left font-normal',
-                                    !field.value && 'text-muted-foreground'
-                                  )}
-                                >
-                                  {field.value ? (
-                                    format(field.value, 'PPP')
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start"
-                            >
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={paymentForm.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel>Payment Status</FormLabel>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder={
+                          isNew
+                            ? 'Required for new member'
+                            : 'Leave blank to keep unchanged'
+                        }
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      A password is required for new members to log in.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., +1234567890" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Enter full address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="dob"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Date of Birth (Optional)</FormLabel>
+                      <Popover
+                        open={isDobCalendarOpen}
+                        onOpenChange={setIsDobCalendarOpen}
+                      >
+                        <PopoverTrigger asChild>
                           <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex items-center space-x-4"
+                            <Button
+                              variant={'outline'}
+                              className={cn(
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                              )}
                             >
-                              <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value="Paid" />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  Paid
-                                </FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value="Due" />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  Due
-                                </FormLabel>
-                              </FormItem>
-                            </RadioGroup>
+                              {field.value ? (
+                                format(field.value, 'PPP')
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsDobCalendarOpen(false);
+                            }}
+                            captionLayout="dropdown-buttons"
+                            fromYear={1930}
+                            toYear={new Date().getFullYear()}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dateOfJoining"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Date of Joining</FormLabel>
+                      <Popover
+                        open={isDojCalendarOpen}
+                        onOpenChange={setIsDojCalendarOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={'outline'}
+                              className={cn(
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, 'PPP')
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsDojCalendarOpen(false);
+                            }}
+                            captionLayout="dropdown-buttons"
+                            fromYear={1930}
+                            toYear={new Date().getFullYear()}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={isPaymentSubmitting}
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
                     >
-                      {isPaymentSubmitting ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        'Add Payment'
-                      )}
-                    </Button>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin / Manager</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {member.payments && member.payments.length > 0 ? (
-                      member.payments
-                        .sort(
-                          (a, b) =>
-                            new Date(b.date).getTime() -
-                            new Date(a.date).getTime()
-                        )
-                        .map((payment) => (
-                          <TableRow key={payment.id}>
-                            <TableCell>
-                              {format(parseISO(payment.date), 'PPP')}
-                            </TableCell>
-                            <TableCell>{payment.description}</TableCell>
-                            <TableCell>
-                              <Badge variant={payment.status === 'Paid' ? 'default' : 'destructive'}>
-                                {payment.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {formatCurrency(payment.amount)}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center">
-                          No payments found.
-                        </TableCell>
-                      </TableRow>
+              <FormField
+                control={form.control}
+                name="photo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Photo (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, field.onChange)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Upload a photo for the member (max 50KB).
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {imagePreview && (
+                <div className="mt-4">
+                  <Image
+                    src={imagePreview}
+                    alt="Member preview"
+                    width={128}
+                    height={128}
+                    className="h-32 w-32 rounded-full object-cover"
+                  />
+                </div>
+              )}
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Subscribed Services</CardTitle>
+                  <CardDescription>
+                    Select the facilities this member has subscribed to.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="services"
+                    render={() => (
+                      <FormItem>
+                        <div className="grid grid-cols-2 gap-4">
+                          {facilities.map((item) => (
+                            <FormField
+                              key={item.name}
+                              control={form.control}
+                              name="services"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={item.name}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(
+                                          item.name
+                                        )}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([
+                                                ...(field.value ?? []),
+                                                item.name,
+                                              ])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) =>
+                                                    value !== item.name
+                                                )
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {item.name} ({formatCurrency(item.fee)})
+                                    </FormLabel>
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
+                  />
+                </CardContent>
+              </Card>
+
+
+              <div className="flex justify-end gap-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.back()}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : isNew ? (
+                    'Add Member'
+                  ) : (
+                    'Update Member'
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </Section>
   );
 }

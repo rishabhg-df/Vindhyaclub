@@ -28,7 +28,7 @@ import {
 import { Section } from '@/components/shared/Section';
 import type { RegisteredMember } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Receipt } from 'lucide-react';
 import { useMembers } from '@/context/MemberContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
@@ -85,6 +85,7 @@ export default function ManageMembersPage() {
                     <div className="flex gap-2">
                       <Skeleton className="h-10 w-10" />
                       <Skeleton className="h-10 w-10" />
+                      <Skeleton className="h-10 w-10" />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -117,6 +118,15 @@ export default function ManageMembersPage() {
                         }
                       >
                         <Edit />
+                      </Button>
+                       <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          router.push(`/admin/payments/${member.id}`)
+                        }
+                      >
+                        <Receipt />
                       </Button>
                       <AlertDialog
                         open={!!memberToDelete && memberToDelete.id === member.id}

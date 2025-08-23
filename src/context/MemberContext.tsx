@@ -19,13 +19,11 @@ import {
   deleteDoc,
   query,
   where,
-  arrayUnion,
-  getDoc,
+  addDoc,
 } from 'firebase/firestore';
 import type { RegisteredMember, Payment } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
-import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 
 type MemberContextType = {
@@ -36,10 +34,10 @@ type MemberContextType = {
   ) => Promise<void>;
   updateRegisteredMember: (updatedMember: RegisteredMember) => Promise<void>;
   deleteRegisteredMember: (id: string) => Promise<void>;
-  addPayment: (
-    memberId: string,
-    payment: Omit<Payment, 'id'>
-  ) => Promise<void>;
+  payments: Payment[];
+  getPaymentsByMember: (memberId: string) => Payment[];
+  addPayment: (payment: Omit<Payment, 'id' | 'createdAt'>) => Promise<void>;
+  updatePayment: (updatedPayment: Payment) => Promise<void>;
   loading: boolean;
 };
 
@@ -47,11 +45,11 @@ const MemberContext = createContext<MemberContextType | undefined>(undefined);
 
 export function MemberProvider({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<RegisteredMember[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const { isInitialized } = useAdmin();
 
   const fetchMembers = useCallback(async () => {
-    setLoading(true);
     try {
       const membersCollection = collection(db, 'members');
       const querySnapshot = await getDocs(membersCollection);
@@ -62,8 +60,20 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Error fetching members from Firestore:', error);
       setMembers([]);
-    } finally {
-      setLoading(false);
+    }
+  }, []);
+
+  const fetchPayments = useCallback(async () => {
+    try {
+      const paymentsCollection = collection(db, 'payments');
+      const querySnapshot = await getDocs(paymentsCollection);
+      const fetchedPayments: Payment[] = querySnapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as Payment)
+      );
+      setPayments(fetchedPayments);
+    } catch (error) {
+      console.error('Error fetching payments from Firestore:', error);
+      setPayments([]);
     }
   }, []);
 
@@ -92,8 +102,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         if (!response.ok) {
            if (data.error && data.error.includes('auth/email-already-exists')) {
             console.warn('Admin user already exists in Auth, but not in Firestore. This might happen on re-runs and is okay.');
-            // Try to find the user in auth to get UID and create firestore doc
-            // This part is complex to handle from client-side. Assuming for now this is a one-time seed.
           } else {
             throw new Error(data.error || 'Failed to create admin user in Firebase Auth.');
           }
@@ -110,7 +118,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
             dateOfJoining: format(new Date(), 'yyyy-MM-dd'),
             createdAt: serverTimestamp(),
             services: [],
-            payments: [],
           };
           await setDoc(doc(db, 'members', data.uid), adminData);
           console.log('Default admin created successfully.');
@@ -128,22 +135,21 @@ export function MemberProvider({ children }: { children: ReactNode }) {
       const initializeData = async () => {
         setLoading(true);
         await seedInitialAdmin();
-        await fetchMembers();
+        await Promise.all([fetchMembers(), fetchPayments()]);
         setLoading(false);
       };
       initializeData();
     }
-  }, [isInitialized, fetchMembers, seedInitialAdmin]);
+  }, [isInitialized, fetchMembers, fetchPayments, seedInitialAdmin]);
   
   const addRegisteredMember = async (
     member: Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>,
     password: string
   ) => {
     try {
-      // Check if this is the first member being added
-      const membersQuery = query(collection(db, 'members'));
-      const memberSnapshot = await getDocs(membersQuery);
-      const isFirstMember = memberSnapshot.empty;
+      const adminQuery = query(collection(db, 'members'), where('role', '==', 'admin'));
+      const adminSnapshot = await getDocs(adminQuery);
+      const isFirstMember = adminSnapshot.empty;
   
       const response = await fetch('/api/create-user', {
         method: 'POST',
@@ -173,7 +179,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         role: role,
         createdAt: serverTimestamp(),
         services: member.services || [],
-        payments: member.payments || [],
       };
 
       if (!member.dob) {
@@ -194,7 +199,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
       const { id, ...memberData } = updatedMember;
       const memberDoc = doc(db, 'members', id);
 
-      // Create a mutable copy to potentially delete the dob field
       const updatePayload = { ...memberData };
       if (!updatePayload.dob) {
          delete (updatePayload as Partial<RegisteredMember>).dob;
@@ -209,8 +213,6 @@ export function MemberProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteRegisteredMember = async (id: string) => {
-    // Note: This does not delete the Firebase Auth user.
-    // That requires a backend function for security reasons.
     try {
       await deleteDoc(doc(db, 'members', id));
       await fetchMembers();
@@ -220,20 +222,34 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getPaymentsByMember = (memberId: string) => {
+    return payments.filter(p => p.memberId === memberId);
+  };
+
   const addPayment = async (
-    memberId: string,
-    payment: Omit<Payment, 'id'>
+    payment: Omit<Payment, 'id' | 'createdAt'>
   ) => {
     try {
-      const memberRef = doc(db, 'members', memberId);
-      const newPayment = { ...payment, id: uuidv4() };
-      await updateDoc(memberRef, {
-        payments: arrayUnion(newPayment),
+      await addDoc(collection(db, 'payments'), {
+        ...payment,
+        createdAt: serverTimestamp(),
       });
-      await fetchMembers();
+      await fetchPayments();
     } catch (error) {
       console.error('Error adding payment:', error);
       throw new Error('Failed to add payment.');
+    }
+  };
+
+  const updatePayment = async (updatedPayment: Payment) => {
+    try {
+      const { id, ...paymentData } = updatedPayment;
+      const paymentRef = doc(db, 'payments', id);
+      await updateDoc(paymentRef, paymentData);
+      await fetchPayments();
+    } catch (error) {
+      console.error('Error updating payment:', error);
+      throw error;
     }
   };
 
@@ -244,7 +260,10 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         addRegisteredMember,
         updateRegisteredMember,
         deleteRegisteredMember,
+        payments,
+        getPaymentsByMember,
         addPayment,
+        updatePayment,
         loading,
       }}
     >

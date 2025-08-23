@@ -44,7 +44,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           setProfile(memberData);
           setRole(memberData.role);
         } else {
-          // Handle cases where user exists in Auth but not in Firestore members collection
           setProfile(null);
           setRole(null);
         }
@@ -65,7 +64,13 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      fetchProfile(currentUser!);
+      if (currentUser) {
+        fetchProfile(currentUser);
+      } else {
+        setIsInitialized(true); // If no user, we are still initialized
+        setProfile(null);
+        setRole(null);
+      }
     });
     return () => unsubscribe();
   }, [fetchProfile]);

@@ -15,7 +15,7 @@ import { useExpenditures } from '@/context/ExpenditureContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ReportsPage() {
-  const { members, loading: membersLoading } = useMembers();
+  const { members, payments, loading: membersLoading } = useMembers();
   const { expenditures, loading: expendituresLoading } = useExpenditures();
 
   const loading = membersLoading || expendituresLoading;
@@ -27,9 +27,8 @@ export default function ReportsPage() {
     expenditureByCategory,
     revenueByMember,
   } = useMemo(() => {
-    const totalRevenue = members.reduce((acc, member) => {
-      const memberTotal = member.payments?.reduce((sum, p) => p.status === 'Paid' ? sum + p.amount : sum, 0) || 0;
-      return acc + memberTotal;
+    const totalRevenue = payments.reduce((acc, payment) => {
+      return payment.status === 'Paid' ? acc + payment.amount : acc;
     }, 0);
 
     const totalExpenditure = expenditures.reduce((acc, exp) => acc + exp.amount, 0);
@@ -41,11 +40,16 @@ export default function ReportsPage() {
       return acc;
     }, {} as Record<string, number>);
 
-    const revenueByMember = members
-      .map(member => ({
-        name: member.name,
-        revenue: member.payments?.reduce((sum, p) => p.status === 'Paid' ? sum + p.amount : sum, 0) || 0,
-      }))
+    const revenueByMemberData = members.map(member => {
+        const memberPayments = payments.filter(p => p.memberId === member.id && p.status === 'Paid');
+        const totalMemberRevenue = memberPayments.reduce((sum, p) => sum + p.amount, 0);
+        return {
+            name: member.name,
+            revenue: totalMemberRevenue,
+        };
+    });
+
+    const revenueByMember = revenueByMemberData
       .filter(m => m.revenue > 0)
       .sort((a, b) => b.revenue - a.revenue);
 
@@ -56,7 +60,7 @@ export default function ReportsPage() {
       expenditureByCategory: Object.entries(expenditureByCategory).map(([name, amount]) => ({ name, amount })),
       revenueByMember,
     };
-  }, [members, expenditures]);
+  }, [members, payments, expenditures]);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('en-IN', {

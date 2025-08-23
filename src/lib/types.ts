@@ -42,11 +42,14 @@ export type HistoryItem = {
 };
 
 export type Payment = {
-  id: string;
+  id: string; // Firestore document ID
+  memberId: string;
   amount: number;
-  date: string;
+  date: string; // The date the payment was logged or became due
+  paymentDate?: string; // The date it was actually paid, if different
   description: string;
   status: 'Paid' | 'Due';
+  createdAt: any;
 };
 
 export type RegisteredMember = {
@@ -63,7 +66,6 @@ export type RegisteredMember = {
   role: 'admin' | 'member';
   createdAt: any;
   services?: string[];
-  payments?: Payment[];
 };
 
 export type Expenditure = {
