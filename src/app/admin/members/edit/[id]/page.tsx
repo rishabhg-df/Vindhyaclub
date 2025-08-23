@@ -172,12 +172,14 @@ export default function EditMemberPage() {
       
       if (data.dob) {
         (memberData as Partial<RegisteredMember>).dob = format(data.dob, 'yyyy-MM-dd');
+      } else {
+        delete (memberData as Partial<RegisteredMember>).dob;
       }
 
       if (isNew) {
         await addRegisteredMember(memberData as Omit<RegisteredMember, 'id' | 'createdAt' | 'uid'>, data.password!);
       } else if (member) {
-        await updateRegisteredMember({ ...member, ...memberData });
+        await updateRegisteredMember({ ...member, ...memberData, role: data.role });
       }
 
       toast({

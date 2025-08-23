@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, serverTimestamp, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, serverTimestamp, setDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
 import type { RegisteredMember } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
@@ -22,20 +22,48 @@ export function MemberProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { isInitialized } = useAdmin();
   
+  const seedInitialAdmin = useCallback(async () => {
+    try {
+      const membersQuery = query(collection(db, 'members'), where('role', '==', 'admin'));
+      const querySnapshot = await getDocs(membersQuery);
+      if (querySnapshot.empty) {
+        console.log('No admin user found. Seeding initial admin...');
+        const initialAdminData = {
+          name: 'Vindhya Club Admin',
+          email: 'admin@example.com',
+          phone: '0000000000',
+          address: 'Vindhya Club',
+          dateOfJoining: new Date().toISOString().split('T')[0],
+          role: 'admin' as const,
+          photoUrl: 'https://placehold.co/128x128.png',
+          imageHint: 'admin portrait',
+        };
+        await addRegisteredMember(initialAdminData, 'password');
+        console.log('Initial admin user created successfully.');
+      }
+    } catch (error) {
+      console.error('Error seeding initial admin user:', error);
+    }
+  }, []);
+
   const fetchMembers = useCallback(async () => {
     setLoading(true);
     try {
       const membersCollection = collection(db, 'members');
       const querySnapshot = await getDocs(membersCollection);
       const fetchedMembers: RegisteredMember[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as RegisteredMember));
-      setMembers(fetchedMembers);
+      if (fetchedMembers.length === 0) {
+        await seedInitialAdmin();
+      } else {
+        setMembers(fetchedMembers);
+      }
     } catch (error) {
       console.error('Error fetching members from Firestore:', error);
       setMembers([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [seedInitialAdmin]);
 
   useEffect(() => {
     if (isInitialized) {
