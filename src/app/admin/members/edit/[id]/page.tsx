@@ -4,7 +4,7 @@
 import { useEffect, useState, ChangeEvent } from 'react';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -52,13 +52,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { compressImage } from '@/lib/imageCompressor';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { facilities, BASE_MAINTENANCE_FEE } from '@/lib/data';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
 
 const memberSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -78,6 +80,7 @@ const paymentSchema = z.object({
   amount: z.coerce.number().min(1, 'Amount must be greater than 0.'),
   date: z.date({ required_error: 'Payment date is required.' }),
   description: z.string().min(1, 'Description is required.'),
+  status: z.enum(['Paid', 'Due'], { required_error: 'Status is required.' }),
 });
 
 type MemberFormValues = z.infer<typeof memberSchema>;
@@ -112,6 +115,7 @@ export default function EditMemberPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isPaymentSubmitting, setIsPaymentSubmitting] = useState(false);
+  const [selectedDescription, setSelectedDescription] = useState('Monthly Maintenance Fee');
 
   const memberId = params.id as string;
   const isNew = memberId === 'new';
@@ -122,8 +126,8 @@ export default function EditMemberPage() {
     defaultValues: member
       ? {
           ...member,
-          dob: member.dob ? new Date(member.dob) : undefined,
-          dateOfJoining: new Date(member.dateOfJoining),
+          dob: member.dob ? parseISO(member.dob) : undefined,
+          dateOfJoining: parseISO(member.dateOfJoining),
           services: member.services || [],
         }
       : {
@@ -146,6 +150,7 @@ export default function EditMemberPage() {
       amount: 0,
       date: new Date(),
       description: 'Monthly Maintenance Fee',
+      status: 'Paid',
     },
   });
 
@@ -161,7 +166,16 @@ export default function EditMemberPage() {
         return total + (service?.fee || 0);
       }, 0) ?? 0);
     paymentForm.setValue('amount', totalFee);
+    paymentForm.setValue('description', 'Monthly Maintenance Fee');
   }, [member, form, paymentForm]);
+  
+    useEffect(() => {
+    if (selectedDescription !== 'Other') {
+      paymentForm.setValue('description', selectedDescription);
+    } else {
+      paymentForm.setValue('description', '');
+    }
+  }, [selectedDescription, paymentForm]);
 
   useEffect(() => {
     if (!isNew && !member && members.length > 0) {
@@ -294,6 +308,7 @@ export default function EditMemberPage() {
         description: `Payment of ${data.amount} has been logged for ${member.name}.`,
       });
       paymentForm.reset();
+      setSelectedDescription('Monthly Maintenance Fee');
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -314,6 +329,12 @@ export default function EditMemberPage() {
       currency: 'INR',
     }).format(amount);
   };
+
+  const descriptionOptions = [
+    'Monthly Maintenance Fee',
+    ...facilities.map(f => f.name),
+    'Other',
+  ];
 
   return (
     <Section title={isNew ? 'Add New Member' : 'Edit Member'}>
@@ -679,19 +700,39 @@ export default function EditMemberPage() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={paymentForm.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                       <Select onValueChange={setSelectedDescription} defaultValue={selectedDescription}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a description" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {descriptionOptions.map(option => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                    
+                    {selectedDescription === 'Other' && (
+                       <FormField
+                        control={paymentForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Custom Description</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Enter custom payment details" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
                     <FormField
                       control={paymentForm.control}
                       name="date"
@@ -733,6 +774,42 @@ export default function EditMemberPage() {
                         </FormItem>
                       )}
                     />
+
+                    <FormField
+                      control={paymentForm.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>Payment Status</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex items-center space-x-4"
+                            >
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="Paid" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  Paid
+                                </FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="Due" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  Due
+                                </FormLabel>
+                              </FormItem>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <Button
                       type="submit"
                       className="w-full"
@@ -759,6 +836,7 @@ export default function EditMemberPage() {
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead>Description</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead className="text-right">Amount</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -776,6 +854,11 @@ export default function EditMemberPage() {
                               {format(parseISO(payment.date), 'PPP')}
                             </TableCell>
                             <TableCell>{payment.description}</TableCell>
+                            <TableCell>
+                              <Badge variant={payment.status === 'Paid' ? 'default' : 'destructive'}>
+                                {payment.status}
+                              </Badge>
+                            </TableCell>
                             <TableCell className="text-right">
                               {formatCurrency(payment.amount)}
                             </TableCell>
@@ -783,7 +866,7 @@ export default function EditMemberPage() {
                         ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center">
+                        <TableCell colSpan={4} className="text-center">
                           No payments found.
                         </TableCell>
                       </TableRow>

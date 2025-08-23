@@ -46,6 +46,7 @@ export type Payment = {
   amount: number;
   date: string;
   description: string;
+  status: 'Paid' | 'Due';
 };
 
 export type RegisteredMember = {

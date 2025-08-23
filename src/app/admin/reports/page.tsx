@@ -28,7 +28,7 @@ export default function ReportsPage() {
     revenueByMember,
   } = useMemo(() => {
     const totalRevenue = members.reduce((acc, member) => {
-      const memberTotal = member.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+      const memberTotal = member.payments?.reduce((sum, p) => p.status === 'Paid' ? sum + p.amount : sum, 0) || 0;
       return acc + memberTotal;
     }, 0);
 
@@ -44,7 +44,7 @@ export default function ReportsPage() {
     const revenueByMember = members
       .map(member => ({
         name: member.name,
-        revenue: member.payments?.reduce((sum, p) => sum + p.amount, 0) || 0,
+        revenue: member.payments?.reduce((sum, p) => p.status === 'Paid' ? sum + p.amount : sum, 0) || 0,
       }))
       .filter(m => m.revenue > 0)
       .sort((a, b) => b.revenue - a.revenue);
@@ -94,7 +94,7 @@ export default function ReportsPage() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Total Revenue</CardTitle>
+            <CardTitle>Total Revenue (Paid)</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{formatCurrency(totalRevenue)}</p>
@@ -138,7 +138,7 @@ export default function ReportsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Revenue by Member</CardTitle>
+            <CardTitle>Revenue by Member (Paid)</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
@@ -157,4 +157,3 @@ export default function ReportsPage() {
     </Section>
   );
 }
-
