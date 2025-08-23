@@ -53,4 +53,15 @@ export type RegisteredMember = {
   imageHint?: string;
   role: 'admin' | 'member';
   createdAt: any;
+  payments?: { amount: number; date: any }[]; // Add payments to member
 };
+
+export type Expenditure = {
+  id: string;
+  category: 'Maintenance' | 'Salaries' | 'Utilities' | 'Events' | 'Other';
+  amount: number;
+  description: string;
+  date: string;
+  createdAt: any;
+};
+
