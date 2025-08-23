@@ -20,6 +20,7 @@ import {
   query,
   where,
   addDoc,
+  Timestamp,
 } from 'firebase/firestore';
 import type { RegisteredMember, Payment } from '@/lib/types';
 import { db } from '@/lib/firebase';
@@ -230,10 +231,19 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     payment: Omit<Payment, 'id' | 'createdAt'>
   ) => {
     try {
-      await addDoc(collection(db, 'payments'), {
+      const paymentDataWithTimestamp = {
         ...payment,
+        date: Timestamp.fromDate(new Date(payment.date)),
         createdAt: serverTimestamp(),
-      });
+      };
+      
+      if (payment.paymentDate) {
+        (paymentDataWithTimestamp as any).paymentDate = Timestamp.fromDate(
+          new Date(payment.paymentDate)
+        );
+      }
+
+      await addDoc(collection(db, 'payments'), paymentDataWithTimestamp);
       await fetchPayments();
     } catch (error) {
       console.error('Error adding payment:', error);
@@ -245,7 +255,16 @@ export function MemberProvider({ children }: { children: ReactNode }) {
     try {
       const { id, ...paymentData } = updatedPayment;
       const paymentRef = doc(db, 'payments', id);
-      await updateDoc(paymentRef, paymentData);
+      const dataToUpdate = {
+        ...paymentData,
+        date: Timestamp.fromDate(new Date(paymentData.date)),
+      };
+      if (paymentData.paymentDate) {
+        (dataToUpdate as any).paymentDate = Timestamp.fromDate(
+          new Date(paymentData.paymentDate)
+        );
+      }
+      await updateDoc(paymentRef, dataToUpdate);
       await fetchPayments();
     } catch (error) {
       console.error('Error updating payment:', error);
