@@ -82,6 +82,7 @@ export default function MemberPaymentsPage() {
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | undefined>(new Date());
   const [descriptionFilter, setDescriptionFilter] = useState('all');
   const [monthFilter, setMonthFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   
   const memberId = params.memberId as string;
   const member = members.find((m) => m.id === memberId);
@@ -90,18 +91,19 @@ export default function MemberPaymentsPage() {
   const filteredPayments = useMemo(() => {
     return memberPayments.filter(payment => {
       const descriptionMatch = descriptionFilter === 'all' || payment.description === descriptionFilter;
+      const statusMatch = statusFilter === 'all' || payment.status === statusFilter;
       
       if (monthFilter === 'all') {
-        return descriptionMatch;
+        return descriptionMatch && statusMatch;
       }
       
       const paymentDate = parseISO(payment.date);
       const [filterMonth, filterYear] = monthFilter.split('-').map(Number);
       const monthMatch = getMonth(paymentDate) + 1 === filterMonth && getYear(paymentDate) === filterYear;
 
-      return descriptionMatch && monthMatch;
+      return descriptionMatch && statusMatch && monthMatch;
     });
-  }, [memberPayments, descriptionFilter, monthFilter]);
+  }, [memberPayments, descriptionFilter, monthFilter, statusFilter]);
 
   const monthOptions = useMemo(() => {
     const months = new Set<string>();
@@ -399,7 +401,17 @@ export default function MemberPaymentsPage() {
                           ))}
                       </SelectContent>
                   </Select>
-                  <Button variant="outline" onClick={() => { setDescriptionFilter('all'); setMonthFilter('all'); }}>
+                   <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="Paid">Paid</SelectItem>
+                          <SelectItem value="Due">Due</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <Button variant="outline" onClick={() => { setDescriptionFilter('all'); setMonthFilter('all'); setStatusFilter('all'); }}>
                       Clear Filters
                   </Button>
               </div>

@@ -39,6 +39,7 @@ export default function MemberDashboardPage() {
   const { getPaymentsByMember, loading } = useMembers();
   const [descriptionFilter, setDescriptionFilter] = useState('all');
   const [monthFilter, setMonthFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const payments = useMemo(() => {
     if (!profile) return [];
@@ -52,9 +53,11 @@ export default function MemberDashboardPage() {
       const descriptionMatch =
         descriptionFilter === 'all' ||
         payment.description === descriptionFilter;
+      const statusMatch =
+        statusFilter === 'all' || payment.status === statusFilter;
 
       if (monthFilter === 'all') {
-        return descriptionMatch;
+        return descriptionMatch && statusMatch;
       }
 
       const paymentDate = parseISO(payment.date);
@@ -63,9 +66,9 @@ export default function MemberDashboardPage() {
         getMonth(paymentDate) + 1 === filterMonth &&
         getYear(paymentDate) === filterYear;
 
-      return descriptionMatch && monthMatch;
+      return descriptionMatch && statusMatch && monthMatch;
     });
-  }, [payments, descriptionFilter, monthFilter]);
+  }, [payments, descriptionFilter, monthFilter, statusFilter]);
 
   const monthOptions = useMemo(() => {
     const months = new Set<string>();
@@ -205,11 +208,22 @@ export default function MemberDashboardPage() {
                   ))}
                 </SelectContent>
               </Select>
+               <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Paid">Paid</SelectItem>
+                  <SelectItem value="Due">Due</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 variant="outline"
                 onClick={() => {
                   setDescriptionFilter('all');
                   setMonthFilter('all');
+                  setStatusFilter('all');
                 }}
               >
                 Clear Filters
