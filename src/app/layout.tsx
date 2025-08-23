@@ -31,7 +31,7 @@ export default function RootLayout({
       </head>
       <body
         className="font-body bg-background text-foreground antialiased"
-        suppressHydrationWarning={true}
+        suppressHydrationWarning
       >
         <Providers>
           <div className="flex min-h-screen flex-col">
