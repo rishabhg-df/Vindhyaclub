@@ -148,11 +148,14 @@ export default function EditMemberPage() {
         email: data.email,
         phone: data.phone,
         address: data.address,
-        dob: data.dob ? format(data.dob, 'yyyy-MM-dd') : undefined,
         dateOfJoining: format(data.dateOfJoining, 'yyyy-MM-dd'),
         photoUrl: photoUrl || 'https://placehold.co/128x128.png',
         imageHint: data.imageHint || 'member portrait',
       };
+
+      if (data.dob) {
+        (memberData as Partial<RegisteredMember>).dob = format(data.dob, 'yyyy-MM-dd');
+      }
 
       if (isNew) {
         await addRegisteredMember(memberData);
