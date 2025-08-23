@@ -39,3 +39,14 @@ export type HistoryItem = {
   image: string;
   imageHint: string;
 };
+
+export type RegisteredMember = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  dob: string;
+  dateOfJoining: string;
+  createdAt: any;
+};

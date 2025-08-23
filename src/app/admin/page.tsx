@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
               View and manage all registered members of the club.
             </p>
             <Button asChild>
-              <Link href="#">View Members</Link>
+              <Link href="/admin/members">View Members</Link>
             </Button>
           </CardContent>
         </Card>
