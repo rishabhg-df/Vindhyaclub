@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,7 +59,7 @@ import { useMembers } from '@/context/MemberContext';
 import { facilities, BASE_MAINTENANCE_FEE } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2, ClipboardCheck } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, getMonth, getYear } from 'date-fns';
 
 const paymentSchema = z.object({
   amount: z.coerce.number().min(1, 'Amount must be greater than 0.'),
@@ -80,10 +80,41 @@ export default function MemberPaymentsPage() {
   const [selectedDescription, setSelectedDescription] = useState('Monthly Maintenance Fee');
   const [paymentToUpdate, setPaymentToUpdate] = useState<Payment | null>(null);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | undefined>(new Date());
+  const [descriptionFilter, setDescriptionFilter] = useState('all');
+  const [monthFilter, setMonthFilter] = useState('all');
   
   const memberId = params.memberId as string;
   const member = members.find((m) => m.id === memberId);
   const memberPayments = getPaymentsByMember(memberId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const filteredPayments = useMemo(() => {
+    return memberPayments.filter(payment => {
+      const descriptionMatch = descriptionFilter === 'all' || payment.description === descriptionFilter;
+      
+      if (monthFilter === 'all') {
+        return descriptionMatch;
+      }
+      
+      const paymentDate = parseISO(payment.date);
+      const [filterMonth, filterYear] = monthFilter.split('-').map(Number);
+      const monthMatch = getMonth(paymentDate) + 1 === filterMonth && getYear(paymentDate) === filterYear;
+
+      return descriptionMatch && monthMatch;
+    });
+  }, [memberPayments, descriptionFilter, monthFilter]);
+
+  const monthOptions = useMemo(() => {
+    const months = new Set<string>();
+    memberPayments.forEach(p => {
+        const date = parseISO(p.date);
+        months.add(`${getMonth(date) + 1}-${getYear(date)}`);
+    });
+    return Array.from(months).map(m => {
+        const [month, year] = m.split('-');
+        const date = new Date(parseInt(year), parseInt(month) - 1);
+        return { value: m, label: format(date, 'MMMM yyyy') };
+    });
+  }, [memberPayments]);
 
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
@@ -345,6 +376,33 @@ export default function MemberPaymentsPage() {
               <CardTitle>Payment History</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 flex flex-col gap-4 sm:flex-row">
+                  <Select value={descriptionFilter} onValueChange={setDescriptionFilter}>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Filter by description" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Descriptions</SelectItem>
+                          {descriptionOptions.map(option => (
+                              <SelectItem key={option} value={option}>{option}</SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+                  <Select value={monthFilter} onValueChange={setMonthFilter}>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Filter by month" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Months</SelectItem>
+                          {monthOptions.map(option => (
+                              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+                  <Button variant="outline" onClick={() => { setDescriptionFilter('all'); setMonthFilter('all'); }}>
+                      Clear Filters
+                  </Button>
+              </div>
                <Table>
                 <TableHeader>
                   <TableRow>
@@ -356,8 +414,8 @@ export default function MemberPaymentsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {memberPayments.length > 0 ? (
-                    memberPayments.map((payment) => (
+                  {filteredPayments.length > 0 ? (
+                    filteredPayments.map((payment) => (
                         <TableRow key={payment.id}>
                           <TableCell>{format(parseISO(payment.date), 'PPP')}</TableCell>
                           <TableCell>{payment.description}</TableCell>
@@ -409,7 +467,7 @@ export default function MemberPaymentsPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center">
-                        No payments found.
+                        No payments found for the selected filters.
                       </TableCell>
                     </TableRow>
                   )}
