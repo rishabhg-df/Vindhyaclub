@@ -39,6 +39,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
@@ -49,7 +58,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMembers } from '@/context/MemberContext';
 import { facilities, BASE_MAINTENANCE_FEE } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Loader2, Edit } from 'lucide-react';
+import { CalendarIcon, Loader2, ClipboardCheck } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 const paymentSchema = z.object({
@@ -69,6 +78,8 @@ export default function MemberPaymentsPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDescription, setSelectedDescription] = useState('Monthly Maintenance Fee');
+  const [paymentToUpdate, setPaymentToUpdate] = useState<Payment | null>(null);
+  const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | undefined>(new Date());
   
   const memberId = params.memberId as string;
   const member = members.find((m) => m.id === memberId);
@@ -84,7 +95,8 @@ export default function MemberPaymentsPage() {
     },
   });
 
-  const calculateTotalFee = (member: RegisteredMember) => {
+  const calculateTotalFee = (member: RegisteredMember | null | undefined) => {
+    if (!member) return 0;
     const subscribedServices = member.services || [];
     const servicesFee =
       subscribedServices?.reduce((total, serviceName) => {
@@ -116,9 +128,10 @@ export default function MemberPaymentsPage() {
      return <Section title="Member Not Found"><p>Could not find the specified member.</p></Section>
   }
   
-  const handleUpdateStatus = async (payment: Payment) => {
+  const handleUpdateStatus = async () => {
+    if (!paymentToUpdate || !selectedPaymentDate) return;
     try {
-      await updatePayment({ ...payment, status: 'Paid', paymentDate: format(new Date(), 'yyyy-MM-dd')});
+      await updatePayment({ ...paymentToUpdate, status: 'Paid', paymentDate: format(selectedPaymentDate, 'yyyy-MM-dd')});
       toast({
         title: 'Payment Updated',
         description: 'Payment status changed to Paid.',
@@ -129,6 +142,8 @@ export default function MemberPaymentsPage() {
         title: 'Update Failed',
         description: 'Could not update payment status.',
       })
+    } finally {
+      setPaymentToUpdate(null);
     }
   };
 
@@ -148,8 +163,7 @@ export default function MemberPaymentsPage() {
         title: 'Payment Added',
         description: `Payment of ${data.amount} has been logged for ${member.name}.`,
       });
-
-      // Reset form to its initial state
+      
       form.reset({
         amount: calculateTotalFee(member),
         date: new Date(),
@@ -331,7 +345,7 @@ export default function MemberPaymentsPage() {
               <CardTitle>Payment History</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
+               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
@@ -357,9 +371,37 @@ export default function MemberPaymentsPage() {
                           </TableCell>
                           <TableCell>
                             {payment.status === 'Due' && (
-                              <Button variant="outline" size="icon" onClick={() => handleUpdateStatus(payment)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                              <Dialog onOpenChange={(open) => !open && setPaymentToUpdate(null)}>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="icon" onClick={() => setPaymentToUpdate(payment)}>
+                                    <ClipboardCheck className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Mark as Paid</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="flex flex-col items-center gap-4">
+                                     <p>Select the date this payment was made.</p>
+                                     <Calendar
+                                        mode="single"
+                                        selected={selectedPaymentDate}
+                                        onSelect={setSelectedPaymentDate}
+                                        className="rounded-md border"
+                                      />
+                                  </div>
+                                  <DialogFooter>
+                                    <DialogClose asChild>
+                                      <Button type="button" variant="secondary">Cancel</Button>
+                                    </DialogClose>
+                                    <DialogClose asChild>
+                                      <Button onClick={handleUpdateStatus} disabled={!selectedPaymentDate}>
+                                        Mark as Paid
+                                      </Button>
+                                    </DialogClose>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
                             )}
                           </TableCell>
                         </TableRow>
