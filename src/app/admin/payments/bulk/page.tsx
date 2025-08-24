@@ -71,6 +71,8 @@ export default function BulkPaymentsPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDescription, setSelectedDescription] = useState('Monthly Maintenance Fee');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [nameFilter, setNameFilter] = useState('');
   
   const form = useForm<BulkPaymentFormValues>({
     resolver: zodResolver(bulkPaymentSchema),
@@ -88,9 +90,16 @@ export default function BulkPaymentsPage() {
     return new Map(members.map(m => [m.id, m.name]));
   }, [members]);
 
-  const recentPayments = useMemo(() => {
-    return [...payments].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [payments]);
+  const filteredRecentPayments = useMemo(() => {
+    return [...payments]
+      .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .filter(payment => {
+        const memberName = memberMap.get(payment.memberId)?.toLowerCase() || '';
+        const nameMatch = nameFilter ? memberName.includes(nameFilter.toLowerCase()) : true;
+        const statusMatch = statusFilter === 'all' || payment.status === statusFilter;
+        return nameMatch && statusMatch;
+      });
+  }, [payments, memberMap, nameFilter, statusFilter]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -396,6 +405,27 @@ export default function BulkPaymentsPage() {
             <CardDescription>A view of all recently logged payments for all members.</CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 flex flex-col gap-4 sm:flex-row">
+              <Input
+                placeholder="Filter by name..."
+                value={nameFilter}
+                onChange={(e) => setNameFilter(e.target.value)}
+                className="max-w-sm"
+              />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Paid">Paid</SelectItem>
+                  <SelectItem value="Due">Due</SelectItem>
+                </SelectContent>
+              </Select>
+               <Button variant="outline" onClick={() => { setNameFilter(''); setStatusFilter('all'); }}>
+                  Clear Filters
+              </Button>
+            </div>
             <Table>
                 <TableHeader>
                   <TableRow>
@@ -417,8 +447,8 @@ export default function BulkPaymentsPage() {
                           <TableCell><Skeleton className="ml-auto h-6 w-24" /></TableCell>
                         </TableRow>
                        ))
-                  ) : recentPayments.length > 0 ? (
-                    recentPayments.slice(0, 10).map((payment) => (
+                  ) : filteredRecentPayments.length > 0 ? (
+                    filteredRecentPayments.slice(0, 10).map((payment) => (
                         <TableRow key={payment.id}>
                           <TableCell>{memberMap.get(payment.memberId) || 'N/A'}</TableCell>
                           <TableCell>{format(parseISO(payment.date), 'PPP')}</TableCell>
@@ -436,7 +466,7 @@ export default function BulkPaymentsPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center">
-                        No payments found.
+                        No payments found for the selected filters.
                       </TableCell>
                     </TableRow>
                   )}
