@@ -39,6 +39,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
@@ -48,10 +57,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useMembers } from '@/context/MemberContext';
 import { facilities, BASE_MAINTENANCE_FEE } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, ClipboardCheck } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import type { Payment } from '@/lib/types';
 
 const bulkPaymentSchema = z.object({
   memberIds: z.array(z.string()).min(1, 'Please select at least one member.'),
@@ -67,12 +77,14 @@ type BulkPaymentFormValues = z.infer<typeof bulkPaymentSchema>;
 export default function BulkPaymentsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { members, payments, addBulkPayments, loading } = useMembers();
+  const { members, payments, addBulkPayments, updatePayment, loading } = useMembers();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDescription, setSelectedDescription] = useState('Monthly Maintenance Fee');
   const [statusFilter, setStatusFilter] = useState('all');
   const [nameFilter, setNameFilter] = useState('');
+  const [paymentToUpdate, setPaymentToUpdate] = useState<Payment | null>(null);
+  const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | undefined>(new Date());
   
   const form = useForm<BulkPaymentFormValues>({
     resolver: zodResolver(bulkPaymentSchema),
@@ -116,6 +128,25 @@ export default function BulkPaymentsPage() {
     const allRegularMemberIds = regularMembers.map(m => m.id);
     form.setValue('memberIds', checked ? allRegularMemberIds : []);
   }
+
+  const handleUpdateStatus = async () => {
+    if (!paymentToUpdate || !selectedPaymentDate) return;
+    try {
+      await updatePayment({ ...paymentToUpdate, status: 'Paid', paymentDate: format(selectedPaymentDate, 'yyyy-MM-dd')});
+      toast({
+        title: 'Payment Updated',
+        description: 'Payment status changed to Paid.',
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Update Failed',
+        description: 'Could not update payment status.',
+      })
+    } finally {
+      setPaymentToUpdate(null);
+    }
+  };
 
   const onSubmit = async (data: BulkPaymentFormValues) => {
     setIsSubmitting(true);
@@ -438,6 +469,7 @@ export default function BulkPaymentsPage() {
                     <TableHead>Description</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -449,6 +481,7 @@ export default function BulkPaymentsPage() {
                           <TableCell><Skeleton className="h-6 w-48" /></TableCell>
                           <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                           <TableCell><Skeleton className="ml-auto h-6 w-24" /></TableCell>
+                          <TableCell><Skeleton className="h-10 w-10" /></TableCell>
                         </TableRow>
                        ))
                   ) : filteredRecentPayments.length > 0 ? (
@@ -465,11 +498,46 @@ export default function BulkPaymentsPage() {
                           <TableCell className="text-right">
                             {formatCurrency(payment.amount)}
                           </TableCell>
+                           <TableCell>
+                            {payment.status === 'Due' && (
+                              <Dialog onOpenChange={(open) => !open && setPaymentToUpdate(null)}>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="icon" onClick={() => setPaymentToUpdate(payment)}>
+                                    <ClipboardCheck className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Mark as Paid</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="flex flex-col items-center gap-4">
+                                     <p>Select the date this payment was made.</p>
+                                     <Calendar
+                                        mode="single"
+                                        selected={selectedPaymentDate}
+                                        onSelect={setSelectedPaymentDate}
+                                        className="rounded-md border"
+                                      />
+                                  </div>
+                                  <DialogFooter>
+                                    <DialogClose asChild>
+                                      <Button type="button" variant="secondary">Cancel</Button>
+                                    </DialogClose>
+                                    <DialogClose asChild>
+                                      <Button onClick={handleUpdateStatus} disabled={!selectedPaymentDate}>
+                                        Mark as Paid
+                                      </Button>
+                                    </DialogClose>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </TableCell>
                         </TableRow>
                       ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center">
+                      <TableCell colSpan={6} className="text-center">
                         No payments found for the selected filters.
                       </TableCell>
                     </TableRow>
@@ -482,4 +550,3 @@ export default function BulkPaymentsPage() {
     </Section>
   );
 }
-
