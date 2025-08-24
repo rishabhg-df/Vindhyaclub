@@ -234,6 +234,7 @@ export default function MemberDashboardPage() {
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead>Comment</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
@@ -246,6 +247,7 @@ export default function MemberDashboardPage() {
                         {format(parseISO(payment.date), 'PPP')}
                       </TableCell>
                       <TableCell>{payment.description}</TableCell>
+                      <TableCell>{payment.comment}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -264,7 +266,7 @@ export default function MemberDashboardPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center">
+                    <TableCell colSpan={5} className="text-center">
                       No payment history found for the selected filters.
                     </TableCell>
                   </TableRow>

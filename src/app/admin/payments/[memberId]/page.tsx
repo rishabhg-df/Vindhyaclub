@@ -65,6 +65,7 @@ const paymentSchema = z.object({
   amount: z.coerce.number().min(1, 'Amount must be greater than 0.'),
   date: z.date({ required_error: 'Date is required.' }),
   description: z.string().min(1, 'Description is required.'),
+  comment: z.string().optional(),
   status: z.enum(['Paid', 'Due'], { required_error: 'Status is required.' }),
 });
 
@@ -124,6 +125,7 @@ export default function MemberPaymentsPage() {
       amount: 0,
       date: new Date(),
       description: 'Monthly Maintenance Fee',
+      comment: '',
       status: 'Paid',
     },
   });
@@ -187,6 +189,7 @@ export default function MemberPaymentsPage() {
         memberId: member.id,
         amount: data.amount,
         description: data.description,
+        comment: data.comment,
         status: data.status,
         date: format(data.date, 'yyyy-MM-dd'),
         paymentDate: data.status === 'Paid' ? format(new Date(), 'yyyy-MM-dd') : undefined,
@@ -201,6 +204,7 @@ export default function MemberPaymentsPage() {
         amount: calculateTotalFee(member),
         date: new Date(),
         description: 'Monthly Maintenance Fee',
+        comment: '',
         status: 'Paid',
       });
       setSelectedDescription('Monthly Maintenance Fee');
@@ -332,6 +336,20 @@ export default function MemberPaymentsPage() {
                     )}
                   />
 
+                   <FormField
+                      control={form.control}
+                      name="comment"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Comment (Optional)</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Add a comment..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                   <FormField
                     control={form.control}
                     name="status"
@@ -420,6 +438,7 @@ export default function MemberPaymentsPage() {
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Description</TableHead>
+                    <TableHead>Comment</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead>Actions</TableHead>
@@ -431,6 +450,7 @@ export default function MemberPaymentsPage() {
                         <TableRow key={payment.id}>
                           <TableCell>{format(parseISO(payment.date), 'PPP')}</TableCell>
                           <TableCell>{payment.description}</TableCell>
+                          <TableCell>{payment.comment}</TableCell>
                           <TableCell>
                             <Badge variant={payment.status === 'Paid' ? 'default' : 'destructive'}>
                               {payment.status}
@@ -478,7 +498,7 @@ export default function MemberPaymentsPage() {
                       ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center">
+                      <TableCell colSpan={6} className="text-center">
                         No payments found for the selected filters.
                       </TableCell>
                     </TableRow>

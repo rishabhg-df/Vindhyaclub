@@ -57,6 +57,7 @@ const bulkPaymentSchema = z.object({
   amount: z.coerce.number().min(1, 'Amount must be greater than 0.'),
   date: z.date({ required_error: 'Date is required.' }),
   description: z.string().min(1, 'Description is required.'),
+  comment: z.string().optional(),
   status: z.enum(['Paid', 'Due'], { required_error: 'Status is required.' }),
 });
 
@@ -77,6 +78,7 @@ export default function BulkPaymentsPage() {
       amount: BASE_MAINTENANCE_FEE,
       date: new Date(),
       description: 'Monthly Maintenance Fee',
+      comment: '',
       status: 'Due',
     },
   });
@@ -94,6 +96,7 @@ export default function BulkPaymentsPage() {
         paymentDetails: {
           amount: data.amount,
           description: data.description,
+          comment: data.comment,
           status: data.status,
           date: format(data.date, 'yyyy-MM-dd'),
           paymentDate: data.status === 'Paid' ? format(new Date(), 'yyyy-MM-dd') : undefined,
@@ -109,6 +112,7 @@ export default function BulkPaymentsPage() {
         amount: BASE_MAINTENANCE_FEE,
         date: new Date(),
         description: 'Monthly Maintenance Fee',
+        comment: '',
         status: 'Due',
       });
       
@@ -234,6 +238,20 @@ export default function BulkPaymentsPage() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                      control={form.control}
+                      name="comment"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Comment (Optional)</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Add a comment for all selected members..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                   <FormField
                     control={form.control}

@@ -264,6 +264,10 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         date: Timestamp.fromDate(parseISO(payment.date)),
         createdAt: serverTimestamp(),
       };
+      
+      if(payment.comment) {
+        paymentDataWithTimestamp.comment = payment.comment;
+      }
 
       if (payment.paymentDate) {
         paymentDataWithTimestamp.paymentDate = Timestamp.fromDate(
@@ -295,6 +299,10 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         createdAt: serverTimestamp(),
       };
       
+      if(paymentDetails.comment) {
+        paymentDataWithTimestamp.comment = paymentDetails.comment;
+      }
+
       if (paymentDetails.paymentDate) {
          paymentDataWithTimestamp.paymentDate = Timestamp.fromDate(parseISO(paymentDetails.paymentDate));
       } else {
@@ -322,6 +330,11 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         ...paymentData,
         date: Timestamp.fromDate(parseISO(paymentData.date)),
       };
+      
+      if(paymentData.comment) {
+        dataToUpdate.comment = paymentData.comment;
+      }
+
       if (paymentData.paymentDate) {
         dataToUpdate.paymentDate = Timestamp.fromDate(
           parseISO(paymentData.paymentDate)

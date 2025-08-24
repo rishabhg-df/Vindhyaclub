@@ -48,6 +48,7 @@ export type Payment = {
   date: string; // The date the payment was logged or became due
   paymentDate?: string; // The date it was actually paid, if different
   description: string;
+  comment?: string;
   status: 'Paid' | 'Due';
   createdAt: any;
 };
