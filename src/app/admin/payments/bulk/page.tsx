@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,8 +49,9 @@ import { useMembers } from '@/context/MemberContext';
 import { facilities, BASE_MAINTENANCE_FEE } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 const bulkPaymentSchema = z.object({
   memberIds: z.array(z.string()).min(1, 'Please select at least one member.'),
@@ -66,7 +67,7 @@ type BulkPaymentFormValues = z.infer<typeof bulkPaymentSchema>;
 export default function BulkPaymentsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { members, addBulkPayments, loading } = useMembers();
+  const { members, payments, addBulkPayments, loading } = useMembers();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDescription, setSelectedDescription] = useState('Monthly Maintenance Fee');
@@ -82,6 +83,21 @@ export default function BulkPaymentsPage() {
       status: 'Due',
     },
   });
+  
+  const memberMap = useMemo(() => {
+    return new Map(members.map(m => [m.id, m.name]));
+  }, [members]);
+
+  const recentPayments = useMemo(() => {
+    return [...payments].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [payments]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     const allMemberIds = members.map(m => m.id);
@@ -371,6 +387,63 @@ export default function BulkPaymentsPage() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+       <div className="mx-auto mt-8 max-w-6xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Payments</CardTitle>
+            <CardDescription>A view of all recently logged payments for all members.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Member Name</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                     [...Array(5)].map((_, i) => (
+                        <TableRow key={i}>
+                          <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                          <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                          <TableCell><Skeleton className="h-6 w-48" /></TableCell>
+                          <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                          <TableCell><Skeleton className="ml-auto h-6 w-24" /></TableCell>
+                        </TableRow>
+                       ))
+                  ) : recentPayments.length > 0 ? (
+                    recentPayments.slice(0, 10).map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell>{memberMap.get(payment.memberId) || 'N/A'}</TableCell>
+                          <TableCell>{format(parseISO(payment.date), 'PPP')}</TableCell>
+                          <TableCell>{payment.description}</TableCell>
+                          <TableCell>
+                            <Badge variant={payment.status === 'Paid' ? 'default' : 'destructive'}>
+                              {payment.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(payment.amount)}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center">
+                        No payments found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+          </CardContent>
+        </Card>
       </div>
     </Section>
   );
