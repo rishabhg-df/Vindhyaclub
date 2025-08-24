@@ -188,7 +188,7 @@ export default function EditMemberPage() {
     setGeneratedOtp(newOtp);
 
     const authkey = '0a3baf54b7279130';
-    const company = 'EmployeeManagement';
+    const company = 'Vindhya Club';
     const sid = '9234';
     
     const url = `https://api.authkey.io/request?authkey=${authkey}&mobile=${phoneNumber}&country_code=91&sid=${sid}&company=${company}&otp=${newOtp}`;
