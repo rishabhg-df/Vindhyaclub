@@ -32,12 +32,14 @@ import { PlusCircle, Edit, Trash2, Receipt } from 'lucide-react';
 import { useMembers } from '@/context/MemberContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
+import { Input } from '@/components/ui/input';
 
 export default function ManageMembersPage() {
   const { members, deleteRegisteredMember, loading } = useMembers();
   const [memberToDelete, setMemberToDelete] = useState<RegisteredMember | null>(
     null
   );
+  const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -51,11 +53,22 @@ export default function ManageMembersPage() {
     });
     setMemberToDelete(null);
   };
+  
+  const filteredMembers = members.filter(member => 
+    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.phone.includes(searchTerm)
+  );
 
   return (
     <Section title="Registered Members">
-      <div className="mb-6 flex justify-end">
-        <Button asChild>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <Input
+          placeholder="Filter by name or phone..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Button asChild className="self-end md:self-auto">
           <Link href="/admin/members/edit/new">
             <PlusCircle />
             Add New Member
@@ -64,7 +77,7 @@ export default function ManageMembersPage() {
       </div>
 
       {/* Mobile View */}
-      <div className="md:hidden">
+      <div className="mt-6 md:hidden">
         {loading
           ? [...Array(5)].map((_, i) => (
               <div
@@ -85,7 +98,7 @@ export default function ManageMembersPage() {
                 </div>
               </div>
             ))
-          : members.map((member) => (
+          : filteredMembers.map((member) => (
               <div
                 key={member.id}
                 className="mb-4 rounded-lg border bg-card p-4 text-card-foreground"
@@ -168,7 +181,7 @@ export default function ManageMembersPage() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden overflow-hidden rounded-lg border md:block">
+      <div className="mt-6 hidden overflow-hidden rounded-lg border md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -208,7 +221,7 @@ export default function ManageMembersPage() {
                     </TableCell>
                   </TableRow>
                 ))
-              : members.map((member) => (
+              : filteredMembers.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>
                       <Image
