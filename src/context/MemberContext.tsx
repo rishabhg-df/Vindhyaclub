@@ -21,11 +21,17 @@ import {
   where,
   addDoc,
   Timestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import type { RegisteredMember, Payment } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { useAdmin } from './AdminContext';
 import { format, parseISO } from 'date-fns';
+
+type BulkPaymentPayload = {
+  memberIds: string[];
+  paymentDetails: Omit<Payment, 'id' | 'createdAt' | 'memberId'>;
+};
 
 type MemberContextType = {
   members: RegisteredMember[];
@@ -39,6 +45,7 @@ type MemberContextType = {
   getPaymentsByMember: (memberId: string) => Payment[];
   addPayment: (payment: Omit<Payment, 'id' | 'createdAt'>) => Promise<void>;
   updatePayment: (updatedPayment: Payment) => Promise<void>;
+  addBulkPayments: (payload: BulkPaymentPayload) => Promise<void>;
   loading: boolean;
 };
 
@@ -258,16 +265,13 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         createdAt: serverTimestamp(),
       };
 
-      // Only add paymentDate if it exists (i.e., for 'Paid' status)
       if (payment.paymentDate) {
         paymentDataWithTimestamp.paymentDate = Timestamp.fromDate(
           parseISO(payment.paymentDate)
         );
       } else {
-        // Ensure undefined fields are not sent to Firestore
         delete paymentDataWithTimestamp.paymentDate;
       }
-
 
       await addDoc(collection(db, 'payments'), paymentDataWithTimestamp);
       await fetchPayments();
@@ -276,6 +280,39 @@ export function MemberProvider({ children }: { children: ReactNode }) {
       throw new Error('Failed to add payment.');
     }
   };
+  
+  const addBulkPayments = async (payload: BulkPaymentPayload) => {
+    const { memberIds, paymentDetails } = payload;
+    const batch = writeBatch(db);
+
+    memberIds.forEach(memberId => {
+      const paymentRef = doc(collection(db, 'payments'));
+      
+      const paymentDataWithTimestamp: any = {
+        ...paymentDetails,
+        memberId,
+        date: Timestamp.fromDate(parseISO(paymentDetails.date)),
+        createdAt: serverTimestamp(),
+      };
+      
+      if (paymentDetails.paymentDate) {
+         paymentDataWithTimestamp.paymentDate = Timestamp.fromDate(parseISO(paymentDetails.paymentDate));
+      } else {
+         delete paymentDataWithTimestamp.paymentDate;
+      }
+
+      batch.set(paymentRef, paymentDataWithTimestamp);
+    });
+
+    try {
+      await batch.commit();
+      await fetchPayments();
+    } catch (error) {
+       console.error('Error adding bulk payments:', error);
+       throw new Error('Failed to add bulk payments.');
+    }
+  }
+
 
   const updatePayment = async (updatedPayment: Payment) => {
     try {
@@ -308,6 +345,7 @@ export function MemberProvider({ children }: { children: ReactNode }) {
         payments,
         getPaymentsByMember,
         addPayment,
+        addBulkPayments,
         updatePayment,
         loading,
       }}

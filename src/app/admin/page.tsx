@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Section } from '@/components/shared/Section';
-import { Users, Calendar, UserCheck, Briefcase, BarChart2 } from 'lucide-react';
+import { Users, Calendar, UserCheck, Briefcase, BarChart2, DollarSign } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const dashboardLinks = [
@@ -34,6 +34,13 @@ export default function AdminDashboardPage() {
       title: 'Manage Expenditures',
       description: 'Log and track all club expenditures and operational costs.',
       label: 'Go to Expenditures',
+    },
+    {
+      href: '/admin/payments/bulk',
+      icon: DollarSign,
+      title: 'Bulk Payment Entry',
+      description: 'Add a payment record for multiple members at once.',
+      label: 'Go to Bulk Payments',
     },
     {
       href: '/admin/reports',
