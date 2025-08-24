@@ -26,6 +26,7 @@ export default function ReportsPage() {
     netProfitLoss,
     expenditureByCategory,
     revenueByMember,
+    dueRevenueByMember,
   } = useMemo(() => {
     const totalRevenue = payments.reduce((acc, payment) => {
       return payment.status === 'Paid' ? acc + payment.amount : acc;
@@ -52,6 +53,19 @@ export default function ReportsPage() {
     const revenueByMember = revenueByMemberData
       .filter(m => m.revenue > 0)
       .sort((a, b) => b.revenue - a.revenue);
+      
+    const dueRevenueByMemberData = members.map(member => {
+        const memberPayments = payments.filter(p => p.memberId === member.id && p.status === 'Due');
+        const totalMemberDue = memberPayments.reduce((sum, p) => sum + p.amount, 0);
+        return {
+            name: member.name,
+            due: totalMemberDue,
+        };
+    });
+
+    const dueRevenueByMember = dueRevenueByMemberData
+      .filter(m => m.due > 0)
+      .sort((a, b) => b.due - a.due);
 
     return {
       totalRevenue,
@@ -59,6 +73,7 @@ export default function ReportsPage() {
       netProfitLoss,
       expenditureByCategory: Object.entries(expenditureByCategory).map(([name, amount]) => ({ name, amount })),
       revenueByMember,
+      dueRevenueByMember,
     };
   }, [members, payments, expenditures]);
 
@@ -72,6 +87,7 @@ export default function ReportsPage() {
   const chartConfig = {
     amount: { label: 'Amount (INR)', color: 'hsl(var(--primary))' },
     revenue: { label: 'Revenue (INR)', color: 'hsl(var(--chart-2))' },
+    due: { label: 'Due (INR)', color: 'hsl(var(--destructive))' },
   };
 
   if (loading) {
@@ -153,6 +169,25 @@ export default function ReportsPage() {
                 <Tooltip content={<ChartTooltipContent />} />
                 <Legend content={<ChartLegendContent />} />
                 <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="mt-8 grid grid-cols-1">
+         <Card>
+          <CardHeader>
+            <CardTitle>Revenue by Member (Due)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+              <BarChart data={dueRevenueByMember} layout="vertical" margin={{ left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" dataKey="due" tickFormatter={formatCurrency} />
+                <YAxis type="category" dataKey="name" width={100} />
+                <Tooltip content={<ChartTooltipContent />} />
+                <Legend content={<ChartLegendContent />} />
+                <Bar dataKey="due" fill="var(--color-due)" radius={4} />
               </BarChart>
             </ChartContainer>
           </CardContent>
