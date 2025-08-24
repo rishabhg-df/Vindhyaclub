@@ -90,6 +90,10 @@ export default function BulkPaymentsPage() {
     return new Map(members.map(m => [m.id, m.name]));
   }, [members]);
 
+  const regularMembers = useMemo(() => {
+    return members.filter(m => m.role !== 'admin');
+  }, [members]);
+
   const filteredRecentPayments = useMemo(() => {
     return [...payments]
       .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -109,8 +113,8 @@ export default function BulkPaymentsPage() {
   };
 
   const handleSelectAll = (checked: boolean) => {
-    const allMemberIds = members.map(m => m.id);
-    form.setValue('memberIds', checked ? allMemberIds : []);
+    const allRegularMemberIds = regularMembers.map(m => m.id);
+    form.setValue('memberIds', checked ? allRegularMemberIds : []);
   }
 
   const onSubmit = async (data: BulkPaymentFormValues) => {
@@ -358,7 +362,7 @@ export default function BulkPaymentsPage() {
                         name="memberIds"
                         render={({ field }) => (
                           <>
-                            {members.map((member) => (
+                            {regularMembers.map((member) => (
                               <TableRow key={member.id}
                                 selected={field.value?.includes(member.id)}
                                 onClick={() => {
@@ -478,3 +482,4 @@ export default function BulkPaymentsPage() {
     </Section>
   );
 }
+
